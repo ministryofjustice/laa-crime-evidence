@@ -1,0 +1,28 @@
+server:
+  port: 8088
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: DEBUG
+
+management:
+  server:
+    port: 8097
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+springdoc:
+  packagesToScan: uk.gov.justice.laa.crime.evidence
+  show-actuator: true
+  api-docs:
+    path: /crime-evidence
+    enabled: true
+
+  swagger-ui:
+    path: /open-api/docs.html
+    enabled: true
+    operationsSorter: method
