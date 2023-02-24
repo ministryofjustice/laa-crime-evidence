@@ -5,8 +5,11 @@ plugins {
 }
 
 group = 'uk.gov.justice.laa.crime.evidence'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
