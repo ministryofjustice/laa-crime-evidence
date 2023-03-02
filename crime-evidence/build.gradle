@@ -6,11 +6,21 @@ plugins {
 
 group = 'uk.gov.justice.laa.crime.evidence'
 
+def versions = [
+        lombokVersion                      : '1.18.24',
+        commonsLang3Version                : '3.10'
+]
+
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
 repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
@@ -19,6 +29,15 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+    implementation 'org.projectlombok:lombok:1.18.22'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: versions.commonsLang3Version
+    
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombokVersion
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombokVersion
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
