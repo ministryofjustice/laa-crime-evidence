@@ -1,6 +1,5 @@
 package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,7 +9,7 @@ class EvidenceFeeLevelTest {
 
     @Test
     void givenABlankString_whenGetFromIsInvoked_thenNullIsReturned() {
-        AssertionsForClassTypes.assertThat(EvidenceFeeLevel.getFrom(null)).isNull();
+        assertThat(EvidenceFeeLevel.getFrom(null)).isNull();
     }
 
     @Test

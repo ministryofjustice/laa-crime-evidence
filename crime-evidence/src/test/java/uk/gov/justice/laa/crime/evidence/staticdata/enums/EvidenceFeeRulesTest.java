@@ -1,17 +1,16 @@
 package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
-import org.assertj.core.api.AssertionsForClassTypes;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class EvidenceFeeRulesTest {
 
     @Test
     void givenABlankString_whenGetFromIsInvoked_thenNullIsReturned() {
-        AssertionsForClassTypes.assertThat(EvidenceFeeLevel.getFrom(null)).isNull();
+        assertThat(EvidenceFeeRules.getFrom(null)).isNull();
     }
 
     @Test
@@ -26,13 +25,13 @@ class EvidenceFeeRulesTest {
         EvidenceFeeRules result = EvidenceFeeRules.getFrom(
                 new EvidenceFeeRulesDTO("SELF-CASH", "Y",
                         "Y", 0, 0));
-        Assertions.assertEquals(EvidenceFeeRules.SELF_CASH, result);
+        assertThat(result).isEqualTo(EvidenceFeeRules.SELF_CASH);
     }
 
     @Test
     void testValues() {
         EvidenceFeeRules[] result = EvidenceFeeRules.values();
-        Assertions.assertArrayEquals(new EvidenceFeeRules[]{
+        assertThat(result).isEqualTo(new EvidenceFeeRules[]{
                 EvidenceFeeRules.SELF_CASH,
                 EvidenceFeeRules.SELF_SOT,
                 EvidenceFeeRules.SELF,
@@ -43,15 +42,14 @@ class EvidenceFeeRulesTest {
                 EvidenceFeeRules.EMPLOYED_CASH_LEVEL2,
                 EvidenceFeeRules.EMPLOYED_CASH_LEVEL1,
                 EvidenceFeeRules.NONPASS_LEVEL2,
-                EvidenceFeeRules.NONPASS_LEVEL1,
-
-        }, result);
+                EvidenceFeeRules.NONPASS_LEVEL1
+        });
     }
 
     @Test
     void testValueOf() {
         EvidenceFeeRules result = EvidenceFeeRules.valueOf("SELF_CASH");
-        Assertions.assertEquals(EvidenceFeeRules.SELF_CASH, result);
+        assertThat(result).isEqualTo(EvidenceFeeRules.SELF_CASH);
     }
 }
 
