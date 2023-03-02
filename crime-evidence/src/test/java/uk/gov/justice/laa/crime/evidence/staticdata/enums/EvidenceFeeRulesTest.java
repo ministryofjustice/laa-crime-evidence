@@ -1,10 +1,25 @@
 package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
 class EvidenceFeeRulesTest {
+
+    @Test
+    void givenABlankString_whenGetFromIsInvoked_thenNullIsReturned() {
+        AssertionsForClassTypes.assertThat(EvidenceFeeLevel.getFrom(null)).isNull();
+    }
+
+    @Test
+    void valueOfCurrentStatusFromString_nullParameter_ReturnsNull() {
+        assertThatThrownBy(
+                () -> EvidenceFeeLevel.getFrom("MOCK_RESULT_STRING")
+        ).isInstanceOf(IllegalArgumentException.class);
+    }
 
     @Test
     void testGetFrom() {
@@ -36,7 +51,7 @@ class EvidenceFeeRulesTest {
 
     @Test
     void testValueOf() {
-        EvidenceFeeRules result = EvidenceFeeRules.valueOf("LEVEL1");
+        EvidenceFeeRules result = EvidenceFeeRules.valueOf("SELF_CASH");
         Assertions.assertEquals(EvidenceFeeRules.SELF_CASH, result);
     }
 }
