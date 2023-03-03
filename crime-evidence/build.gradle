@@ -59,13 +59,10 @@ dependencies {
 
     implementation group: 'org.pitest', name: 'pitest', version: versions.pitest
 
-    // Test Only
-    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
     testImplementation group: 'com.h2database', name: 'h2', version: versions.h2DBVersion
     testImplementation group: 'org.mockito', name: 'mockito-inline', version: versions.mockitoVersion
-    testImplementation group: 'junit', name: 'junit', version: versions.junitVersion
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junitVersion
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junitVersion
     testImplementation group: 'org.hamcrest', name: 'hamcrest-all', version: versions.harmcrestVersion
     testImplementation group: 'org.testng', name: 'testng', version: versions.testngVersion
     testImplementation group: 'org.easytesting', name: 'fest-assert', version: versions.festVersion
