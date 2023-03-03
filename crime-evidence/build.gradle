@@ -6,11 +6,31 @@ plugins {
 
 group = 'uk.gov.justice.laa.crime.evidence'
 
+def versions = [
+        lombokVersion                      : '1.18.24',
+        commonsLang3Version                : '3.10',
+
+        h2DBVersion                        : '1.4.200',
+        mockitoVersion                     : '3.3.3',
+        junitVersion                       : '4.13',
+        harmcrestVersion                   : '1.3',
+        testngVersion                      : '6.10',
+        festVersion                        : '1.4',
+        reactorTestVersion                 : '3.4.11',
+        okhttpVersion                      : '4.9.3',
+        mockwebserverVersion               : '4.9.3'
+]
+
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
 repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
@@ -19,7 +39,29 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+    implementation 'org.projectlombok:lombok:1.18.22'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: versions.commonsLang3Version
+
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombokVersion
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombokVersion
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    // Test Only
+    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation group: 'com.h2database', name: 'h2', version: versions.h2DBVersion
+    testImplementation group: 'org.mockito', name: 'mockito-inline', version: versions.mockitoVersion
+    testImplementation group: 'junit', name: 'junit', version: versions.junitVersion
+    testImplementation group: 'org.hamcrest', name: 'hamcrest-all', version: versions.harmcrestVersion
+    testImplementation group: 'org.testng', name: 'testng', version: versions.testngVersion
+    testImplementation group: 'org.easytesting', name: 'fest-assert', version: versions.festVersion
+    testImplementation group: 'io.projectreactor', name: 'reactor-test', version: versions.reactorTestVersion
+    testImplementation group: 'com.squareup.okhttp3', name: 'okhttp', version: versions.okhttpVersion
+    testImplementation group: 'com.squareup.okhttp3', name: 'mockwebserver', version: versions.mockwebserverVersion
+    testImplementation group: 'org.springframework.security', name: 'spring-security-test'
 }
 
 tasks.named('test') {
