@@ -1,5 +1,5 @@
 server:
-  port: 8088
+  port: 8089
 
 logging:
   level:
@@ -9,7 +9,7 @@ logging:
 
 management:
   server:
-    port: 8097
+    port: 8099
   endpoints:
     web:
       exposure:
@@ -26,3 +26,6 @@ springdoc:
     path: /open-api/docs.html
     enabled: true
     operationsSorter: method
+
+
+

@@ -54,13 +54,13 @@ spec:
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
               {{- end }}
-          - path: { { $.Values.actuator.health.path } }
-              pathType: "Exact"
-              backend:
-                service:
-                  name: { { $fullName } }
-                  port:
-                    number: { { $.Values.actuator.port } }
+          - path: {{ $.Values.actuator.health.path }}
+            pathType: "Exact"
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $.Values.actuator.port }}
           {{- end }}
     {{- end }}
-{{- end }}
+  {{- end }}

@@ -2,7 +2,6 @@ package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +30,6 @@ public enum EvidenceFeeRules {
     NONPASS_LEVEL1("NONPASS", "Y", "Y", 5, null, EvidenceFeeLevel.LEVEL1);
 
 
-    @NotNull
     @JsonPropertyDescription("Specifies the Evidence Fee Rules")
     private final String emstCode;
     private final String allIncomeEvidenceReceived;

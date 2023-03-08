@@ -17,7 +17,7 @@ env:
   - name: MAAT_API_OAUTH_CLIENT_ID
     value: {{ .Values.maatApi.clientId }}
   - name: MAAT_API_OAUTH_CLIENT_SECRET
-    value: {{ .Values.maatApi.clientSecret }}          
+    value: {{ .Values.maatApi.clientSecret }}
   - name: DATASOURCE_HOST_PORT
     valueFrom:
       secretKeyRef:

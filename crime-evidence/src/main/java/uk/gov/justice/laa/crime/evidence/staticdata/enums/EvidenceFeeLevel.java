@@ -2,7 +2,6 @@ package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +18,6 @@ public enum EvidenceFeeLevel {
     LEVEL1("LEVEL1", "Full Fee"),
     LEVEL2("LEVEL2", "Half Fee");
 
-    @NotNull
     @JsonPropertyDescription("Specifies the Evidence Fee Levels")
     private final String feeLevel;
     private final String description;
