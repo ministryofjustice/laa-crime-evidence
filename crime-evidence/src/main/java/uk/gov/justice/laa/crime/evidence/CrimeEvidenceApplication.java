@@ -8,12 +8,10 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-@EnableAspectJAutoProxy(proxyTargetClass=true)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 @Slf4j
 public class CrimeEvidenceApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(CrimeEvidenceApplication.class, args);
     }
-
 }
