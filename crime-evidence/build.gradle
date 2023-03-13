@@ -16,7 +16,7 @@ jacoco {
 
 def versions = [
         sentryVersion                      : '6.15.0',
-        springdocVersion                   : '1.6.14',
+        springdocVersion                   : '1.6.15',
         mockitoVersion                     : '3.3.3',
         junitVersion                       : '5.9.1',
         harmcrestVersion                   : '1.3',
