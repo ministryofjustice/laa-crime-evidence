@@ -157,7 +157,7 @@ We want to make sure that the Mutation Coverage for new classes are covered prop
 
 Gradle plugin that converts json schema files into POJOs (Plain Old Java Objects). See [Extended jsonschema2pojo Gradle plugin](https://github.com/jsonschema2dataclass/js2d-gradle).
 
-The generated POJO files can be found in crime-means-assessment/build/generated/sources/js2d, after each build, or by running the following command:
+The generated POJO files can be found in crime-evidence/build/generated/sources/js2d, after each build, or by running the following command:
 
 ```shell
 ./gradlew clean generateJsonSchema2DataClass
