@@ -24,7 +24,7 @@ class EvidenceFeeRulesTest {
     void testGetFrom() {
         EvidenceFeeRules result = EvidenceFeeRules.getFrom(
                 new EvidenceFeeRulesDTO("SELF-CASH", "Y",
-                        "Y", 0, 0));
+                        "Y", Long.valueOf(0), Long.valueOf(0)));
         assertThat(result).isEqualTo(EvidenceFeeRules.SELF_CASH);
     }
 

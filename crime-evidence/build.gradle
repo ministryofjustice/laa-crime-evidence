@@ -30,7 +30,8 @@ def versions = [
         commonsLang3Version                : '3.10',
         lombokVersion                      : '1.18.24',
         postgresqlVersion                  : '42.3.3',
-        xRayVersion                        : '2.11.2'
+        xRayVersion                        : '2.11.2',
+        springauthserverVersion            : '0.2.2'
 ]
 dependencyManagement {
     dependencies {
@@ -70,6 +71,10 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
 
+    implementation group: 'org.springframework.security', name: 'spring-security-oauth2-jose'
+    implementation group: 'org.springframework.security', name: 'spring-security-cas'
+    implementation group: 'org.springframework.security', name: 'spring-security-oauth2-authorization-server', version: versions.springauthserverVersion
+
     implementation group: 'org.springframework', name: 'spring-jms'
     implementation group: 'io.projectreactor.netty', name: 'reactor-netty'
 
@@ -91,12 +96,16 @@ dependencies {
     implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-slf4j', version: versions.xRayVersion
     implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-spring', version: versions.xRayVersion
 
+    implementation group: 'io.sentry', name: 'sentry-spring-boot-starter'
+    implementation group: 'io.sentry', name: 'sentry-logback'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junitVersion
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junitVersion
     testImplementation "com.h2database:h2"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.security:spring-security-test"
     testImplementation group: 'org.mockito', name: 'mockito-inline', version: versions.mockitoVersion
     testImplementation group: 'org.hamcrest', name: 'hamcrest-all', version: versions.harmcrestVersion
     testImplementation group: 'org.testng', name: 'testng', version: versions.testngVersion
@@ -151,4 +160,17 @@ sonarqube {
         property "sonar.pitest.mode", "reuseReport"
         property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     }
+}
+
+
+
+jsonSchema2Pojo {
+    source.setFrom files("${project.rootDir}/src/main/resources/schemas")
+    targetPackage = 'uk.gov.justice.laa.crime.evidence.model.common'
+    generateBuilders = true
+    useInnerClassBuilders = true
+    includeJsr303Annotations = true
+    useBigDecimals = true
+    includeDynamicBuilders = true
+    dateTimeType = "java.time.LocalDateTime"
 }

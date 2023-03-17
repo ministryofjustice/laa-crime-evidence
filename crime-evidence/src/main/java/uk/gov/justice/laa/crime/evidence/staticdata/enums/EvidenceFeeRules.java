@@ -43,8 +43,7 @@ public enum EvidenceFeeRules {
 
         return Stream.of(EvidenceFeeRules.values())
                 .filter(f -> isEquals(f, evidenceFeeRulesDTO))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("EvidenceFeeRules with value: %s does not exist.", evidenceFeeRulesDTO)));
+                .findFirst().orElse(null);
     }
 
     private static boolean validateEvidenceFeeRulesDTO(EvidenceFeeRulesDTO evidenceFeeRulesDTO) {
