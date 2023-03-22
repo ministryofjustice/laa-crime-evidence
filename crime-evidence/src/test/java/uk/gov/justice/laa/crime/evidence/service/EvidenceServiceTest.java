@@ -75,6 +75,15 @@ class EvidenceServiceTest {
     }
 
     @Test
+    void givenCommittedMagCourtOutcome_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
+        CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
+        requestDTO.setMagCourtOutcome("COMMITTED");
+        ApiCalculateEvidenceFeeResponse response = evidenceService.calculateEvidenceFee(requestDTO);
+
+        assertThat(response.getEvidenceFee()).isNull();
+    }
+
+    @Test
     void givenSentForTrialAndEvidenceFeeLevelIsNull_WhenIsCalcRequired_TrueIsReturned() {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
         assertThat(evidenceService.isCalcRequired(requestDTO)).isTrue();
