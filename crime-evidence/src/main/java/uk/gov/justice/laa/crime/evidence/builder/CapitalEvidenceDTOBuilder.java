@@ -13,12 +13,8 @@ import java.util.List;
 public class CapitalEvidenceDTOBuilder {
 
     public static List<CapitalEvidenceDTO> build(final ApiCalculateEvidenceFeeRequest request) {
-        return request.getCapitalEvidence().stream().map(x -> {
-            CapitalEvidenceDTO.CapitalEvidenceDTOBuilder builder = CapitalEvidenceDTO.builder()
-                    .evidenceType(x.getEvidenceType())
-                    .dateReceived(x.getDateReceived());
-            return builder.build();
-        }).toList();
-
+        return request.getCapitalEvidence().stream().map(x -> CapitalEvidenceDTO.builder()
+                .evidenceType(x.getEvidenceType())
+                .dateReceived(x.getDateReceived()).build()).toList();
     }
 }

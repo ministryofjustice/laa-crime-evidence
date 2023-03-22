@@ -37,7 +37,6 @@ public class ExchangeFilterUtils {
         };
     }
 
-
     public static ExchangeFilterFunction logResponse() {
         return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
             log.info("Response status: {}", clientResponse.statusCode());

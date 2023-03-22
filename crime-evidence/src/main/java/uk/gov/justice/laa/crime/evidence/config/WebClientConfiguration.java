@@ -44,5 +44,4 @@ public class WebClientConfiguration {
     public WebClient maatApiWebClient(WebClient.Builder builder) {
         return builder.baseUrl(configuration.getMaatApi().getBaseUrl()).build();
     }
-
 }

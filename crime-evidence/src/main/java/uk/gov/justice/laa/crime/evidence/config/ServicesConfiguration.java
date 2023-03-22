@@ -38,7 +38,5 @@ public class ServicesConfiguration {
             @NotNull
             private String repOrderCapitalUrl;
         }
-
     }
-
 }

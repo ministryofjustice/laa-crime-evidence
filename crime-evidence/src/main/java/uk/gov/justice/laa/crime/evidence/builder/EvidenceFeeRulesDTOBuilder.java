@@ -15,12 +15,11 @@ public class EvidenceFeeRulesDTOBuilder {
                                             Long capitalEvidenceItemsLower,
                                             Long capitalEvidenceItemsUpper
     ) {
-        EvidenceFeeRulesDTO.EvidenceFeeRulesDTOBuilder builder = EvidenceFeeRulesDTO.builder()
+        return EvidenceFeeRulesDTO.builder()
                 .emstCode(emstCode)
                 .allIncomeEvidenceReceived(allIncomeEvidenceReceived)
                 .allCapitalEvidenceReceived(allCapitalEvidenceReceived)
                 .capitalEvidenceItemsLower(capitalEvidenceItemsLower)
-                .capitalEvidenceItemsUpper(capitalEvidenceItemsUpper);
-        return builder.build();
+                .capitalEvidenceItemsUpper(capitalEvidenceItemsUpper).build();
     }
 }

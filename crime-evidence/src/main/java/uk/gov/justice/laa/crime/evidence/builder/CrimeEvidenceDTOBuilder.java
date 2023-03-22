@@ -11,7 +11,7 @@ import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeReq
 public class CrimeEvidenceDTOBuilder {
 
     public static CrimeEvidenceDTO build(final ApiCalculateEvidenceFeeRequest request) {
-        CrimeEvidenceDTO.CrimeEvidenceDTOBuilder builder = CrimeEvidenceDTO.builder()
+        return CrimeEvidenceDTO.builder()
                 .laaTransactionId(request.getLaaTransactionId())
                 .repId(request.getRepId())
                 .magCourtOutcome(request.getMagCourtOutcome())
@@ -19,7 +19,6 @@ public class CrimeEvidenceDTOBuilder {
                 .capitalEvidence(CapitalEvidenceDTOBuilder.build(request))
                 .incomeEvidenceReceivedDate(request.getIncomeEvidenceReceivedDate())
                 .capitalEvidenceReceivedDate(request.getCapitalEvidenceReceivedDate())
-                .emstCode(request.getEmstCode());
-        return builder.build();
+                .emstCode(request.getEmstCode()).build();
     }
 }

@@ -14,6 +14,5 @@
       "format": "date-time"
     }
   },
-  "additionalProperties": false,
-  "required": ["dateReceived"]
+  "additionalProperties": false
 }

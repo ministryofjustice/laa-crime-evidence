@@ -1,6 +1,5 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,9 +25,7 @@ public class EvidenceService {
         Long capEvidenceCount = null;
         long capEvidenceOutstandingCount = 0;
 
-        if (crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.SENT_FOR_TRIAL)
-                || crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.COMMITTED_FOR_TRIAL) &&
-                (crimeEvidenceDTO.getEvidenceFee() != null && crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null)) {
+        if (isCalcRequired(crimeEvidenceDTO)) {
 
             if (crimeEvidenceDTO.getCapitalEvidence() != null) {
                 capEvidenceCount = crimeEvidenceDTO.getCapitalEvidence().stream().filter(f -> f.getDateReceived() != null).count();
@@ -57,12 +54,19 @@ public class EvidenceService {
             EvidenceFeeRules evidenceFeeRules = EvidenceFeeRules.getFrom(evidenceFeeRulesDTO);
             if (evidenceFeeRules != null) {
                 EvidenceFeeLevel evidenceFeeLevel = EvidenceFeeLevel.getFrom(evidenceFeeRules.getEvidenceFeeLevel().toString());
-                apiProcessRepOrderResponse
-                        .withEvidenceFee(new ApiEvidenceFee()
-                                .withFeeLevel(evidenceFeeLevel.getFeeLevel())
-                                .withDescription(evidenceFeeLevel.getDescription()));
+                if (evidenceFeeLevel != null) {
+                    apiProcessRepOrderResponse.withEvidenceFee(new ApiEvidenceFee()
+                            .withFeeLevel(evidenceFeeLevel.getFeeLevel())
+                            .withDescription(evidenceFeeLevel.getDescription()));
+                }
             }
         }
         return apiProcessRepOrderResponse;
+    }
+
+    protected boolean isCalcRequired(CrimeEvidenceDTO crimeEvidenceDTO) {
+        return (crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.SENT_FOR_TRIAL)
+                || crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.COMMITTED_FOR_TRIAL)) &&
+                (crimeEvidenceDTO.getEvidenceFee() == null || crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null);
     }
 }

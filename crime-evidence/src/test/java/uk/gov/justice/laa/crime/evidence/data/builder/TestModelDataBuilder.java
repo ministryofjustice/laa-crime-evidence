@@ -1,7 +1,10 @@
 package uk.gov.justice.laa.crime.evidence.data.builder;
 
 import org.springframework.stereotype.Component;
+import uk.gov.justice.laa.crime.evidence.common.Constants;
+import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
+import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeDTO;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeRequest;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCapitalEvidence;
@@ -18,14 +21,13 @@ public class TestModelDataBuilder {
     public static final String MEANS_ASSESSMENT_TRANSACTION_ID = "7c49ebfe-fe3a-4f2f-8dad-f7b8f03b8327";
 
     public static final LocalDateTime CAPITAL_EVIDENCE_RECEIVED_DATE =
-            LocalDateTime.of(2023, 03, 9, 15, 1, 25);
-    public static final LocalDateTime  INCOME_EVIDENCE_RECEIVED_DATE =
-            LocalDateTime.of(2023, 02, 19, 15, 1, 25);
+            LocalDateTime.of(2023, 3, 9, 15, 1, 25);
+    public static final LocalDateTime INCOME_EVIDENCE_RECEIVED_DATE =
+            LocalDateTime.of(2023, 2, 19, 15, 1, 25);
 
     public static final String MSG_COURT_OUTCOME = "SENT FOR TRIAL";
 
     public static final String EMST_CODE = "SELF";
-
 
     public static ApiCalculateEvidenceFeeRequest getApiCalculateEvidenceFeeRequest(boolean isValid) {
         return new ApiCalculateEvidenceFeeRequest()
@@ -58,7 +60,7 @@ public class TestModelDataBuilder {
     public static ApiCalculateEvidenceFeeRequest getApiCalculateEvidenceFeeInvalidRequest() {
         return new ApiCalculateEvidenceFeeRequest()
                 .withLaaTransactionId(MEANS_ASSESSMENT_TRANSACTION_ID)
-                .withMagCourtOutcome("SENT FOR TRIAL")
+                .withMagCourtOutcome(Constants.SENT_FOR_TRIAL)
                 .withEvidenceFee(getApiEvidenceFee())
                 .withCapitalEvidence(getApiCapitalEvidenceList())
                 .withCapitalEvidenceReceivedDate(LocalDateTime.now())
@@ -66,13 +68,18 @@ public class TestModelDataBuilder {
                 .withEmstCode("SELF");
     }
 
-    public static CrimeEvidenceDTO getCalculateEvidenceFeeDTO() {
+    public static CrimeEvidenceDTO getCrimeEvidenceDTO() {
         return CrimeEvidenceDTO.builder()
                 .repId(TEST_REP_ID)
                 .laaTransactionId(MEANS_ASSESSMENT_TRANSACTION_ID)
-                .magCourtOutcome("SENT FOR TRIAL")
+                .magCourtOutcome(Constants.SENT_FOR_TRIAL)
+                .evidenceFee(EvidenceFeeDTO.builder().build())
+                .capitalEvidence(List.of(CapitalEvidenceDTO.builder()
+                        .evidenceType("")
+                        .build()))
+                .capitalEvidenceReceivedDate(CAPITAL_EVIDENCE_RECEIVED_DATE)
+                .incomeEvidenceReceivedDate(INCOME_EVIDENCE_RECEIVED_DATE)
+                .emstCode("SELF")
                 .build();
     }
-
-
 }

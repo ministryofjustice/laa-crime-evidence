@@ -10,5 +10,4 @@ public class Constants {
         throw new IllegalStateException("Constants class");
     }
 
-
 }

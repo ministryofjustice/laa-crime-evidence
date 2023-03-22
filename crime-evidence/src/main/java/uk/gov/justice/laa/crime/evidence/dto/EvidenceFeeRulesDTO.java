@@ -15,5 +15,4 @@ public class EvidenceFeeRulesDTO {
     private String allCapitalEvidenceReceived;
     private Long capitalEvidenceItemsLower;
     private Long capitalEvidenceItemsUpper;
-
 }

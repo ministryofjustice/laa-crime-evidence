@@ -12,10 +12,9 @@ public class EvidenceFeeDTOBuilder {
 
     public static EvidenceFeeDTO build(final ApiCalculateEvidenceFeeRequest request) {
         if (request.getEvidenceFee() != null) {
-            EvidenceFeeDTO.EvidenceFeeDTOBuilder builder = EvidenceFeeDTO.builder()
+            return EvidenceFeeDTO.builder()
                     .feeLevel(request.getEvidenceFee().getFeeLevel())
-                    .description(request.getEvidenceFee().getDescription());
-            return builder.build();
+                    .description(request.getEvidenceFee().getDescription()).build();
         }
         return null;
     }

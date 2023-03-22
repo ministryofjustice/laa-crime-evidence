@@ -51,7 +51,6 @@ class ExchangeFilterUtilsTest {
     @InjectSoftAssertions
     private SoftAssertions softly;
 
-
     private static MemoryAppender memoryAppender;
     private static final URI DEFAULT_URL = URI.create("https://example.com");
     private static final String TRANSACTION_ID = UUID.randomUUID().toString();
