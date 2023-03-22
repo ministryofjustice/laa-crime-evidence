@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
       file: db.changelog/changeset/01-crime-evidence-create-schema.sql
+  - include:
+      file: db.changelog/changeset/02-spring-security-oauth2-tables-create.sql
+  - include:
+      file: db.changelog/changeset/03-spring-security-client-credentials-insert.sql
