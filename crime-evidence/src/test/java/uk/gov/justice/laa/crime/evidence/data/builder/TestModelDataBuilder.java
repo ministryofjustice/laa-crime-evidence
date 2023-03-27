@@ -85,4 +85,16 @@ public class TestModelDataBuilder {
                 .emstCode("SELF")
                 .build();
     }
+
+    public static ApiCalculateEvidenceFeeRequest getApiCalculateEvidenceFeeRequest() {
+        return new ApiCalculateEvidenceFeeRequest()
+                .withRepId(TEST_REP_ID)
+                .withLaaTransactionId(MEANS_ASSESSMENT_TRANSACTION_ID)
+                .withMagCourtOutcome(MSG_COURT_OUTCOME)
+                .withEvidenceFee(new ApiEvidenceFee())
+                .withCapitalEvidence(getApiCapitalEvidenceList())
+                .withCapitalEvidenceReceivedDate(CAPITAL_EVIDENCE_RECEIVED_DATE)
+                .withIncomeEvidenceReceivedDate(INCOME_EVIDENCE_RECEIVED_DATE)
+                .withEmstCode(EMST_CODE);
+    }
 }

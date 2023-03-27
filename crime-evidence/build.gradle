@@ -31,7 +31,8 @@ def versions = [
         lombokVersion                      : '1.18.24',
         postgresqlVersion                  : '42.3.3',
         xRayVersion                        : '2.11.2',
-        springauthserverVersion            : '0.2.2'
+        springauthserverVersion            : '0.2.2',
+        wireMock                           : '2.27.2'
 ]
 dependencyManagement {
     dependencies {
@@ -113,6 +114,7 @@ dependencies {
     testImplementation group: 'io.projectreactor', name: 'reactor-test', version: versions.reactorTestVersion
     testImplementation group: 'com.squareup.okhttp3', name: 'okhttp', version: versions.okhttpVersion
     testImplementation group: 'com.squareup.okhttp3', name: 'mockwebserver', version: versions.mockwebserverVersion
+    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: versions.wireMock
 }
 
 tasks.named('test').configure {
