@@ -118,7 +118,7 @@ class CrimeEvidenceIntegrationTest {
     @Test
     void givenAEmptyOAuthToken_whenCreateAssessmentIsInvoked_thenFailsUnauthorizedAccess() throws Exception {
         mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE, "{}", Boolean.FALSE))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test

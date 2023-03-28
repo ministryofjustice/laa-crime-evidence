@@ -23,7 +23,7 @@ public class ResourceServerConfiguration {
     @Bean
     protected BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint() {
         BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
-        bearerTokenAuthenticationEntryPoint.setRealmName("Crime Means Assessment API");
+        bearerTokenAuthenticationEntryPoint.setRealmName("Crime evidence API");
         return bearerTokenAuthenticationEntryPoint;
     }
 
@@ -34,9 +34,7 @@ public class ResourceServerConfiguration {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors().and().csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests(auth -> auth
                         .antMatchers("/oauth2/**").permitAll()
@@ -51,9 +49,7 @@ public class ResourceServerConfiguration {
                         .antMatchers(HttpMethod.PATCH, "/api/**").hasAuthority(SCOPE_READ_WRITE)
                         .anyRequest().authenticated())
                 .oauth2ResourceServer().accessDeniedHandler(bearerTokenAccessDeniedHandler()).authenticationEntryPoint(bearerTokenAuthenticationEntryPoint())
-                .jwt()
-        ;
-
+                .jwt();
         return http.build();
     }
 }
