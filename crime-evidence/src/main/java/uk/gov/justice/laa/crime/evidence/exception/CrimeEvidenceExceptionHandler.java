@@ -16,12 +16,6 @@ public class CrimeEvidenceExceptionHandler {
         return new ResponseEntity<>(ErrorDTO.builder().code(status.toString()).message(errorMessage).build(), status);
     }
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrorDTO> handleValidationError(ValidationException ex) {
-        log.error("ValidationException: ", ex);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
     @ExceptionHandler(APIClientException.class)
     public ResponseEntity<ErrorDTO> handleApiClientError(APIClientException ex) {
         log.error("APIClientException: ", ex);
@@ -29,8 +23,8 @@ public class CrimeEvidenceExceptionHandler {
     }
 
     @ExceptionHandler(CrimeEvidenceDataException.class)
-    public ResponseEntity<ErrorDTO> handleCCPDataException(CrimeEvidenceDataException ex) {
-        log.error("CCPDataException: ", ex);
+    public ResponseEntity<ErrorDTO> handleCrimeEvidenceDataException(CrimeEvidenceDataException ex) {
+        log.error("CrimeEvidenceDataException: ", ex);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
