@@ -64,8 +64,10 @@ public abstract class RestAPIClient {
                 })
                 .attributes(WebClientConfiguration.getExchangeFilterWith(getRegistrationId()))
                 .retrieve()
-                .onStatus(status -> status.value() == 401, clientResponse -> Mono.empty())
                 .toBodilessEntity()
+                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
+                .onErrorMap(this::handleError)
+                .doOnError(Sentry::captureException)
                 .block();
     }
 
