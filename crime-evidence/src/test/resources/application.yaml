@@ -45,7 +45,7 @@ swagger-ui:
 services:
   maat-api:
     oAuthEnabled: true
-    baseUrl: ${MAAT_API_BASE_URL}
+    baseUrl: http://localhost:9999
     assessments-domain: /api/internal/v1/assessment
     rep-order-endpoints:
       reporder-capital-url: ${services.maat-api.assessments-domain}/rep-orders/capital/reporder/{repId}

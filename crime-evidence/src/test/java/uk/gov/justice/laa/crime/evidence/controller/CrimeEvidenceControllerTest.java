@@ -36,9 +36,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DirtiesContext
 @Import(CrimeEvidenceTestConfiguration.class)
 @SpringBootTest(classes = {CrimeEvidenceApplication.class}, webEnvironment = DEFINED_PORT)
-@DirtiesContext
 class CrimeEvidenceControllerTest {
 
     private static final boolean IS_VALID = true;

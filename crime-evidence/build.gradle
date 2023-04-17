@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
     id 'java'
     id 'jacoco'
@@ -69,7 +71,6 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
 
     implementation group: 'org.springframework.security', name: 'spring-security-oauth2-jose'
-    implementation group: 'org.springframework.security', name: 'spring-security-cas'
     implementation group: 'org.springframework.security', name: 'spring-security-oauth2-authorization-server', version: versions.springauthserverVersion
 
     implementation group: 'org.springframework', name: 'spring-jms'
@@ -110,7 +111,6 @@ dependencies {
     testImplementation group: 'io.projectreactor', name: 'reactor-test', version: versions.reactorTestVersion
     testImplementation group: 'com.squareup.okhttp3', name: 'okhttp', version: versions.okhttpVersion
     testImplementation group: 'com.squareup.okhttp3', name: 'mockwebserver', version: versions.mockwebserverVersion
-    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: versions.wireMock
 }
 
 tasks.named('test').configure {
