@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+@Slf4j
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@Slf4j
 public class CrimeEvidenceApplication {
     public static void main(String[] args) {
         SpringApplication.run(CrimeEvidenceApplication.class, args);

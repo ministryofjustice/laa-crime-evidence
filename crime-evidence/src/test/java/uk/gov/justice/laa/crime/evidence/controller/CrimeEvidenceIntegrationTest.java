@@ -1,13 +1,10 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.http.Fault;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.AssertionsForClassTypes;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JacksonJsonParser;
@@ -26,23 +23,23 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
-import uk.gov.justice.laa.crime.crowncourt.config.WireMockServerConfig;
 import uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import java.io.IOException;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true",
-        classes = {CrimeEvidenceApplication.class, WireMockServerConfig.class}, webEnvironment = DEFINED_PORT)
+@DirtiesContext
 @RunWith(SpringRunner.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext
+@SpringBootTest(classes = CrimeEvidenceApplication.class, webEnvironment = DEFINED_PORT)
 class CrimeEvidenceIntegrationTest {
 
     private static final String CLIENT_SECRET = "secret";
@@ -50,11 +47,7 @@ class CrimeEvidenceIntegrationTest {
     private static final String CLIENT_ID = "test-client";
     private static final String SCOPE_READ_WRITE = "READ_WRITE";
     private static final String CCP_ENDPOINT_URL = "/api/internal/v1/evidence";
-
-    private static final String MAAT_COURT_API_ENDPOINT_URL = "/api/internal/v1/assessment/.*";
-
     private static final String ERROR_MSG = "Call to service MAAT-API failed.";
-
     private static final String CALCULATE_EVIDENCE_FEE = "/calculate-evidence-fee";
 
     private MockMvc mvc;
@@ -68,13 +61,24 @@ class CrimeEvidenceIntegrationTest {
     @Autowired
     private FilterChainProxy springSecurityFilterChain;
 
-    @Autowired
-    private WireMockServer webServer;
+    private static MockWebServer mockMaatCourtDataApi;
 
+
+    @BeforeAll
+    public void initialiseMockWebServer() throws IOException {
+        mockMaatCourtDataApi = new MockWebServer();
+        mockMaatCourtDataApi.start(9999);
+    }
+
+    @AfterAll
+    protected void shutdownMockWebServer() throws IOException {
+        mockMaatCourtDataApi.shutdown();
+    }
 
     @BeforeEach
     public void setup() {
-        this.mvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).addFilter(springSecurityFilterChain).build();
+        this.mvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext)
+                .addFilter(springSecurityFilterChain).build();
     }
 
 
@@ -131,8 +135,8 @@ class CrimeEvidenceIntegrationTest {
     @Test
     void givenAValidContent_whenApiResponseIsError_thenCalculateEvidenceFeeIsFails() throws Exception {
 
-        webServer.stubFor(head(urlPathMatching(MAAT_COURT_API_ENDPOINT_URL)).willReturn(aResponse()
-                .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+        mockMaatCourtDataApi.enqueue(new MockResponse()
+                .setResponseCode(SERVICE_UNAVAILABLE.code()));
 
         mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE,
                         objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeRequest())))
@@ -143,8 +147,11 @@ class CrimeEvidenceIntegrationTest {
 
     @Test
     void givenValidContent_whenCalculateEvidenceFeeIsInvoked_thenCalculateEvidenceFeeIsSuccess() throws Exception {
-        webServer.stubFor(head(urlPathMatching(MAAT_COURT_API_ENDPOINT_URL)).willReturn(aResponse()
-                .withHeader("Content-Length", "5")));
+
+        mockMaatCourtDataApi.enqueue(new MockResponse()
+                .setResponseCode(OK.code())
+                .setHeader("Content-Length", "5")
+        );
 
         MvcResult result = mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE,
                         objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeRequest())))
@@ -155,10 +162,4 @@ class CrimeEvidenceIntegrationTest {
         AssertionsForClassTypes.assertThat(result.getResponse().getContentAsString())
                 .isEqualTo(objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeResponse()));
     }
-
-    @AfterAll
-    public void cleanUp() {
-        webServer.shutdown();
-    }
-
 }

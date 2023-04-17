@@ -17,6 +17,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 @EnableWebSecurity
 public class ResourceServerConfiguration {
 
+    public static final String API_PATH = "/api/**";
     public static final String SCOPE_READ = "SCOPE_READ";
     public static final String SCOPE_READ_WRITE = "SCOPE_READ_WRITE";
 
@@ -36,17 +37,17 @@ public class ResourceServerConfiguration {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests(auth -> auth
-                        .antMatchers("/oauth2/**").permitAll()
-                        .antMatchers("/open-api/**").permitAll()
-                        .antMatchers("/actuator/**").permitAll()
-                        .antMatchers("/error").permitAll()
-                        .antMatchers(HttpMethod.GET, "/crime-evidence/**").permitAll()
-                        .antMatchers(HttpMethod.GET, "/api/**").hasAnyAuthority(SCOPE_READ, SCOPE_READ_WRITE)
-                        .antMatchers(HttpMethod.POST, "/api/**").hasAuthority(SCOPE_READ_WRITE)
-                        .antMatchers(HttpMethod.PUT, "/api/**").hasAuthority(SCOPE_READ_WRITE)
-                        .antMatchers(HttpMethod.DELETE, "/api/**").hasAuthority(SCOPE_READ_WRITE)
-                        .antMatchers(HttpMethod.PATCH, "/api/**").hasAuthority(SCOPE_READ_WRITE)
+                . authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/open-api/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/crime-evidence/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, API_PATH).hasAnyAuthority(SCOPE_READ, SCOPE_READ_WRITE)
+                        .requestMatchers(HttpMethod.POST, API_PATH).hasAuthority(SCOPE_READ_WRITE)
+                        .requestMatchers(HttpMethod.PUT, API_PATH).hasAuthority(SCOPE_READ_WRITE)
+                        .requestMatchers(HttpMethod.DELETE, API_PATH).hasAuthority(SCOPE_READ_WRITE)
+                        .requestMatchers(HttpMethod.PATCH, API_PATH).hasAuthority(SCOPE_READ_WRITE)
                         .anyRequest().authenticated())
                 .oauth2ResourceServer().accessDeniedHandler(bearerTokenAccessDeniedHandler()).authenticationEntryPoint(bearerTokenAuthenticationEntryPoint())
                 .jwt();
