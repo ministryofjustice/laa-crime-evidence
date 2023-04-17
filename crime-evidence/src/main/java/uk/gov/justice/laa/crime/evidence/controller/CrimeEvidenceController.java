@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -21,8 +22,6 @@ import uk.gov.justice.laa.crime.evidence.dto.ErrorDTO;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeRequest;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
-
-import javax.validation.Valid;
 
 @Slf4j
 @RestController

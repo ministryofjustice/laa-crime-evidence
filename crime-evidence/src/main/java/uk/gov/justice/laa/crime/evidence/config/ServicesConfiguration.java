@@ -1,12 +1,11 @@
 package uk.gov.justice.laa.crime.evidence.config;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 @RequiredArgsConstructor

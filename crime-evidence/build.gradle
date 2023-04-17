@@ -160,15 +160,16 @@ sonarqube {
     }
 }
 
-
-
 jsonSchema2Pojo {
-    source.setFrom files("${project.rootDir}/src/main/resources/schemas")
-    targetPackage = 'uk.gov.justice.laa.crime.evidence.model.common'
-    generateBuilders = true
-    useInnerClassBuilders = true
-    includeJsr303Annotations = true
-    useBigDecimals = true
-    includeDynamicBuilders = true
-    dateTimeType = "java.time.LocalDateTime"
+    executions {
+        main {
+            methods.builders = true
+            methods.buildersDynamic = true
+            methods.annotateJsr303Jakarta = true
+            fields.floatUseBigDecimal = true
+            dateTime.dateTimeType = "java.time.LocalDateTime"
+            klass.targetPackage = 'uk.gov.justice.laa.crime.evidence.model.common'
+            io.source.setFrom files("${project.rootDir}/src/main/resources/schemas")
+        }
+    }
 }
