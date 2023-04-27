@@ -8,7 +8,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import uk.gov.justice.laa.crime.evidence.client.MaatAPIClient;
+import uk.gov.justice.laa.crime.commons.client.RestAPIClient;
 import uk.gov.justice.laa.crime.evidence.config.MockServicesConfiguration;
 import uk.gov.justice.laa.crime.evidence.config.ServicesConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
@@ -21,19 +21,22 @@ import static org.mockito.Mockito.*;
 class MaatCourtDataServiceTest {
 
     private static final String LAA_TRANSACTION_ID = "laaTransactionId";
+
     @Mock
-    MaatAPIClient maatCourtDataClient;
+    RestAPIClient maatCourtDataClient;
+
     @InjectMocks
     private MaatCourtDataService maatCourtDataService;
+
     @Spy
     private ServicesConfiguration configuration = MockServicesConfiguration.getConfiguration(1000);
 
     @Test
     void givenAValidRepId_whenGetRepOrderCapitalByRepIdIsInvoked_thenResponseIsReturned() {
         ResponseEntity<Void> expected = new ResponseEntity<>(HttpStatus.OK);
-        when(maatCourtDataClient.getApiResponseViaHEAD(any(), anyMap(), any()))
+        when(maatCourtDataClient.head(any(), anyMap(), any()))
                 .thenReturn(expected);
         maatCourtDataService.getRepOrderCapitalByRepId(TestModelDataBuilder.TEST_REP_ID, LAA_TRANSACTION_ID);
-        verify(maatCourtDataClient, atLeastOnce()).getApiResponseViaHEAD(any(), anyMap(), any());
+        verify(maatCourtDataClient, atLeastOnce()).head(any(), anyMap(), any());
     }
 }
