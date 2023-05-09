@@ -19,7 +19,7 @@ public class MaatCourtDataService {
     @Qualifier("maatApiClient")
     private final RestAPIClient maatAPIClient;
     private final ServicesConfiguration configuration;
-    public static final String RESPONSE_STRING = "Response from Court Data API: %s";
+    private static final String RESPONSE_STRING = "Response from Court Data API: %s";
 
     public Long getRepOrderCapitalByRepId(Integer repId, String laaTransactionId) {
 

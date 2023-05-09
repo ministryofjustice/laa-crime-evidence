@@ -23,7 +23,7 @@ class MaatCourtDataServiceTest {
     private static final String LAA_TRANSACTION_ID = "laaTransactionId";
 
     @Mock
-    RestAPIClient maatCourtDataClient;
+    private RestAPIClient maatCourtDataClient;
 
     @InjectMocks
     private MaatCourtDataService maatCourtDataService;
