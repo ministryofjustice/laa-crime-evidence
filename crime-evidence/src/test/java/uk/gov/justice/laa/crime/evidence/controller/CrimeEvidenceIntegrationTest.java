@@ -1,5 +1,6 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -27,9 +28,11 @@ import uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_IMPLEMENTED;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpResponseStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -127,6 +130,8 @@ class CrimeEvidenceIntegrationTest {
 
     @Test
     void givenInvalidContent_whenCalculateEvidenceFeeIsInvoked_thenFailsBadRequest() throws Exception {
+
+        enqueueOAuthResponse();
         mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE, objectMapper.writeValueAsString(
                         TestModelDataBuilder.getApiCalculateEvidenceFeeInvalidRequest())))
                 .andExpect(status().isBadRequest());
@@ -135,8 +140,9 @@ class CrimeEvidenceIntegrationTest {
     @Test
     void givenAValidContent_whenApiResponseIsError_thenCalculateEvidenceFeeIsFails() throws Exception {
 
+        enqueueOAuthResponse();
         mockMaatCourtDataApi.enqueue(new MockResponse()
-                .setResponseCode(SERVICE_UNAVAILABLE.code()));
+                .setResponseCode(NOT_IMPLEMENTED.code()));
 
         mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE,
                         objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeRequest())))
@@ -148,6 +154,7 @@ class CrimeEvidenceIntegrationTest {
     @Test
     void givenValidContent_whenCalculateEvidenceFeeIsInvoked_thenCalculateEvidenceFeeIsSuccess() throws Exception {
 
+        enqueueOAuthResponse();
         mockMaatCourtDataApi.enqueue(new MockResponse()
                 .setResponseCode(OK.code())
                 .setHeader("Content-Length", "5")
@@ -161,5 +168,21 @@ class CrimeEvidenceIntegrationTest {
 
         AssertionsForClassTypes.assertThat(result.getResponse().getContentAsString())
                 .isEqualTo(objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeResponse()));
+    }
+
+    private void enqueueOAuthResponse() throws JsonProcessingException {
+        Map token = Map.of(
+                "expires_in", 3600,
+                "token_type", "Bearer",
+                "access_token", UUID.randomUUID()
+        );
+        MockResponse response = new MockResponse();
+        response.setBody(objectMapper.writeValueAsString(token));
+
+        mockMaatCourtDataApi.enqueue(response
+                .setResponseCode(OK.code())
+                .setHeader("Content-Type", MediaType.APPLICATION_JSON)
+                .setBody(objectMapper.writeValueAsString(token))
+        );
     }
 }
