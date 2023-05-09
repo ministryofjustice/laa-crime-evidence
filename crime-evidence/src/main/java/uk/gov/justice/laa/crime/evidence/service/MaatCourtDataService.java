@@ -11,9 +11,9 @@ import uk.gov.justice.laa.crime.evidence.config.ServicesConfiguration;
 
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MaatCourtDataService {
 
     @Qualifier("maatApiClient")
