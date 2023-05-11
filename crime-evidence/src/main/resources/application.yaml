@@ -43,11 +43,9 @@ spring:
     enabled: true
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
-    show-sql: true
-    generate-ddl: true
-    hibernate:
-      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    generate-ddl: false
     properties:
       hibernate.temp.use_jdbc_metadata_defaults: false
 
