@@ -18,7 +18,7 @@ jacoco {
 def versions = [
         springdocVersion       : "1.6.15",
         okhttpVersion          : "4.9.3",
-        mockwebserverVersion   : "4.10.0",
+        mockwebserverVersion   : "4.11.0",
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
         postgresqlVersion      : "42.3.3",
