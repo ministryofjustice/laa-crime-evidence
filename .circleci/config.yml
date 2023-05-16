@@ -65,7 +65,6 @@ commands:
                           --values ./helm_deploy/laa-crime-evidence/values-<< parameters.environment >>.yaml \
                           --set image.tag="${CIRCLE_SHA1}"
 
-
 # ------------------
 # JOBS
 # ------------------
@@ -278,4 +277,3 @@ workflows:
       - deploy-staging:
           requires:
             - hold_install_on_staging
-
