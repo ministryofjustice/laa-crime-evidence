@@ -19,11 +19,11 @@ springdoc:
   packagesToScan: uk.gov.justice.laa.crime.evidence
   show-actuator: true
   api-docs:
-    path: /crime-evidence
+    path: /open-api/api-docs
     enabled: true
 
   swagger-ui:
-    path: /open-api/docs.html
+    path: /open-api/swagger-ui/index.html
     enabled: true
     operationsSorter: method
 
