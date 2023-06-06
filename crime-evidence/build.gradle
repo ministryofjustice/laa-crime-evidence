@@ -21,7 +21,7 @@ def versions = [
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
         postgresqlVersion      : "42.3.3",
-        springauthserverVersion: "1.0.1",
+        springauthserverVersion: "1.1.0",
 ]
 
 java {
