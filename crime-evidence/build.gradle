@@ -64,7 +64,7 @@ dependencies {
     implementation "org.postgresql:postgresql:$versions.postgresqlVersion"
     implementation "org.apache.commons:commons-lang3:$versions.commonsLang3Version"
 
-    implementation "uk.gov.justice.service.laa-crime:crime-commons-spring-boot-starter-rest-client:1.0.0"
+    implementation "uk.gov.justice.service.laa-crime:crime-commons-spring-boot-starter-rest-client:2.0.0"
 
     annotationProcessor "org.projectlombok:lombok"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"

@@ -75,8 +75,7 @@ crime-evidence:
 
 services:
   maat-api:
-    oAuthEnabled: true
-    baseUrl: ${MAAT_API_BASE_URL}
-    assessments-domain: /api/internal/v1/assessment
+    base-url: ${MAAT_API_BASE_URL}
+    assessments-domain: ${services.maat-api.base-url}/api/internal/v1/assessment
     rep-order-endpoints:
       reporder-capital-url: ${services.maat-api.assessments-domain}/rep-orders/capital/reporder/{repId}
