@@ -75,3 +75,12 @@ services:
     assessments-domain: ${services.maat-api.base-url}/api/internal/v1/assessment
     rep-order-endpoints:
       reporder-capital-url: ${services.maat-api.assessments-domain}/rep-orders/capital/reporder/{repId}
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  environment: ${SENTRY_ENV}
+  release: 0.0.1
+  servername: aws-eks-container
+  send-default-pii: true
+  attach-stacktrace: true
+  sample-rate: 0.05
