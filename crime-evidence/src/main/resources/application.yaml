@@ -62,7 +62,7 @@ spring:
             authorization-grant-type: client_credentials
       resource-server:
         jwt:
-          issuer-uri: ${crime-evidence.security.issuer-uri}
+          issuer-uri: ${JWT_ISSUER_URI}
 
 retry-config:
   max-retries: 3
