@@ -20,8 +20,7 @@ def versions = [
         mockwebserverVersion   : "4.10.0",
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
-        postgresqlVersion      : "42.3.3",
-        springauthserverVersion: "1.0.1",
+        postgresqlVersion      : "42.3.3"
 ]
 
 java {
@@ -59,7 +58,6 @@ dependencies {
     implementation "org.liquibase:liquibase-core"
 
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4"
-    implementation "org.springframework.security:spring-security-oauth2-authorization-server:$versions.springauthserverVersion"
 
     implementation "org.postgresql:postgresql:$versions.postgresqlVersion"
     implementation "org.apache.commons:commons-lang3:$versions.commonsLang3Version"

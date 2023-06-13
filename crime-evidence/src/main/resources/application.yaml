@@ -69,10 +69,6 @@ retry-config:
   min-back-off-period: 5
   jitter-value: 0.75
 
-crime-evidence:
-  security:
-    issuer-uri: http://localhost:${server.port}
-
 services:
   maat-api:
     base-url: ${MAAT_API_BASE_URL}
