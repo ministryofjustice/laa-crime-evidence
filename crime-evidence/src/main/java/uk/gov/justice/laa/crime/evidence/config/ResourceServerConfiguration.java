@@ -16,7 +16,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 @EnableWebSecurity
 public class ResourceServerConfiguration {
 
-    public static final String CCP_STANDARD_SCOPE = "SCOPE_crime-rs/ccp:standard";
+    public static final String SCOPE_EVIDENCE_STANDARD = "SCOPE_evidence/standard";
 
     @Bean
     protected BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint() {
@@ -37,7 +37,7 @@ public class ResourceServerConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/open-api/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/api/**").hasAuthority(CCP_STANDARD_SCOPE)
+                        .requestMatchers("/api/**").hasAuthority(SCOPE_EVIDENCE_STANDARD)
                         .anyRequest().authenticated())
                 .oauth2ResourceServer()
                 .accessDeniedHandler(bearerTokenAccessDeniedHandler())
