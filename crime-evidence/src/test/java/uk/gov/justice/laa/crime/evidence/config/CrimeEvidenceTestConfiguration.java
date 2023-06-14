@@ -30,7 +30,7 @@ public class CrimeEvidenceTestConfiguration {
 
         Map<String, Object> claims = Map.of(
                 SUB, AUTH_ID,
-                "scope", "crime-rs/ccp:standard"
+                "scope", "evidence/standard"
         );
 
         return new Jwt(
