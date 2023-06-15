@@ -103,7 +103,7 @@ We have configured a CircleCI code pipelines. You can [log in](https://app.circl
 
 ### Open API
 
-We have implemented the Open API standard (with Swagger 3). The web link provides a details Rest API with a schema definition. The link can only from local or from dev environment. The swagger link can be found from [here](http://localhost:8090/open-api/docs.html)
+We have implemented the Open API standard (with Swagger 3). The web link provides a details Rest API with a schema definition. The link can only from local or from dev environment. The swagger link can be found from [here](http://localhost:8189/open-api/swagger-ui/index.html)
 
 ### Debugging Application
 

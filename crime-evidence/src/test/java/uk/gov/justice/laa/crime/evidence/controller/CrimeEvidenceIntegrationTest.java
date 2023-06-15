@@ -1,5 +1,6 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -7,8 +8,8 @@ import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.FilterChainProxy;
@@ -16,44 +17,35 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication;
+import uk.gov.justice.laa.crime.evidence.config.CrimeEvidenceTestConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
+import uk.gov.justice.laa.crime.evidence.util.RequestBuilderUtils;
 
 import java.io.IOException;
+import java.util.Map;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_IMPLEMENTED;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpResponseStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @DirtiesContext
 @RunWith(SpringRunner.class)
+@Import(CrimeEvidenceTestConfiguration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = CrimeEvidenceApplication.class, webEnvironment = DEFINED_PORT)
 class CrimeEvidenceIntegrationTest {
 
-    private static final String CLIENT_SECRET = "secret";
-    private static final String CLIENT_CREDENTIALS = "client_credentials";
-    private static final String CLIENT_ID = "test-client";
-    private static final String SCOPE_READ_WRITE = "READ_WRITE";
     private static final String CCP_ENDPOINT_URL = "/api/internal/v1/evidence";
     private static final String ERROR_MSG = "Call to service MAAT-API failed.";
-    private static final String CALCULATE_EVIDENCE_FEE = "/calculate-evidence-fee";
+    private static final String CALCULATE_EVIDENCE_FEE = CCP_ENDPOINT_URL.concat("/calculate-evidence-fee");
 
     private MockMvc mvc;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
+    private static MockWebServer mockMaatCourtDataApi;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,7 +53,8 @@ class CrimeEvidenceIntegrationTest {
     @Autowired
     private FilterChainProxy springSecurityFilterChain;
 
-    private static MockWebServer mockMaatCourtDataApi;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
 
     @BeforeAll
@@ -81,65 +74,37 @@ class CrimeEvidenceIntegrationTest {
                 .addFilter(springSecurityFilterChain).build();
     }
 
-
-    private MockHttpServletRequestBuilder buildRequestGivenContent(HttpMethod method, String url, String content) throws Exception {
-        return buildRequestGivenContent(method, url, content, true);
-    }
-
-    private MockHttpServletRequestBuilder buildRequestGivenContent(HttpMethod method, String url, String content, boolean withAuth) throws Exception {
-        MockHttpServletRequestBuilder requestBuilder =
-                MockMvcRequestBuilders.request(method, CCP_ENDPOINT_URL.concat(url))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content);
-        if (withAuth) {
-            final String accessToken = obtainAccessToken();
-            requestBuilder.header("Authorization", "Bearer " + accessToken);
-        }
-        return requestBuilder;
-    }
-
-    private String obtainAccessToken() throws Exception {
-        final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", CLIENT_CREDENTIALS);
-        params.add("scope", SCOPE_READ_WRITE);
-
-        ResultActions result = mvc.perform(post("/oauth2/token")
-                        .params(params)
-                        .with(httpBasic(CLIENT_ID, CLIENT_SECRET)))
-                .andExpect(status().isOk());
-        String resultString = result.andReturn().getResponse().getContentAsString();
-
-        JacksonJsonParser jsonParser = new JacksonJsonParser();
-        return jsonParser.parseMap(resultString).get("access_token").toString();
-    }
-
     @Test
     void givenAEmptyContent_whenProcessRepOrderIsInvoked_thenFailsBadRequest() throws Exception {
-        mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE, "{}"))
+        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "{}", CALCULATE_EVIDENCE_FEE))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void givenAEmptyOAuthToken_whenCreateAssessmentIsInvoked_thenFailsUnauthorizedAccess() throws Exception {
-        mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE, "{}", Boolean.FALSE))
+        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "{}", CALCULATE_EVIDENCE_FEE, Boolean.FALSE))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
     void givenInvalidContent_whenCalculateEvidenceFeeIsInvoked_thenFailsBadRequest() throws Exception {
-        mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE, objectMapper.writeValueAsString(
-                        TestModelDataBuilder.getApiCalculateEvidenceFeeInvalidRequest())))
+
+        enqueueOAuthResponse();
+        String content = objectMapper.writeValueAsString(
+                TestModelDataBuilder.getApiCalculateEvidenceFeeInvalidRequest());
+        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, content, CALCULATE_EVIDENCE_FEE))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void givenAValidContent_whenApiResponseIsError_thenCalculateEvidenceFeeIsFails() throws Exception {
 
+        enqueueOAuthResponse();
         mockMaatCourtDataApi.enqueue(new MockResponse()
-                .setResponseCode(SERVICE_UNAVAILABLE.code()));
+                .setResponseCode(NOT_IMPLEMENTED.code()));
 
-        mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE,
-                        objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeRequest())))
+        String content = objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeRequest());
+        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, content, CALCULATE_EVIDENCE_FEE))
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(ERROR_MSG));
@@ -148,18 +113,35 @@ class CrimeEvidenceIntegrationTest {
     @Test
     void givenValidContent_whenCalculateEvidenceFeeIsInvoked_thenCalculateEvidenceFeeIsSuccess() throws Exception {
 
+        enqueueOAuthResponse();
         mockMaatCourtDataApi.enqueue(new MockResponse()
                 .setResponseCode(OK.code())
                 .setHeader("Content-Length", "5")
         );
 
-        MvcResult result = mvc.perform(buildRequestGivenContent(HttpMethod.POST, CALCULATE_EVIDENCE_FEE,
-                        objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeRequest())))
+        String content = objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeRequest());
+        MvcResult result = mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, content, CALCULATE_EVIDENCE_FEE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         AssertionsForClassTypes.assertThat(result.getResponse().getContentAsString())
                 .isEqualTo(objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeResponse()));
+    }
+
+    private void enqueueOAuthResponse() throws JsonProcessingException {
+        Map<String, String> token = Map.of(
+                "expires_in", "3600",
+                "token_type", "Bearer",
+                "access_token", "token"
+        );
+        MockResponse response = new MockResponse();
+        response.setBody(objectMapper.writeValueAsString(token));
+
+        mockMaatCourtDataApi.enqueue(response
+                .setResponseCode(OK.code())
+                .setHeader("Content-Type", MediaType.APPLICATION_JSON)
+                .setBody(objectMapper.writeValueAsString(token))
+        );
     }
 }
