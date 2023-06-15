@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db.changelog/changeset/03-spring-security-client-credentials-insert.sql
   - include:
       file: db.changelog/changeset/04-spring-security-oauth2-table-update.sql
+  - include:
+      file: db.changelog/changeset/05-drop-spring-security-oauth2-tables.sql

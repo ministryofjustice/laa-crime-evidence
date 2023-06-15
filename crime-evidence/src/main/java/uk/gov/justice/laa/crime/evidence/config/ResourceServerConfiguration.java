@@ -3,7 +3,6 @@ package uk.gov.justice.laa.crime.evidence.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -12,14 +11,12 @@ import org.springframework.security.oauth2.server.resource.web.access.BearerToke
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
-@Configuration
 @Order(1)
+@Configuration
 @EnableWebSecurity
 public class ResourceServerConfiguration {
 
-    public static final String API_PATH = "/api/**";
-    public static final String SCOPE_READ = "SCOPE_READ";
-    public static final String SCOPE_READ_WRITE = "SCOPE_READ_WRITE";
+    public static final String SCOPE_EVIDENCE_STANDARD = "SCOPE_evidence/standard";
 
     @Bean
     protected BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint() {
@@ -37,20 +34,14 @@ public class ResourceServerConfiguration {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                . authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/open-api/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/crime-evidence/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, API_PATH).hasAnyAuthority(SCOPE_READ, SCOPE_READ_WRITE)
-                        .requestMatchers(HttpMethod.POST, API_PATH).hasAuthority(SCOPE_READ_WRITE)
-                        .requestMatchers(HttpMethod.PUT, API_PATH).hasAuthority(SCOPE_READ_WRITE)
-                        .requestMatchers(HttpMethod.DELETE, API_PATH).hasAuthority(SCOPE_READ_WRITE)
-                        .requestMatchers(HttpMethod.PATCH, API_PATH).hasAuthority(SCOPE_READ_WRITE)
+                        .requestMatchers("/api/**").hasAuthority(SCOPE_EVIDENCE_STANDARD)
                         .anyRequest().authenticated())
-                .oauth2ResourceServer().accessDeniedHandler(bearerTokenAccessDeniedHandler()).authenticationEntryPoint(bearerTokenAuthenticationEntryPoint())
-                .jwt();
+                .oauth2ResourceServer()
+                .accessDeniedHandler(bearerTokenAccessDeniedHandler())
+                .authenticationEntryPoint(bearerTokenAuthenticationEntryPoint()).jwt();
         return http.build();
     }
 }

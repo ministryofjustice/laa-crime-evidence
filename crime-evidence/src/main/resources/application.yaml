@@ -62,16 +62,12 @@ spring:
             authorization-grant-type: client_credentials
       resource-server:
         jwt:
-          issuer-uri: ${crime-evidence.security.issuer-uri}
+          issuer-uri: ${JWT_ISSUER_URI}
 
 retry-config:
   max-retries: 3
   min-back-off-period: 5
   jitter-value: 0.75
-
-crime-evidence:
-  security:
-    issuer-uri: http://localhost:${server.port}
 
 services:
   maat-api:
