@@ -20,7 +20,7 @@ def versions = [
         mockwebserverVersion   : "4.10.0",
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
-        postgresqlVersion      : "42.3.3"
+        postgresqlVersion      : "42.6.0"
 ]
 
 java {
