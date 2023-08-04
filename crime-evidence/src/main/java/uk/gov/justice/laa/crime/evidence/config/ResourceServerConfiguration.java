@@ -42,8 +42,6 @@ public class ResourceServerConfiguration {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/**").hasAuthority(SCOPE_EVIDENCE_STANDARD)
                         .anyRequest().authenticated())
-
-
                 .oauth2ResourceServer((oauth2) -> oauth2
                         .accessDeniedHandler(bearerTokenAccessDeniedHandler())
                         .authenticationEntryPoint(bearerTokenAuthenticationEntryPoint())
