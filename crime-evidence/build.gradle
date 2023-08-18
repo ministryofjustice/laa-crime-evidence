@@ -20,7 +20,9 @@ def versions = [
         mockwebserverVersion   : "4.10.0",
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
-        crimeCommonsVersion    : "2.2.0"
+        crimeCommonsVersion    : "2.2.0",
+        wiremockVersion        : "2.35.0"
+
 ]
 
 java {
@@ -69,13 +71,19 @@ dependencies {
     testImplementation "org.pitest:pitest:$versions.pitest"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.security:spring-security-test"
-    testImplementation "com.squareup.okhttp3:okhttp:$versions.okhttpVersion"
-    testImplementation "com.squareup.okhttp3:mockwebserver:$versions.mockwebserverVersion"
+    testImplementation "com.github.tomakehurst:wiremock-jre8-standalone:$versions.wiremockVersion"
+
 }
 
-tasks.named("test").configure {
-    it.useJUnitPlatform()
-    it.dependsOn "cleanTest"
+configurations {
+    all {
+        exclude group: 'junit', module: 'junit'
+    }
+}
+
+test {
+    useJUnitPlatform()
+    dependsOn "cleanTest"
     finalizedBy jacocoTestReport
 }
 
