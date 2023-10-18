@@ -20,7 +20,7 @@ def versions = [
         mockwebserverVersion   : "4.10.0",
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
-        crimeCommonsVersion    : "2.2.0",
+        crimeCommonsVersion    : "2.7.0",
         wiremockVersion        : "2.35.0"
 
 ]
