@@ -18,7 +18,7 @@ public class CrimeEvidenceExceptionHandler {
     private final TraceIdHandler traceIdHandler;
 
     private static ResponseEntity<ErrorDTO> buildErrorResponse(HttpStatus status, String errorMessage, String traceId) {
-        return new ResponseEntity<>(ErrorDTO.builder().code(status.toString()).message(errorMessage).build(), status);
+        return new ResponseEntity<>(ErrorDTO.builder().traceId(traceId).code(status.toString()).message(errorMessage).build(), status);
     }
 
     @ExceptionHandler(APIClientException.class)
