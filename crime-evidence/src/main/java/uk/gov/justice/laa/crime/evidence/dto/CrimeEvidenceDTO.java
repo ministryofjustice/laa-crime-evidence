@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 @Builder
 public class CrimeEvidenceDTO {
-    private String laaTransactionId;
     private Integer repId;
     private String magCourtOutcome;
     private EvidenceFeeDTO evidenceFee;

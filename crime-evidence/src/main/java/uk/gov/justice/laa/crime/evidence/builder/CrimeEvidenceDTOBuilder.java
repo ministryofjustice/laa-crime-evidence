@@ -12,7 +12,6 @@ public class CrimeEvidenceDTOBuilder {
 
     public static CrimeEvidenceDTO build(final ApiCalculateEvidenceFeeRequest request) {
         return CrimeEvidenceDTO.builder()
-                .laaTransactionId(request.getLaaTransactionId())
                 .repId(request.getRepId())
                 .magCourtOutcome(request.getMagCourtOutcome())
                 .evidenceFee(EvidenceFeeDTOBuilder.build(request))
