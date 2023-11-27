@@ -21,7 +21,8 @@ def versions = [
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
         crimeCommonsVersion    : "2.7.0",
-        wiremockVersion        : "2.35.0"
+        wiremockVersion        : "2.35.0",
+        springDocWebMVCVersion : "2.1.0"
 
 ]
 
@@ -58,7 +59,7 @@ dependencies {
     implementation "org.postgresql:postgresql"
     implementation "org.liquibase:liquibase-core"
     implementation "io.micrometer:micrometer-registry-prometheus"
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springDocWebMVCVersion"
     implementation "org.apache.commons:commons-lang3:$versions.commonsLang3Version"
 
     implementation "uk.gov.justice.service.laa-crime:crime-commons-spring-boot-starter-rest-client:$versions.crimeCommonsVersion"
