@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.commons.client.RestAPIClient;
-import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.config.ServicesConfiguration;
 
 import java.util.Map;
@@ -21,11 +20,11 @@ public class MaatCourtDataService {
     private final ServicesConfiguration configuration;
     private static final String RESPONSE_STRING = "Response from Court Data API: %s";
 
-    public Long getRepOrderCapitalByRepId(Integer repId, String laaTransactionId) {
+    public Long getRepOrderCapitalByRepId(Integer repId) {
 
         ResponseEntity<Void> response = maatAPIClient.head(
                 configuration.getMaatApi().getRepOrderEndpoints().getRepOrderCapitalUrl(),
-                Map.of(Constants.LAA_TRANSACTION_ID, laaTransactionId),
+                Map.of(),
                 repId
         );
         log.info(String.format(RESPONSE_STRING, response));

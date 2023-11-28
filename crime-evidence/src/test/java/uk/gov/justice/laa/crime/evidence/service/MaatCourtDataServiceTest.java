@@ -20,8 +20,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MaatCourtDataServiceTest {
 
-    private static final String LAA_TRANSACTION_ID = "laaTransactionId";
-
     @Mock
     private RestAPIClient maatCourtDataClient;
 
@@ -36,7 +34,7 @@ class MaatCourtDataServiceTest {
         ResponseEntity<Void> expected = new ResponseEntity<>(HttpStatus.OK);
         when(maatCourtDataClient.head(any(), anyMap(), any()))
                 .thenReturn(expected);
-        maatCourtDataService.getRepOrderCapitalByRepId(TestModelDataBuilder.TEST_REP_ID, LAA_TRANSACTION_ID);
+        maatCourtDataService.getRepOrderCapitalByRepId(TestModelDataBuilder.TEST_REP_ID);
         verify(maatCourtDataClient, atLeastOnce()).head(any(), anyMap(), any());
     }
 }
