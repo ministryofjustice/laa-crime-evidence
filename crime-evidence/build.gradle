@@ -20,15 +20,9 @@ def versions = [
         mockwebserverVersion   : "4.10.0",
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
-<<<<<<< Updated upstream
-        crimeCommonsVersion    : "2.7.0",
+        crimeCommonsVersion    : "2.8.0",
         wiremockVersion        : "2.35.0",
         springDocWebMVCVersion : "2.1.0"
-=======
-        crimeCommonsVersion    : "2.8.0",
-        wiremockVersion        : "2.35.0"
->>>>>>> Stashed changes
-
 ]
 
 java {
