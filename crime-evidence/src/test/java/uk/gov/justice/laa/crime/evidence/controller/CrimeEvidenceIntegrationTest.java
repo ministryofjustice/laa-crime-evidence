@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Import(CrimeEvidenceTestConfiguration.class)
 @SpringBootTest(classes = CrimeEvidenceApplication.class, webEnvironment = DEFINED_PORT)
+@AutoConfigureObservability
 class CrimeEvidenceIntegrationTest {
 
     private static final String CCP_ENDPOINT_URL = "/api/internal/v1/evidence";
