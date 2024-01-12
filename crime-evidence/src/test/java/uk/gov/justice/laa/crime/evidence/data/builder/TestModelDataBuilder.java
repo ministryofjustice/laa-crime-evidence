@@ -9,7 +9,7 @@ import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeReq
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCapitalEvidence;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiEvidenceFee;
-import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
 import java.time.LocalDateTime;
 import java.util.List;

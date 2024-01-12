@@ -61,6 +61,7 @@ dependencies {
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springDocWebMVCVersion"
     implementation "org.apache.commons:commons-lang3:$versions.commonsLang3Version"
+    implementation "uk.gov.justice.service.laa-crime:crime-commons-classes:$versions.crimeCommonsVersion"
 
     implementation "uk.gov.justice.service.laa-crime:crime-commons-spring-boot-starter-rest-client:$versions.crimeCommonsVersion"
 

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
-import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
 import java.util.List;
 
