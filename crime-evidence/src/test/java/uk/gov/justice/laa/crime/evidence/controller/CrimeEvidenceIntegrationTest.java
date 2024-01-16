@@ -21,7 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication;
 import uk.gov.justice.laa.crime.evidence.config.CrimeEvidenceTestConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.util.RequestBuilderUtils;
+import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import java.util.Map;
 import java.util.UUID;

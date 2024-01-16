@@ -21,7 +21,7 @@ import uk.gov.justice.laa.crime.evidence.config.CrimeEvidenceTestConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
-import uk.gov.justice.laa.crime.evidence.util.RequestBuilderUtils;
+import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
