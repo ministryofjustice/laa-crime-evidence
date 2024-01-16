@@ -20,7 +20,7 @@ def versions = [
         sentryVersion          : "7.0.0",
         mockwebserverVersion   : "4.11.0",
         pitest                 : "1.4.10",
-        commonsLang3Version    : "3.10",
+        commonsLang3Version    : "3.14.0",
         crimeCommonsVersion    : "2.13.6",
         wiremockVersion        : "2.35.0",
         springDocWebMVCVersion : "2.1.0"
