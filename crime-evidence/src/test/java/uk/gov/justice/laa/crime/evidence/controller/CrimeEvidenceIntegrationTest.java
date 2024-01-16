@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CrimeEvidenceIntegrationTest {
 
     private static final String CCP_ENDPOINT_URL = "/api/internal/v1/evidence";
-    private static final String ERROR_MSG = "Call to service MAAT-API failed.";
+    private static final String ERROR_MSG = "Call to service failed. Retries exhausted: 2/2.";
     private static final String CALCULATE_EVIDENCE_FEE = CCP_ENDPOINT_URL.concat("/calculate-evidence-fee");
 
     private MockMvc mvc;
