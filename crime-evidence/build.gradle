@@ -18,10 +18,10 @@ jacoco {
 def versions = [
         okhttpVersion          : "4.9.3",
         sentryVersion          : "7.0.0",
-        mockwebserverVersion   : "4.10.0",
+        mockwebserverVersion   : "4.11.0",
         pitest                 : "1.4.10",
         commonsLang3Version    : "3.10",
-        crimeCommonsVersion    : "2.8.0",
+        crimeCommonsVersion    : "2.13.6",
         wiremockVersion        : "2.35.0",
         springDocWebMVCVersion : "2.1.0"
 ]
@@ -61,6 +61,7 @@ dependencies {
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springDocWebMVCVersion"
     implementation "org.apache.commons:commons-lang3:$versions.commonsLang3Version"
+    implementation "uk.gov.justice.service.laa-crime:crime-commons-classes:$versions.crimeCommonsVersion"
 
     implementation "uk.gov.justice.service.laa-crime:crime-commons-spring-boot-starter-rest-client:$versions.crimeCommonsVersion"
 

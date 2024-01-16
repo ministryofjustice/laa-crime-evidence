@@ -9,7 +9,7 @@ import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiEvidenceFee;
-import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
 
 @Slf4j

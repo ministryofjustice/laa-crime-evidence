@@ -20,7 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication;
 import uk.gov.justice.laa.crime.evidence.config.CrimeEvidenceTestConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.util.RequestBuilderUtils;
+import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CrimeEvidenceIntegrationTest {
 
     private static final String CCP_ENDPOINT_URL = "/api/internal/v1/evidence";
-    private static final String ERROR_MSG = "Call to service MAAT-API failed.";
+    private static final String ERROR_MSG = "Call to service failed. Retries exhausted: 2/2.";
     private static final String CALCULATE_EVIDENCE_FEE = CCP_ENDPOINT_URL.concat("/calculate-evidence-fee");
 
     private MockMvc mvc;
