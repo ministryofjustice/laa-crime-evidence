@@ -17,7 +17,7 @@ jacoco {
 def versions = [
         pitest                  : "1.4.10",
         crimeCommonsVersion     : "2.13.6",
-        wmStubRunnerVersion    	: "4.0.1",
+        wmStubRunnerVersion    	: "4.1.0",
         springDocWebMVCVersion  : "2.1.0"
 ]
 
