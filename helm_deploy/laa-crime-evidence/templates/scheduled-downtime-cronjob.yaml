@@ -17,7 +17,7 @@ spec:
         spec:
           containers:
             - name: cloud-platform-tools
-              image: ministryofjustice/cloud-platform-tools:latest
+              image: ministryofjustice/cloud-platform-tools
               args:
                 - kubectl
                 - scale
@@ -45,7 +45,7 @@ spec:
         spec:
           containers:
             - name: cloud-platform-tools
-              image: ministryofjustice/cloud-platform-tools:latest
+              image: ministryofjustice/cloud-platform-tools
               args:
                 - kubectl
                 - scale
