@@ -15,10 +15,11 @@ spec:
       ttlSecondsAfterFinished: 345600 # 4 days
       template:
         spec:
-          securityContext:
-            runAsUser: 1000
           containers:
             - name: cloud-platform-tools
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
               image: ministryofjustice/cloud-platform-tools
               args:
                 - kubectl
@@ -45,10 +46,11 @@ spec:
       ttlSecondsAfterFinished: 345600 # 4 days
       template:
         spec:
-          securityContext:
-            runAsUser: 1000
           containers:
             - name: cloud-platform-tools
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
               image: ministryofjustice/cloud-platform-tools
               args:
                 - kubectl
