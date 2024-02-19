@@ -15,6 +15,8 @@ spec:
       ttlSecondsAfterFinished: 345600 # 4 days
       template:
         spec:
+          securityContext:
+            runAsUser: 1000
           containers:
             - name: cloud-platform-tools
               image: ministryofjustice/cloud-platform-tools
@@ -43,6 +45,8 @@ spec:
       ttlSecondsAfterFinished: 345600 # 4 days
       template:
         spec:
+          securityContext:
+            runAsUser: 1000
           containers:
             - name: cloud-platform-tools
               image: ministryofjustice/cloud-platform-tools
