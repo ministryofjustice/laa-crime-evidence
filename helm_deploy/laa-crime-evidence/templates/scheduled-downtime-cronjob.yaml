@@ -1,0 +1,58 @@
+{{- if .Values.scheduledDowntime.enabled -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "laa-crime-evidence.fullname" . }}-shutdown
+  labels:
+    {{- include "laa-crime-evidence.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.scheduledDowntime.shutdown }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 345600 # 4 days
+      template:
+        spec:
+          containers:
+            - name: cloud-platform-tools
+              image: ministryofjustice/cloud-platform-tools:latest
+              args:
+                - kubectl
+                - scale
+                - deploy
+                - {{ include "laa-crime-evidence.fullname" . }}
+                - --replicas=0
+          restartPolicy: OnFailure
+          serviceAccountName: {{ include "laa-crime-evidence.serviceAccountName" . }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "laa-crime-evidence.fullname" . | trunc 43 }}-startup
+  labels:
+    {{- include "laa-crime-evidence.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.scheduledDowntime.startup }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 345600 # 4 days
+      template:
+        spec:
+          containers:
+            - name: cloud-platform-tools
+              image: ministryofjustice/cloud-platform-tools:latest
+              args:
+                - kubectl
+                - scale
+                - deploy
+                - {{ include "laa-crime-evidence.fullname" . }}
+                - --current-replicas=0
+                - --replicas={{ .Values.replicaCount }}
+          restartPolicy: OnFailure
+          serviceAccountName: {{ include "laa-crime-evidence.serviceAccountName" . }}
+{{- end }}
