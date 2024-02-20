@@ -28,7 +28,7 @@ spec:
                 - {{ include "laa-crime-evidence.fullname" . }}
                 - --replicas=0
           restartPolicy: OnFailure
-          serviceAccountName: {{ include "laa-crime-evidence.serviceAccountName" . }}
+          serviceAccountName: {{ .Values.scheduledDowntime.serviceAccountName }}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -60,5 +60,5 @@ spec:
                 - --current-replicas=0
                 - --replicas={{ .Values.replicaCount }}
           restartPolicy: OnFailure
-          serviceAccountName: {{ include "laa-crime-evidence.serviceAccountName" . }}
+          serviceAccountName: {{ .Values.scheduledDowntime.serviceAccountName }}
 {{- end }}
