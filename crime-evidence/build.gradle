@@ -18,7 +18,8 @@ def versions = [
         pitest                  : "1.4.10",
         crimeCommonsVersion     : "2.13.6",
         wmStubRunnerVersion    	: "4.0.1",
-        springDocWebMVCVersion  : "2.1.0"
+        springDocWebMVCVersion  : "2.1.0",
+        postgresqlVersion      : "42.5.4"
 ]
 
 java {
@@ -43,7 +44,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
 
-    implementation "org.postgresql:postgresql"
+    implementation "org.postgresql:postgresql:$versions.postgresqlVersion"
     implementation "org.liquibase:liquibase-core"
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springDocWebMVCVersion"
