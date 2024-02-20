@@ -1,3 +1,4 @@
+// prettier-ignore
 {{- if .Values.scheduledDowntime.enabled -}}
 apiVersion: batch/v1
 kind: CronJob
