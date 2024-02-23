@@ -19,7 +19,7 @@ def versions = [
         crimeCommonsVersion     : "2.13.6",
         wmStubRunnerVersion    	: "4.0.1",
         springDocWebMVCVersion  : "2.1.0",
-        postgresqlVersion      : "42.5.4"
+        postgresqlVersion      : "42.7.2"
 ]
 
 java {
