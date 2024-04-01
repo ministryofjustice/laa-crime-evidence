@@ -18,7 +18,7 @@ def versions = [
         pitest                  : "1.4.10",
         crimeCommonsVersion     : "2.13.6",
         wmStubRunnerVersion    	: "4.0.1",
-        springDocWebMVCVersion  : "2.1.0",
+        springDocWebMVCVersion  : "2.5.0",
         postgresqlVersion      : "42.7.2"
 ]
 
