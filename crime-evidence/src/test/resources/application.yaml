@@ -36,11 +36,13 @@ spring:
           issuer-uri: ${crime-evidence.security.issuer-uri}
 
 springdoc:
+  packagesToScan: uk.gov.justice.laa.crime.evidence
   api-docs:
-    path: /crime-evidence
+    path: open-api/api-docs
 
-swagger-ui:
-  path: /open-api/docs.html
+  swagger-ui:
+    path: open-api/swagger-ui.html
+    operationsSorter: method
 
 services:
   maat-api:
