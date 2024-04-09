@@ -6,7 +6,9 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -19,7 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication;
 import uk.gov.justice.laa.crime.evidence.config.CrimeEvidenceTestConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.util.RequestBuilderUtils;
+import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import java.util.Map;
 import java.util.UUID;
@@ -27,20 +29,25 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DirtiesContext
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Import(CrimeEvidenceTestConfiguration.class)
 @SpringBootTest(classes = CrimeEvidenceApplication.class, webEnvironment = DEFINED_PORT)
+@AutoConfigureWireMock(port = 9999)
+@AutoConfigureObservability
 class CrimeEvidenceIntegrationTest {
 
     private static final String CCP_ENDPOINT_URL = "/api/internal/v1/evidence";
-    private static final String ERROR_MSG = "Call to service MAAT-API failed.";
+    private static final String ERROR_MSG = "Call to service failed. Retries exhausted: 2/2.";
     private static final String CALCULATE_EVIDENCE_FEE = CCP_ENDPOINT_URL.concat("/calculate-evidence-fee");
 
     private MockMvc mvc;
-    private static final WireMockServer wiremock = new WireMockServer(9999);
+
+    @Autowired
+    private WireMockServer wiremock;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -51,21 +58,16 @@ class CrimeEvidenceIntegrationTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-
     @AfterEach
     void after() {
         wiremock.resetAll();
-    }
-
-    @AfterAll
-    static void clean() {
-        wiremock.shutdown();
     }
 
     @BeforeAll
     void startWiremock() {
         wiremock.start();
     }
+
     @BeforeEach
     public void setup() throws JsonProcessingException {
         stubForOAuth();

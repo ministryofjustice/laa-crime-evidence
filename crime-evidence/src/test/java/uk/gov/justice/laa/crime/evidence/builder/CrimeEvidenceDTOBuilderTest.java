@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
-import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
 import java.util.List;
 
@@ -24,7 +24,6 @@ class CrimeEvidenceDTOBuilderTest {
                 TestModelDataBuilder.getApiCalculateEvidenceFeeRequest(Boolean.TRUE));
 
         softly.assertThat(crimeEvidenceDTO.getRepId()).isEqualTo(TestModelDataBuilder.TEST_REP_ID);
-        softly.assertThat(crimeEvidenceDTO.getLaaTransactionId()).isEqualTo(TestModelDataBuilder.MEANS_ASSESSMENT_TRANSACTION_ID);
         softly.assertThat(crimeEvidenceDTO.getMagCourtOutcome()).isEqualTo(TestModelDataBuilder.MSG_COURT_OUTCOME);
         softly.assertThat(crimeEvidenceDTO.getEvidenceFee().getFeeLevel()).isEqualTo(EvidenceFeeLevel.LEVEL1.getFeeLevel());
         softly.assertThat(crimeEvidenceDTO.getEvidenceFee().getDescription()).isEqualTo(EvidenceFeeLevel.LEVEL1.getDescription());

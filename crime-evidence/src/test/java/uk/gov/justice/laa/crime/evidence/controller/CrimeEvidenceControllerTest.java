@@ -15,12 +15,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.gov.justice.laa.crime.commons.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication;
 import uk.gov.justice.laa.crime.evidence.config.CrimeEvidenceTestConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
-import uk.gov.justice.laa.crime.evidence.util.RequestBuilderUtils;
+import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,6 +52,9 @@ class CrimeEvidenceControllerTest {
 
     @MockBean
     private EvidenceService evidenceService;
+
+    @MockBean
+    private TraceIdHandler traceIdHandler;
 
     @BeforeEach
     public void setup() {

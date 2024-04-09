@@ -12,11 +12,10 @@ import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
-import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +34,7 @@ class EvidenceServiceTest {
     @Test
     void givenValidCrimeEvidence_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
-        when(maatCourtDataService.getRepOrderCapitalByRepId(anyInt(), anyString()))
+        when(maatCourtDataService.getRepOrderCapitalByRepId(anyInt()))
                 .thenReturn(2L);
         ApiCalculateEvidenceFeeResponse response = evidenceService.calculateEvidenceFee(requestDTO);
 
