@@ -19,7 +19,7 @@ def versions = [
         crimeCommonsClasses   : "3.2.0",
         commonsRestClient     : "3.2.0",
         wmStubRunnerVersion   : "4.0.1",
-        springDocWebMVCVersion: "2.1.0",
+        springDocWebMVCVersion: "2.5.0",
         postgresqlVersion     : "42.7.2"
 ]
 
