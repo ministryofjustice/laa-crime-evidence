@@ -8,9 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.stream.Stream;
 
-/**
- * static data migrated from TOGDATA.EVIDENCE_FEE_RULES table
- */
 @Getter
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
