@@ -5,9 +5,9 @@ import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeRequest;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeDTO;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeRequest;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
