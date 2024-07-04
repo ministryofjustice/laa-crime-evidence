@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
