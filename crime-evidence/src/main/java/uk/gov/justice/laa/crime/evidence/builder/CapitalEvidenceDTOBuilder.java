@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeRequest;
 
 import java.util.List;
 

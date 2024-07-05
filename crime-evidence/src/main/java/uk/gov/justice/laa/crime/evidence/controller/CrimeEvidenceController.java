@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.laa.crime.evidence.builder.CrimeEvidenceDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.ErrorDTO;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeRequest;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
 
 @Slf4j

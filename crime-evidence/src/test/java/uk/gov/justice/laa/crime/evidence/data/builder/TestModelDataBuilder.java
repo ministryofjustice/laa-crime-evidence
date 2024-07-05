@@ -5,10 +5,10 @@ import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeDTO;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeRequest;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCalculateEvidenceFeeResponse;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiCapitalEvidence;
-import uk.gov.justice.laa.crime.evidence.model.common.ApiEvidenceFee;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCapitalEvidence;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
 import java.time.LocalDateTime;
