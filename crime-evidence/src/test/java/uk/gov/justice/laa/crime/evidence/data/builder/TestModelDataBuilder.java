@@ -1,18 +1,20 @@
 package uk.gov.justice.laa.crime.evidence.data.builder;
 
 import org.springframework.stereotype.Component;
+import uk.gov.justice.laa.crime.common.model.evidence.*;
+import uk.gov.justice.laa.crime.enums.EmploymentStatus;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
+import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeDTO;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeRequest;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiCapitalEvidence;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
-import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class TestModelDataBuilder {
@@ -26,6 +28,12 @@ public class TestModelDataBuilder {
     public static final String MSG_COURT_OUTCOME = "SENT FOR TRIAL";
 
     public static final String EMST_CODE = "SELF";
+    public static final int APPLICANT_ID = 5708;
+    public static final int FINANCIAL_ASSESSMENT_ID = 4509;
+    public static final int PARTNER_ID = 6336;
+    public static final String TEST_USER_NAME = "mock-u";
+    public static final LocalDate DUE_DATE = LocalDate.of(2024, 8, 15);
+    public static final LocalDate EVIDENCE_RECEIVED_DATE = LocalDate.of(2024, 7, 12);
 
     public static ApiCalculateEvidenceFeeRequest getApiCalculateEvidenceFeeRequest(boolean isValid) {
         return new ApiCalculateEvidenceFeeRequest()
@@ -62,6 +70,58 @@ public class TestModelDataBuilder {
                 .withCapitalEvidenceReceivedDate(LocalDateTime.now())
                 .withIncomeEvidenceReceivedDate(LocalDateTime.now())
                 .withEmstCode("SELF");
+    }
+
+    public static ApiUserSession getUserSession() {
+        return new ApiUserSession()
+                .withUserName(TEST_USER_NAME)
+                .withSessionId(UUID.randomUUID().toString());
+    }
+
+    public static ApiApplicantDetails getApiApplicantDetails(boolean isPartner) {
+        return new ApiApplicantDetails()
+                .withId(isPartner ? APPLICANT_ID : PARTNER_ID)
+                .withEmploymentStatus(EmploymentStatus.EMPLOY);
+    }
+
+    public static ApiIncomeEvidenceMetadata getApiIncomeEvidenceMetadata() {
+        return new ApiIncomeEvidenceMetadata()
+                .withNotes("mock notes")
+                .withEvidencePending(false)
+                .withUserSession(getUserSession());
+    }
+
+    public static ApiCreateIncomeEvidenceRequest getApiCreateIncomeEvidenceRequest() {
+        return new ApiCreateIncomeEvidenceRequest()
+                .withMagCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+                .withApplicantDetails(getApiApplicantDetails(false))
+                .withFinancialAssessmentId(FINANCIAL_ASSESSMENT_ID)
+                .withPartnerDetails(getApiApplicantDetails(true))
+                .withMetadata(getApiIncomeEvidenceMetadata());
+    }
+
+    public static ApiIncomeEvidenceItems getApiIncomeEvidenceItems() {
+        return new ApiIncomeEvidenceItems()
+                .withApplicantDetails(getApiApplicantDetails(false))
+                .withIncomeEvidenceItems(
+                        List.of(
+                                new ApiIncomeEvidence()
+                                        .withId(9315)
+                                        .withDescription("mock evidence item")
+                                        .withMandatory(true)
+                                        .withEvidenceType(IncomeEvidenceType.WAGE_SLIP)
+                                        .withDateReceived(EVIDENCE_RECEIVED_DATE)
+                                )
+                );
+    }
+
+    public static ApiUpdateIncomeEvidenceRequest getApiUpdateIncomeEvidenceRequest() {
+        return new ApiUpdateIncomeEvidenceRequest()
+                .withDueDate(DUE_DATE)
+                .withMagCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+                .withApplicantEvidenceItems(getApiIncomeEvidenceItems())
+                .withFinancialAssessmentId(FINANCIAL_ASSESSMENT_ID)
+                .withMetadata(getApiIncomeEvidenceMetadata());
     }
 
     public static CrimeEvidenceDTO getCrimeEvidenceDTO() {
