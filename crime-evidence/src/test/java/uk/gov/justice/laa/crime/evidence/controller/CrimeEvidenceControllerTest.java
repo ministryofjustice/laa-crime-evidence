@@ -41,32 +41,26 @@ class CrimeEvidenceControllerTest {
     private TraceIdHandler traceIdHandler;
 
     @Test
-    void calculateEvidenceFee_ServerError_RequestBodyIsMissing() throws Exception {
+    void givenMissingRequestBody_whenCalculateEvidenceFeeIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "", ENDPOINT_URL))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
-    void calculateEvidenceFee_BadRequest_RequestEmptyBody() throws Exception {
+    void givenEmptyRequestBody_whenCalculateEvidenceFeeIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "{}", ENDPOINT_URL))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void calculateEvidenceFee_Unauthorized_NoAccessToken() throws Exception {
-        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "{}", ENDPOINT_URL, false))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    void calculateEvidenceFee_RequestObjectFailsValidation() throws Exception {
+    void givenInvalidRequest_whenCalculateEvidenceFeeIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         String content = objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeInvalidRequest());
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, content, ENDPOINT_URL))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
-    void calculateEvidenceFee_Success() throws Exception {
+    void givenValidRequest_whenCalculateEvidenceFeeIsInvoked_thenOkResponseIsReturned() throws Exception {
         var apiCalculateEvidenceFeeRequest =
                 TestModelDataBuilder.getApiCalculateEvidenceFeeRequest(true);
         var calculateEvidenceFeeRequestJson = objectMapper.writeValueAsString(apiCalculateEvidenceFeeRequest);

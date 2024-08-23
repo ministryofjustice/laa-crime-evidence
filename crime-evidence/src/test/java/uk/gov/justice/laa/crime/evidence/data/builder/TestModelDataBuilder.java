@@ -78,10 +78,14 @@ public class TestModelDataBuilder {
                 .withSessionId(UUID.randomUUID().toString());
     }
 
-    public static ApiApplicantDetails getApiApplicantDetails(boolean isPartner) {
+    public static ApiApplicantDetails getApiApplicantDetails() {
         return new ApiApplicantDetails()
-                .withId(isPartner ? APPLICANT_ID : PARTNER_ID)
+                .withId(APPLICANT_ID)
                 .withEmploymentStatus(EmploymentStatus.EMPLOY);
+    }
+
+    public static ApiApplicantDetails getApiPartnerDetails() {
+        return getApiApplicantDetails().withId(PARTNER_ID);
     }
 
     public static ApiIncomeEvidenceMetadata getApiIncomeEvidenceMetadata() {
@@ -94,15 +98,15 @@ public class TestModelDataBuilder {
     public static ApiCreateIncomeEvidenceRequest getApiCreateIncomeEvidenceRequest() {
         return new ApiCreateIncomeEvidenceRequest()
                 .withMagCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
-                .withApplicantDetails(getApiApplicantDetails(false))
+                .withApplicantDetails(getApiApplicantDetails())
                 .withFinancialAssessmentId(FINANCIAL_ASSESSMENT_ID)
-                .withPartnerDetails(getApiApplicantDetails(true))
+                .withPartnerDetails(getApiPartnerDetails())
                 .withMetadata(getApiIncomeEvidenceMetadata());
     }
 
     public static ApiIncomeEvidenceItems getApiIncomeEvidenceItems() {
         return new ApiIncomeEvidenceItems()
-                .withApplicantDetails(getApiApplicantDetails(false))
+                .withApplicantDetails(getApiApplicantDetails())
                 .withIncomeEvidenceItems(
                         List.of(
                                 new ApiIncomeEvidence()

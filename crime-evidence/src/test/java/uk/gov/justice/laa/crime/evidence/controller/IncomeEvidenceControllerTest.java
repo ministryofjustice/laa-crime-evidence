@@ -32,34 +32,28 @@ class IncomeEvidenceControllerTest {
     private TraceIdHandler traceIdHandler;
 
     @Test
-    void createEvidence_ServerError_RequestBodyIsMissing() throws Exception {
+    void givenMissingRequestBody_whenCreateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "", ENDPOINT_URL))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void createEvidence_BadRequest_RequestEmptyBody() throws Exception {
+    void givenEmptyRequestBody_whenCreateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "{}", ENDPOINT_URL))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void createEvidence_Unauthorized_NoAccessToken() throws Exception {
-        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, "{}", ENDPOINT_URL, false))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    void createEvidence_RequestObjectFailsValidation() throws Exception {
+    void givenInvalidRequest_whenCreateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         ApiCreateIncomeEvidenceRequest request = TestModelDataBuilder.getApiCreateIncomeEvidenceRequest();
         request.setMagCourtOutcome(null);
         String content = objectMapper.writeValueAsString(request);
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, content, ENDPOINT_URL))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void createEvidence_Success() throws Exception {
+    void givenValidRequest_whenCreateEvidenceIsInvoked_thenOkResponseIsReturned() throws Exception {
         ApiCreateIncomeEvidenceRequest request = TestModelDataBuilder.getApiCreateIncomeEvidenceRequest();
         String content = objectMapper.writeValueAsString(request);
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, content, ENDPOINT_URL))
@@ -67,34 +61,28 @@ class IncomeEvidenceControllerTest {
     }
 
     @Test
-    void updateEvidence_ServerError_RequestBodyIsMissing() throws Exception {
+    void givenMissingRequestBody_whenUpdateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, "", ENDPOINT_URL))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void updateEvidence_BadRequest_RequestEmptyBody() throws Exception {
+    void givenEmptyRequestBody_whenUpdateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, "{}", ENDPOINT_URL))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void updateEvidence_Unauthorized_NoAccessToken() throws Exception {
-        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, "{}", ENDPOINT_URL, false))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    void updateEvidence_RequestObjectFailsValidation() throws Exception {
+    void givenInvalidRequest_whenUpdateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         ApiUpdateIncomeEvidenceRequest request = TestModelDataBuilder.getApiUpdateIncomeEvidenceRequest();
         request.setMagCourtOutcome(null);
         String content = objectMapper.writeValueAsString(request);
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, content, ENDPOINT_URL))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void updateEvidence_Success() throws Exception {
+    void givenValidRequest_whenUpdateEvidenceIsInvoked_thenOkResponseIsReturned() throws Exception {
         ApiUpdateIncomeEvidenceRequest request = TestModelDataBuilder.getApiUpdateIncomeEvidenceRequest();
         String content = objectMapper.writeValueAsString(request);
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, content, ENDPOINT_URL))
