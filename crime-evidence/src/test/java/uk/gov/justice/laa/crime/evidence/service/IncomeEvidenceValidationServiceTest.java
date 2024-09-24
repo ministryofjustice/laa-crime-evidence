@@ -84,10 +84,10 @@ class IncomeEvidenceValidationServiceTest {
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateNull_thenExceptionIsThrown() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Date currentDate = new Date();
-            incomeEvidenceValidationService.checkEvidenceDueDates(null, currentDate, currentDate, currentDate);
-        });
+        Date currentDate = new Date();
+        assertThrows(IllegalArgumentException.class, () ->
+                incomeEvidenceValidationService.checkEvidenceDueDates(null, currentDate, currentDate, currentDate)
+        );
     }
 
     @Test
