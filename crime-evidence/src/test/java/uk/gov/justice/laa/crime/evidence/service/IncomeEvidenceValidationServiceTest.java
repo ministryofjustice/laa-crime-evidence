@@ -41,17 +41,21 @@ class IncomeEvidenceValidationServiceTest {
     @Test
     void givenValidDates_whenCheckEvidenceReceivedDateIsInvokedWithIncomeEvidenceReceivedDateAfterCurrentDate_thenExceptionIsThrown() {
         LocalDate futureDate = LocalDate.now().plusMonths(2);
-        assertThrows(IllegalArgumentException.class, () -> {
-            incomeEvidenceValidationService.checkEvidenceReceivedDate(DateUtil.asDate(futureDate), new Date());
-        });
+        Date convertedFutureDate = DateUtil.asDate(futureDate);
+        Date currentDate = new Date();
+        assertThrows(IllegalArgumentException.class, () ->
+                incomeEvidenceValidationService.checkEvidenceReceivedDate(convertedFutureDate, currentDate)
+        );
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceReceivedDateIsInvokedWithIncomeEvidenceReceivedDateBeforeCurrentDate_ExceptionIsThrown() {
         LocalDate pastDate = LocalDate.now().minusMonths(2);
-        assertThrows(IllegalArgumentException.class, () -> {
-            incomeEvidenceValidationService.checkEvidenceReceivedDate(DateUtil.asDate(pastDate), new Date());
-        });
+        Date pastDateConverted = DateUtil.asDate(pastDate);
+        Date currentDate = new Date();
+        assertThrows(IllegalArgumentException.class, () ->
+                incomeEvidenceValidationService.checkEvidenceReceivedDate(pastDateConverted, currentDate)
+        );
     }
 
     @Test
@@ -88,15 +92,21 @@ class IncomeEvidenceValidationServiceTest {
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateAfterCurrentDate_thenNoExceptionIsThrown() {
         LocalDate futureDate = LocalDate.now().plusMonths(2);
-        incomeEvidenceValidationService.checkEvidenceDueDates(DateUtil.asDate(futureDate), new Date(), new Date(), new Date());
+        Date futureDateConverted = DateUtil.asDate(futureDate);
+        Date currentDate = new Date();
+        incomeEvidenceValidationService.checkEvidenceDueDates(futureDateConverted, currentDate, currentDate, currentDate);
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateBeforeCurrentDate_thenExceptionIsThrown() {
         LocalDate pastDate = LocalDate.now().minusMonths(2);
-        assertThrows(IllegalArgumentException.class, () -> {
-            incomeEvidenceValidationService.checkEvidenceDueDates(DateUtil.asDate(pastDate), new Date(), new Date(), new Date());
-        });
+        Date pastDateConverted = DateUtil.asDate(pastDate);
+        Date currentDate1 = new Date();
+        Date currentDate2 = new Date();
+        Date currentDate3 = new Date();
+        assertThrows(IllegalArgumentException.class, () ->
+                incomeEvidenceValidationService.checkEvidenceDueDates(pastDateConverted, currentDate1, currentDate2, currentDate3)
+        );
     }
 
     @Test
@@ -107,13 +117,21 @@ class IncomeEvidenceValidationServiceTest {
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithFirstReminderDateAfterCurrentDate_thenNoExceptionIsThrown() {
         LocalDate futureDate = LocalDate.now().plusMonths(2);
-        incomeEvidenceValidationService.checkEvidenceDueDates(new Date(), DateUtil.asDate(futureDate), new Date(), new Date());
+        Date currentDate1 = new Date();
+        Date futureDateConverted = DateUtil.asDate(futureDate);
+        Date currentDate2 = new Date();
+        Date currentDate3 = new Date();
+        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, futureDateConverted, currentDate2, currentDate3);
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithFirstReminderDateBeforeCurrentDate_thenNoExceptionIsThrown() {
         LocalDate pastDate = LocalDate.now().minusMonths(2);
-        incomeEvidenceValidationService.checkEvidenceDueDates(new Date(), DateUtil.asDate(pastDate), new Date(), new Date());
+        Date currentDate1 = new Date();
+        Date pastDateConverted = DateUtil.asDate(pastDate);
+        Date currentDate2 = new Date();
+        Date currentDate3 = new Date();
+        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, pastDateConverted, currentDate2, currentDate3);
     }
 
     @Test

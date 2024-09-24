@@ -18,15 +18,12 @@ public class IncomeEvidenceValidationService {
 
     public void checkEvidenceReceivedDate(Date incomeEvidenceReceivedDate, Date applicationReceivedDate) {
         Date currentDate = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-        if (incomeEvidenceReceivedDate != null) {
-            if (incomeEvidenceReceivedDate.after(currentDate)) {
+        if (incomeEvidenceReceivedDate != null && incomeEvidenceReceivedDate.after(currentDate)) {
                 throw new IllegalArgumentException("Income evidence received date cannot be in the future");
-            }
         }
-        if (incomeEvidenceReceivedDate != null) {
-            if (incomeEvidenceReceivedDate.before(applicationReceivedDate)) {
+
+        if (incomeEvidenceReceivedDate != null && incomeEvidenceReceivedDate.before(applicationReceivedDate)) {
                 throw new IllegalArgumentException("Income evidence received date cannot be before application date received");
-            }
         }
     }
 
@@ -48,7 +45,7 @@ public class IncomeEvidenceValidationService {
         }
 
         if (evidenceDueDate != null && evidenceDueDate.before(date)
-                && (!evidenceDueDate.equals(existingEvidenceDueDate) || existingEvidenceDueDate == null)) {
+                && (!evidenceDueDate.equals(existingEvidenceDueDate))) {
             throw new IllegalArgumentException("Cannot set due date in the past.");
         }
     }
