@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.laa.crime.evidence.util.DateUtil;
+import uk.gov.justice.laa.crime.util.DateUtil;
 
 import java.time.LocalDate;
 import java.util.Date;
