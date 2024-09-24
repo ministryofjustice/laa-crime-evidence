@@ -85,7 +85,8 @@ class IncomeEvidenceValidationServiceTest {
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateNull_thenExceptionIsThrown() {
         assertThrows(IllegalArgumentException.class, () -> {
-            incomeEvidenceValidationService.checkEvidenceDueDates(null, new Date(), new Date(), new Date());
+            Date currentDate = new Date();
+            incomeEvidenceValidationService.checkEvidenceDueDates(null, currentDate, currentDate, currentDate);
         });
     }
 
@@ -142,8 +143,11 @@ class IncomeEvidenceValidationServiceTest {
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithExistingEvidenceDueDateAsNullAndEvidenceDueDateBeforeDate_thenExceptionIsThrown() {
         LocalDate pastDate = LocalDate.now().minusMonths(2);
-        assertThrows(IllegalArgumentException.class, () -> {
-            incomeEvidenceValidationService.checkEvidenceDueDates(DateUtil.asDate(pastDate), new Date(), new Date(), null);
-        });
+        Date pastDateConverted = DateUtil.asDate(pastDate);
+        Date currentDate1 = new Date();
+        Date currentDate2 = new Date();
+        assertThrows(IllegalArgumentException.class, () ->
+                incomeEvidenceValidationService.checkEvidenceDueDates(pastDateConverted, currentDate1, currentDate2, null)
+        );
     }
 }
