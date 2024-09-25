@@ -1,23 +1,19 @@
 package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
+import lombok.Getter;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.stream.Stream;
 
+@Getter
+@AllArgsConstructor
 public enum OtherEvidenceTypes {
     OTHER("OTHER"),
     OTHER_BUSINESS("OTHER BUSINESS"),
     OTHER_ADHOC("OTHER_ADHOC");
 
     private final String evidence;
-
-    OtherEvidenceTypes(String evidence) {
-        this.evidence = evidence;
-    }
-
-    public String getEvidence() {
-        return evidence;
-    }
 
     public static OtherEvidenceTypes getFrom(String type) {
         if (StringUtils.isBlank(type)) return null;
