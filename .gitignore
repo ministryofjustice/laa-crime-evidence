@@ -39,3 +39,6 @@ out/
 .env
 gradle.properties
 pgdata/
+
+# Local environment variables for testing
+*.env
