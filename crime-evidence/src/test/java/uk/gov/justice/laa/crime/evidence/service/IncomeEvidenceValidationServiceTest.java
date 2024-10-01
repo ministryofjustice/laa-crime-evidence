@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
 import uk.gov.justice.laa.crime.util.DateUtil;
 
 import java.time.LocalDate;
@@ -214,5 +215,19 @@ class IncomeEvidenceValidationServiceTest {
         Date currentDate2 = new Date();
         Date pastDateConverted = DateUtil.asDate(pastDate);
         incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, currentDate2, currentDate2, pastDateConverted);
+    }
+
+    @Test
+    void givenValidDates_whenValidateIsInvoked_thenNoExceptionIsThrown() {
+        EvidenceDTO evidenceDTO = EvidenceDTO.builder().evidenceDueDate(DateUtil.convertDateToDateTime(LocalDate.now().plusMonths(2)))
+                .firstReminderDate(DateUtil.convertDateToDateTime(LocalDate.now().plusMonths(1)))
+                .secondReminderDate(DateUtil.convertDateToDateTime(LocalDate.now().plusMonths(1)))
+                .existingEvidenceDueDate(DateUtil.convertDateToDateTime(LocalDate.now().minusMonths(1)))
+                .incomeExtraEvidence("OTHER")
+                .incomeExtraEvidenceText("Some text")
+                .incomeEvidenceReceivedDate(DateUtil.convertDateToDateTime(LocalDate.now().minusMonths(1)))
+                .applicationReceivedDate(DateUtil.convertDateToDateTime(LocalDate.now().minusMonths(2)))
+                .build();
+        incomeEvidenceValidationService.validate(evidenceDTO);
     }
 }

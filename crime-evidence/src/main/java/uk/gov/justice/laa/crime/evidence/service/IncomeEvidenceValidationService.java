@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.OtherEvidenceTypes;
 import uk.gov.justice.laa.crime.util.DateUtil;
 
@@ -13,6 +14,17 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class IncomeEvidenceValidationService {
+
+    public void validate(EvidenceDTO evidenceDTO){
+        checkExtraEvidenceDescription(evidenceDTO.getIncomeExtraEvidence(),
+                evidenceDTO.getIncomeExtraEvidenceText());
+        checkEvidenceReceivedDate(DateUtil.toDate(evidenceDTO.getIncomeEvidenceReceivedDate()),
+                DateUtil.toDate(evidenceDTO.getApplicationReceivedDate()));
+        checkEvidenceDueDates(DateUtil.toDate(evidenceDTO.getEvidenceDueDate()),
+                DateUtil.toDate(evidenceDTO.getFirstReminderDate()),
+                DateUtil.toDate(evidenceDTO.getSecondReminderDate()),
+                DateUtil.toDate(evidenceDTO.getExistingEvidenceDueDate()));
+    }
 
     public void checkEvidenceReceivedDate(Date incomeEvidenceReceivedDate, Date applicationReceivedDate) {
         Date currentDate = DateUtil.getCurrentDate();
