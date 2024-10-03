@@ -30,4 +30,8 @@ public class MaatCourtDataService {
         log.info(String.format(RESPONSE_STRING, response));
         return response.getHeaders().getContentLength();
     }
+
+    public void updateAssessment() {
+
+    }
 }
