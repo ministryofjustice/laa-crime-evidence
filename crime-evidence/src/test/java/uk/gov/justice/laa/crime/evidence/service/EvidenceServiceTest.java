@@ -3,11 +3,14 @@ package uk.gov.justice.laa.crime.evidence.service;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
@@ -114,5 +117,16 @@ class EvidenceServiceTest {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
         requestDTO.getEvidenceFee().setFeeLevel(EvidenceFeeLevel.LEVEL1.getDescription());
         assertThat(evidenceService.isCalcRequired(requestDTO)).isFalse();
+    }
+
+    @Test
+    void givenNoEvidenceItems_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsNotUpdated() {
+        ApiUpdateIncomeEvidenceRequest request = TestModelDataBuilder.getApiUpdateIncomeEvidenceRequest();
+        request.setApplicantEvidenceItems(new ApiIncomeEvidenceItems());
+        request.setPartnerEvidenceItems(new ApiIncomeEvidenceItems());
+
+        boolean updateResult = evidenceService.updateEvidence(request);
+
+        Assertions.assertFalse(updateResult);
     }
 }
