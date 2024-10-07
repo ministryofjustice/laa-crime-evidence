@@ -23,6 +23,7 @@ import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredRepository;
 import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredEntity;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
@@ -83,21 +84,9 @@ public class EvidenceService {
     }
 
     // TODO: Create a DTO once dependencies are finalised and pass in here.
-    public boolean updateEvidence(ApiUpdateIncomeEvidenceRequest apiUpdateIncomeEvidenceRequest) {
-        List<ApiIncomeEvidence> applicantEvidenceItems = new ArrayList<>();
-        List<ApiIncomeEvidence> partnerEvidenceItems = new ArrayList<>();
-
-        // TODO: Check if we need all the null checks
-        if (apiUpdateIncomeEvidenceRequest.getApplicantEvidenceItems().getIncomeEvidenceItems() != null
-            && !apiUpdateIncomeEvidenceRequest.getApplicantEvidenceItems().getIncomeEvidenceItems().isEmpty()) {
-            applicantEvidenceItems.addAll(apiUpdateIncomeEvidenceRequest.getApplicantEvidenceItems().getIncomeEvidenceItems());
-        }
-
-        if (apiUpdateIncomeEvidenceRequest.getPartnerEvidenceItems() != null
-            && apiUpdateIncomeEvidenceRequest.getPartnerEvidenceItems().getIncomeEvidenceItems() != null
-            && !apiUpdateIncomeEvidenceRequest.getPartnerEvidenceItems().getIncomeEvidenceItems().isEmpty()) {
-            partnerEvidenceItems.addAll(apiUpdateIncomeEvidenceRequest.getPartnerEvidenceItems().getIncomeEvidenceItems());
-        }
+    public boolean updateEvidence(UpdateEvidenceDTO updateEvidenceDTO) {
+        List<ApiIncomeEvidence> applicantEvidenceItems = updateEvidenceDTO.getApplicantIncomeEvidenceItems();
+        List<ApiIncomeEvidence> partnerEvidenceItems = updateEvidenceDTO.getPartnerIncomeEvidenceItems();
 
         // TODO: Determine evidence items which need to be removed based on not being new or updated
         //  in the request.
@@ -112,7 +101,7 @@ public class EvidenceService {
         //  Court Data API), as apparently everything should be going through the CMA.
         // TODO: Map this response into some appropriate DTO later on, for now use whatever we need
         //  directly from it.
-        ApiGetMeansAssessmentResponse meansAssessmentResponse = meansAssessmentApiService.find(apiUpdateIncomeEvidenceRequest.getFinancialAssessmentId());
+        ApiGetMeansAssessmentResponse meansAssessmentResponse = meansAssessmentApiService.find(updateEvidenceDTO.getFinancialAssessmentId());
         ApiAssessmentDetail assessmentDetail = getAssessmentDetail(meansAssessmentResponse);
 
         BigDecimal applicantPension = getApplicantPensionAmount(assessmentDetail);
@@ -121,9 +110,9 @@ public class EvidenceService {
         boolean evidenceReceived = checkEvidenceReceived(
             applicantEvidenceItems,
             partnerEvidenceItems,
-            apiUpdateIncomeEvidenceRequest.getMagCourtOutcome(),
-            apiUpdateIncomeEvidenceRequest.getApplicantEvidenceItems().getApplicantDetails().getEmploymentStatus(),
-            apiUpdateIncomeEvidenceRequest.getPartnerEvidenceItems().getApplicantDetails().getEmploymentStatus(),
+            updateEvidenceDTO.getMagCourtOutcome(),
+            updateEvidenceDTO.getApplicantEmploymentStatus(),
+            updateEvidenceDTO.getPartnerEmploymentStatus(),
             applicantPension,
             partnerPension);
 
