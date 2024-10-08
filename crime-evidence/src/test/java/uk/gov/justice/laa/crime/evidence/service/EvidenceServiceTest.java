@@ -1,5 +1,6 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
+import org.assertj.core.api.CollectionAssert;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -11,11 +12,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
+import uk.gov.justice.laa.crime.evidence.builder.UpdateEvidenceDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -27,6 +31,9 @@ class EvidenceServiceTest {
 
     @Mock
     private MaatCourtDataService maatCourtDataService;
+
+    @Mock
+    private MeansAssessmentApiService meansAssessmentApiService;
 
     @InjectMocks
     private EvidenceService evidenceService;
@@ -121,12 +128,12 @@ class EvidenceServiceTest {
 
     @Test
     void givenNoEvidenceItems_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsNotUpdated() {
-        ApiUpdateIncomeEvidenceRequest request = TestModelDataBuilder.getApiUpdateIncomeEvidenceRequest();
-        request.setApplicantEvidenceItems(new ApiIncomeEvidenceItems());
-        request.setPartnerEvidenceItems(new ApiIncomeEvidenceItems());
+        UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
 
-        boolean updateResult = evidenceService.updateEvidence(request);
 
-        Assertions.assertFalse(updateResult);
+        ApiUpdateIncomeEvidenceResponse updateEvidenceResponse = evidenceService.updateEvidence(updateEvidenceDTO);
+
+        // TODO: If no evidence is provided, presumably we want to not even bother doing the update?
+        Assertions.assertNull(updateEvidenceResponse.getApplicantEvidenceItems());
     }
 }
