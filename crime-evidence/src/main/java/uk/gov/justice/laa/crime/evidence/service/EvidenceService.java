@@ -10,9 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
 import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiAssessmentDetail;
 import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiAssessmentSectionSummary;
 import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiGetMeansAssessmentResponse;
+import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiMeansAssessmentResponse;
 import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiUpdateMeansAssessmentRequest;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
@@ -83,18 +85,14 @@ public class EvidenceService {
         return apiProcessRepOrderResponse;
     }
 
-    // TODO: Create a DTO once dependencies are finalised and pass in here.
-    public boolean updateEvidence(UpdateEvidenceDTO updateEvidenceDTO) {
+    public ApiUpdateIncomeEvidenceResponse updateEvidence(UpdateEvidenceDTO updateEvidenceDTO) {
         List<ApiIncomeEvidence> applicantEvidenceItems = updateEvidenceDTO.getApplicantIncomeEvidenceItems();
         List<ApiIncomeEvidence> partnerEvidenceItems = updateEvidenceDTO.getPartnerIncomeEvidenceItems();
 
-        // TODO: Determine evidence items which need to be removed based on not being new or updated
-        //  in the request.
-        //  Edit: actually, just add to the in-memory list when going through the evidence and any
-        //  which is not new or hasn't been updated should automatically fall off.
-
         if (applicantEvidenceItems.isEmpty() && partnerEvidenceItems.isEmpty()) {
-            return false;
+            // TODO: This is where the stored procedure creates default income evidence - likely we
+            //  should do this here so for now let's return an empty response.
+            return new ApiUpdateIncomeEvidenceResponse();
         }
 
         // TODO: Call the CMA service to get the financial assessment (rather than calling the
@@ -126,7 +124,22 @@ public class EvidenceService {
         // TODO: Possibly make sure this is set to UTC.
         LocalDateTime evidenceReceivedDate = evidenceReceived ? LocalDateTime.now() : null;
 
-        return true;
+        // TODO: Update relevant properties on the means assessment response received earlier. Will
+        //  also want to update the evidence received date on all evidence items where it is not set
+        //  if all evidence is determined to have been receieved (assumption).
+        meansAssessmentResponse.getIncomeEvidenceSummary().setEvidenceReceivedDate(evidenceReceivedDate);
+
+        ApiUpdateMeansAssessmentRequest updateMeansAssessmentRequest = new ApiUpdateMeansAssessmentRequest()
+            .withFinancialAssessmentId(BigDecimal.valueOf(updateEvidenceDTO.getFinancialAssessmentId()))
+            .withIncomeEvidenceSummary(meansAssessmentResponse.getIncomeEvidenceSummary());
+
+
+        ApiMeansAssessmentResponse updateAssessmentResponse = meansAssessmentApiService.update(new ApiUpdateMeansAssessmentRequest());
+
+        // TODO: The response should include the API income evidence so that we can construct an
+        //  ApiUpdateIncomeEvidenceResponse payload, which is what the controller is currently set
+        //  to return.
+        return new ApiUpdateIncomeEvidenceResponse();
     }
 
     protected boolean isCalcRequired(CrimeEvidenceDTO crimeEvidenceDTO) {
@@ -194,12 +207,12 @@ public class EvidenceService {
     }
 
     private BigDecimal getApplicantPensionAmount(ApiAssessmentDetail assessmentDetail) {
-        // TODO: Unsure how to calculate this - should we be looking at the ApiAssessmentDetail list?
+        // TODO: Is this correct?
         return assessmentDetail.getApplicantAmount().multiply(BigDecimal.valueOf(assessmentDetail.getApplicantFrequency().getWeighting()));
     }
 
     private BigDecimal getPartnerPensionAmount(ApiAssessmentDetail assessmentDetail) {
-        // TODO: Unsure how to calculate this - should we be looking at the ApiAssessmentDetail list?
+        // TODO: Is this correct?
         return assessmentDetail.getPartnerAmount().multiply(BigDecimal.valueOf(assessmentDetail.getPartnerFrequency().getWeighting()));
     }
 
