@@ -25,44 +25,57 @@ public class IncomeEvidenceServiceTest {
     private IncomeEvidenceRepository incomeEvidenceRepository;
 
     @Test
-    void givenNoEvidenceItems_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnFalse() {
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
-
-        boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(Collections.emptyList());
-
-        Assertions.assertFalse(result);
-    }
-
-    @Test
-    void givenEvidenceItemsThatAreNotRequired_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnFalse() {
-        when(incomeEvidenceRepository.findByIds(Arrays.asList(2))).thenReturn(
-            Arrays.asList(
-                new IncomeEvidenceRequiredItemEntity(2, 2, "N", "test", LocalDateTime.now(), "test", LocalDateTime.now())
+    void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithNoProvidedEvidenceItems_thenReturnFalse() {
+        when(incomeEvidenceRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
+            List.of(
+                new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
+                    "test", LocalDateTime.now()),
+                new IncomeEvidenceRequiredItemEntity(35, 2, "N", "test", LocalDateTime.now(), "test",
+                    LocalDateTime.now())
             )
         );
 
         IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
 
-        List<ApiIncomeEvidence> evidenceItems = List.of(
-            new ApiIncomeEvidence(1, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"),
-            new ApiIncomeEvidence(2, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement")
+        boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(1, Collections.emptyList());
+
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithProvidedEvidenceItems_thenReturnFalse() {
+        when(incomeEvidenceRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
+            List.of(
+                new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
+                    "test", LocalDateTime.now()),
+                new IncomeEvidenceRequiredItemEntity(35, 2, "N", "test", LocalDateTime.now(), "test",
+                    LocalDateTime.now())
+            )
         );
 
-        boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(evidenceItems);
+        List<ApiIncomeEvidence> evidenceItems = List.of(
+            new ApiIncomeEvidence(34, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"),
+            new ApiIncomeEvidence(35, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement")
+        );
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
+
+        boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(1, evidenceItems);
 
         Assertions.assertFalse(result);
     }
 
     @Test
     void givenAtLeastOneRequiredEvidenceItemNotReceived_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnTrue() {
-        when(incomeEvidenceRepository.findByIds(Arrays.asList(2, 3))).thenReturn(
-            Arrays.asList(
-                new IncomeEvidenceRequiredItemEntity(2, 2, "N", "test", LocalDateTime.now(), "test", LocalDateTime.now()),
-                new IncomeEvidenceRequiredItemEntity(3, 3, "Y", "test", LocalDateTime.now(), "test", LocalDateTime.now())
+        when(incomeEvidenceRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
+            List.of(
+                new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
+                    "test", LocalDateTime.now()),
+                new IncomeEvidenceRequiredItemEntity(35, 2, "N", "test", LocalDateTime.now(), "test",
+                    LocalDateTime.now()),
+                new IncomeEvidenceRequiredItemEntity(36, 2, "Y", "test", LocalDateTime.now(), "test", LocalDateTime.now())
             )
         );
-
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
 
         List<ApiIncomeEvidence> evidenceItems = List.of(
             new ApiIncomeEvidence(1, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"),
@@ -70,10 +83,10 @@ public class IncomeEvidenceServiceTest {
             new ApiIncomeEvidence(3, null, IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
         );
 
-        boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(evidenceItems);
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
+
+        boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(2, evidenceItems);
 
         Assertions.assertTrue(result);
     }
-
-
 }

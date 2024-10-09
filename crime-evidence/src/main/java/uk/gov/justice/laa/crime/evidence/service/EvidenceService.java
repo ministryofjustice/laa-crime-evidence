@@ -1,25 +1,25 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
-import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiAssessmentDetail;
-import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiAssessmentSectionSummary;
-import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiGetMeansAssessmentResponse;
-import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiMeansAssessmentResponse;
-import uk.gov.justice.laa.crime.common.model.orchestration.means_assessment.ApiUpdateMeansAssessmentRequest;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiAssessmentDetail;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiAssessmentSectionSummary;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiGetMeansAssessmentResponse;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidenceSummary;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiMeansAssessmentResponse;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiUpdateMeansAssessmentRequest;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 import uk.gov.justice.laa.crime.evidence.builder.EvidenceFeeRulesDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
+import uk.gov.justice.laa.crime.evidence.controller.IncomeEvidenceController;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
@@ -38,6 +38,7 @@ public class EvidenceService {
     private final IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;
     private final MaatCourtDataService maatCourtDataService;
     private final MeansAssessmentApiService meansAssessmentApiService;
+    private final IncomeEvidenceController incomeEvidenceController;
 
     public ApiCalculateEvidenceFeeResponse calculateEvidenceFee(CrimeEvidenceDTO crimeEvidenceDTO) {
         ApiCalculateEvidenceFeeResponse apiProcessRepOrderResponse = new ApiCalculateEvidenceFeeResponse();
@@ -99,11 +100,13 @@ public class EvidenceService {
         //  Court Data API), as apparently everything should be going through the CMA.
         // TODO: Map this response into some appropriate DTO later on, for now use whatever we need
         //  directly from it.
-        ApiGetMeansAssessmentResponse meansAssessmentResponse = meansAssessmentApiService.find(updateEvidenceDTO.getFinancialAssessmentId());
-        ApiAssessmentDetail assessmentDetail = getAssessmentDetail(meansAssessmentResponse);
+        ApiGetMeansAssessmentResponse oldMeansAssessmentResponse = meansAssessmentApiService.find(updateEvidenceDTO.getFinancialAssessmentId());
+        ApiAssessmentDetail assessmentDetail = getAssessmentDetail(oldMeansAssessmentResponse);
 
         BigDecimal applicantPension = getApplicantPensionAmount(assessmentDetail);
         BigDecimal partnerPension = getPartnerPensionAmount(assessmentDetail);
+
+
 
         boolean evidenceReceived = checkEvidenceReceived(
             applicantEvidenceItems,
@@ -120,19 +123,22 @@ public class EvidenceService {
         //  call to update, rather than trying to figure out what they should all be.
         // TODO: Need to update only the evidence received and due dates, as well as passing the
         //  income evidence objects here.
-        LocalDateTime oldEvidenceDueDate = meansAssessmentResponse.getIncomeEvidenceSummary().getEvidenceDueDate();
+        LocalDateTime oldEvidenceDueDate = oldMeansAssessmentResponse.getIncomeEvidenceSummary().getEvidenceDueDate();
         // TODO: Possibly make sure this is set to UTC.
         LocalDateTime evidenceReceivedDate = evidenceReceived ? LocalDateTime.now() : null;
 
         // TODO: Update relevant properties on the means assessment response received earlier. Will
         //  also want to update the evidence received date on all evidence items where it is not set
-        //  if all evidence is determined to have been receieved (assumption).
-        meansAssessmentResponse.getIncomeEvidenceSummary().setEvidenceReceivedDate(evidenceReceivedDate);
+        //  if all evidence is determined to have been received (assumption).
+        if (evidenceReceivedDate != null) {
+            updateEvidenceItemsReceivedDate(oldMeansAssessmentResponse.getIncomeEvidenceSummary(), evidenceReceivedDate);
+        }
+
+        oldMeansAssessmentResponse.getIncomeEvidenceSummary().setEvidenceReceivedDate(evidenceReceivedDate);
 
         ApiUpdateMeansAssessmentRequest updateMeansAssessmentRequest = new ApiUpdateMeansAssessmentRequest()
-            .withFinancialAssessmentId(BigDecimal.valueOf(updateEvidenceDTO.getFinancialAssessmentId()))
-            .withIncomeEvidenceSummary(meansAssessmentResponse.getIncomeEvidenceSummary());
-
+            .withFinancialAssessmentId(updateEvidenceDTO.getFinancialAssessmentId())
+            .withIncomeEvidenceSummary(oldMeansAssessmentResponse.getIncomeEvidenceSummary());
 
         ApiMeansAssessmentResponse updateAssessmentResponse = meansAssessmentApiService.update(new ApiUpdateMeansAssessmentRequest());
 
@@ -156,34 +162,51 @@ public class EvidenceService {
         EmploymentStatus partnerEmploymentStatus,
         BigDecimal applicantPensionAmount,
         BigDecimal partnerPensionAmount) {
-        List<IncomeEvidenceRequiredEntity> applicantRequiredEvidenceItems = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
+        IncomeEvidenceRequiredEntity applicantMinimumEvidenceItems = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
             magCourtOutcome.getOutcome(),
             applicantEmploymentStatus.getCode(),
             partnerEmploymentStatus.getCode(),
             "APPLICANT",
             applicantPensionAmount.doubleValue());
 
+        boolean partnerRequiredEvidenceOutstanding = false;
+
+        IncomeEvidenceRequiredEntity partnerMinimumEvidenceItems;
         if (!partnerEvidenceItems.isEmpty()) {
-            List<IncomeEvidenceRequiredEntity> partnerRequiredEvidenceItems = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
+            partnerMinimumEvidenceItems = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
                 magCourtOutcome.getOutcome(),
                 applicantEmploymentStatus.getCode(),
                 partnerEmploymentStatus.getCode(),
                 "PARTNER",
                 partnerPensionAmount.doubleValue());
 
-            if (!checkRequiredEvidenceItemsReceived(partnerRequiredEvidenceItems, partnerEvidenceItems)) {
+            partnerRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
+                partnerMinimumEvidenceItems.getEvidenceItemsRequired(), partnerEvidenceItems);
+
+            if (!checkMinimumEvidenceItemsReceived(partnerMinimumEvidenceItems,
+                partnerEvidenceItems)) {
                 return false;
             }
         }
 
-        return checkRequiredEvidenceItemsReceived(applicantRequiredEvidenceItems, applicantEvidenceItems);
+        if (!checkMinimumEvidenceItemsReceived(applicantMinimumEvidenceItems,
+            applicantEvidenceItems)) {
+            return false;
+        }
+
+        boolean applicantRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
+            applicantMinimumEvidenceItems.getEvidenceItemsRequired(), applicantEvidenceItems);
+
+        return !applicantRequiredEvidenceOutstanding && !partnerRequiredEvidenceOutstanding;
     }
 
-    private boolean checkRequiredEvidenceItemsReceived(List<IncomeEvidenceRequiredEntity> requiredEvidenceItems, List<ApiIncomeEvidence> providedEvidenceItems) {
-        return providedEvidenceItems.size() >= requiredEvidenceItems.size();
+    private boolean checkMinimumEvidenceItemsReceived(IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity, List<ApiIncomeEvidence> providedEvidenceItems) {
+        return providedEvidenceItems.size() >= incomeEvidenceRequiredEntity.getEvidenceItemsRequired();
     }
 
     private ApiAssessmentDetail getAssessmentDetail(ApiGetMeansAssessmentResponse meansAssessmentResponse) {
+        // TODO: Make sure we filter based on the description here as is done in the stored procedure.
+
         if (meansAssessmentResponse.getFullAssessment().getAssessmentSectionSummary() != null
             && !meansAssessmentResponse.getFullAssessment().getAssessmentSectionSummary().isEmpty()) {
 
@@ -207,13 +230,18 @@ public class EvidenceService {
     }
 
     private BigDecimal getApplicantPensionAmount(ApiAssessmentDetail assessmentDetail) {
-        // TODO: Is this correct?
         return assessmentDetail.getApplicantAmount().multiply(BigDecimal.valueOf(assessmentDetail.getApplicantFrequency().getWeighting()));
     }
 
     private BigDecimal getPartnerPensionAmount(ApiAssessmentDetail assessmentDetail) {
-        // TODO: Is this correct?
         return assessmentDetail.getPartnerAmount().multiply(BigDecimal.valueOf(assessmentDetail.getPartnerFrequency().getWeighting()));
     }
 
+    private void updateEvidenceItemsReceivedDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, LocalDateTime evidenceReceivedDate) {
+        incomeEvidenceSummary.getIncomeEvidence().forEach(item -> {
+            if (item.getDateReceived() == null) {
+                item.setDateReceived(evidenceReceivedDate);
+            }
+        });
+    }
 }

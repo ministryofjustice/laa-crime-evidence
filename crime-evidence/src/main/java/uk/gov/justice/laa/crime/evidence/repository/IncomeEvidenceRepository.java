@@ -6,8 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredItemEntity;
 
 public interface IncomeEvidenceRepository extends CrudRepository<IncomeEvidenceRequiredItemEntity, Integer> {
-    List<IncomeEvidenceRequiredItemEntity> findByIds(Collection<Integer> ids);
-
+    List<IncomeEvidenceRequiredItemEntity> findByIncomeEvidenceRequiredId(Integer id);
 
 
 }

@@ -1,6 +1,8 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,25 +17,35 @@ public class IncomeEvidenceService {
 
     private final IncomeEvidenceRepository incomeEvidenceRepository;
 
-    public boolean isRequiredEvidenceOutstanding(List<ApiIncomeEvidence> requestEvidenceItems) {
-        if (requestEvidenceItems == null || requestEvidenceItems.isEmpty()) {
+    public boolean isRequiredEvidenceOutstanding(int incomeEvidenceRequiredId, List<ApiIncomeEvidence> providedEvidenceItems) {
+        // Note: The income evidence items passed in are only those items provided. There may be
+        //  many more evidence items required than are passed in, therefore we need to call out to
+        //  find all of the required income evidence items first (based on the income evidence
+        //  required id) and then filter down to check that the mandatory items are present.
+        List<IncomeEvidenceRequiredItemEntity> requiredEvidenceItems = incomeEvidenceRepository
+            .findByIncomeEvidenceRequiredId(incomeEvidenceRequiredId)
+            .stream()
+            .filter(item -> "Y".equals(item.getMandatory()))
+            .toList();
+
+        if (requiredEvidenceItems.isEmpty()) {
             return false;
         }
 
-        List<Integer> incomeEvidenceIds = requestEvidenceItems.stream()
-                                                              .filter(item -> item.getDateReceived() == null)
-                                                              .map(ApiIncomeEvidence::getId).toList();
-
-        if (incomeEvidenceIds.isEmpty()) {
-            return false;
+        if (providedEvidenceItems == null || providedEvidenceItems.isEmpty()) {
+            return true;
         }
 
-        List<IncomeEvidenceRequiredItemEntity> evidenceItems = incomeEvidenceRepository.findByIds(incomeEvidenceIds);
+        for (IncomeEvidenceRequiredItemEntity requiredEvidenceItem : requiredEvidenceItems) {
+            Optional<ApiIncomeEvidence> evidenceItem = providedEvidenceItems.stream()
+                .filter(providedEvidenceItem -> providedEvidenceItem.getId().equals(requiredEvidenceItem.getId()))
+                .findFirst();
 
+            if (evidenceItem.isEmpty() || evidenceItem.get().getDateReceived() == null) {
+                return true;
+            }
+        }
 
-
-        return evidenceItems.stream().anyMatch(item -> "Y".equals(item.getMandatory()));
+        return false;
     }
-
-
 }

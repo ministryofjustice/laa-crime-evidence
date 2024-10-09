@@ -21,7 +21,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @AllArgsConstructor
 @Entity
-@Table(name = "income_evidence_req_items", schema = "crime_means_assessment")
+@Table(name = "income_evidence_req_items", schema = "crime_evidence")
 public class IncomeEvidenceRequiredItemEntity {
     @Id
     @Column(name = "ID", nullable = false)

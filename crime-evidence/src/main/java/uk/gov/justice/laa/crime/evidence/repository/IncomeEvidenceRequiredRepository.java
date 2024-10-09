@@ -27,5 +27,5 @@ public interface IncomeEvidenceRequiredRepository extends CrudRepository<IncomeE
                                       and i2.ANNUAL_PENSION_AMOUNT   > I.ANNUAL_PENSION_AMOUNT)
             """,
         nativeQuery = true)
-    List<IncomeEvidenceRequiredEntity> getNumberOfEvidenceItemsRequired(String mcooOutcome, String applicantEmstCode, String partnerEmstCode, String applicantPartner, Double annualPensionAmount);
+    IncomeEvidenceRequiredEntity getNumberOfEvidenceItemsRequired(String mcooOutcome, String applicantEmstCode, String partnerEmstCode, String applicantPartner, Double annualPensionAmount);
 }
