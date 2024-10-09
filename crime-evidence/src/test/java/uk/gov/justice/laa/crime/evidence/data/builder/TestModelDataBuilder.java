@@ -1,5 +1,6 @@
 package uk.gov.justice.laa.crime.evidence.data.builder;
 
+import java.util.Collections;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.laa.crime.common.model.evidence.*;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 
 @Component
 public class TestModelDataBuilder {
@@ -154,5 +156,14 @@ public class TestModelDataBuilder {
                 .withCapitalEvidenceReceivedDate(CAPITAL_EVIDENCE_RECEIVED_DATE)
                 .withIncomeEvidenceReceivedDate(INCOME_EVIDENCE_RECEIVED_DATE)
                 .withEmstCode(EMST_CODE);
+    }
+
+    public static UpdateEvidenceDTO getUpdateEvidenceRequest() {
+        return UpdateEvidenceDTO.builder()
+            .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+            .applicantIncomeEvidenceItems(Collections.emptyList())
+            .partnerIncomeEvidenceItems(Collections.emptyList())
+            .financialAssessmentId(FINANCIAL_ASSESSMENT_ID)
+            .build();
     }
 }
