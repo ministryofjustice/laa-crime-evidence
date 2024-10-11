@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredItemRepository;
 import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredItemEntity;
+import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceRequiredItemProjection;
 
 @Slf4j
 @Service
@@ -21,7 +22,7 @@ public class IncomeEvidenceService {
         //  many more evidence items required than are passed in, therefore we need to call out to
         //  find all of the required income evidence items first (based on the income evidence
         //  required id) and then filter down to check that the mandatory items are present.
-        List<IncomeEvidenceRequiredItemEntity> requiredEvidenceItems = incomeEvidenceRequiredItemRepository
+        List<IncomeEvidenceRequiredItemProjection> requiredEvidenceItems = incomeEvidenceRequiredItemRepository
             .findByIncomeEvidenceRequiredId(incomeEvidenceRequiredId)
             .stream()
             .filter(item -> "Y".equals(item.getMandatory()))
@@ -35,7 +36,8 @@ public class IncomeEvidenceService {
             return true;
         }
 
-        for (IncomeEvidenceRequiredItemEntity requiredEvidenceItem : requiredEvidenceItems) {
+        // TODO: Is the check in here correct (on id to id)?
+        for (IncomeEvidenceRequiredItemProjection requiredEvidenceItem : requiredEvidenceItems) {
             Optional<ApiIncomeEvidence> evidenceItem = providedEvidenceItems.stream()
                 .filter(providedEvidenceItem -> providedEvidenceItem.getId().equals(requiredEvidenceItem.getId()))
                 .findFirst();

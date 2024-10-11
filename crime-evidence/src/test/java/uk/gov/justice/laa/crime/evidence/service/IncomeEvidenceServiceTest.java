@@ -3,7 +3,6 @@ package uk.gov.justice.laa.crime.evidence.service;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredItemRepository;
-import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredItemEntity;
+import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceRequiredItemProjection;
 
 @ExtendWith(MockitoExtension.class)
 public class IncomeEvidenceServiceTest {
@@ -26,10 +25,8 @@ public class IncomeEvidenceServiceTest {
     void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithNoProvidedEvidenceItems_thenReturnFalse() {
         when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
             List.of(
-                new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
-                    "test", LocalDateTime.now()),
-                new IncomeEvidenceRequiredItemEntity(35, 2, "N", "test", LocalDateTime.now(), "test",
-                    LocalDateTime.now())
+                createIncomeEvidenceRequiredItemProjection(34, 1, false),
+                createIncomeEvidenceRequiredItemProjection(35, 2, false)
             )
         );
 
@@ -45,10 +42,8 @@ public class IncomeEvidenceServiceTest {
     void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithProvidedEvidenceItems_thenReturnFalse() {
         when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
             List.of(
-                new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
-                    "test", LocalDateTime.now()),
-                new IncomeEvidenceRequiredItemEntity(35, 2, "N", "test", LocalDateTime.now(), "test",
-                    LocalDateTime.now())
+                createIncomeEvidenceRequiredItemProjection(34, 1, false),
+                createIncomeEvidenceRequiredItemProjection(35, 2, false)
             )
         );
 
@@ -69,11 +64,9 @@ public class IncomeEvidenceServiceTest {
     void givenAtLeastOneRequiredEvidenceItemNotReceived_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnTrue() {
         when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
             List.of(
-                new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
-                    "test", LocalDateTime.now()),
-                new IncomeEvidenceRequiredItemEntity(35, 2, "N", "test", LocalDateTime.now(), "test",
-                    LocalDateTime.now()),
-                new IncomeEvidenceRequiredItemEntity(36, 2, "Y", "test", LocalDateTime.now(), "test", LocalDateTime.now())
+                createIncomeEvidenceRequiredItemProjection(34, 1, false),
+                createIncomeEvidenceRequiredItemProjection(35, 2, false),
+                createIncomeEvidenceRequiredItemProjection(36, 2, true)
             )
         );
 
@@ -89,5 +82,26 @@ public class IncomeEvidenceServiceTest {
         boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(2, evidenceItems);
 
         Assertions.assertTrue(result);
+    }
+
+    private static IncomeEvidenceRequiredItemProjection createIncomeEvidenceRequiredItemProjection(
+        int id, int incomeEvidenceRequiredId, boolean mandatory)
+    {
+        return new IncomeEvidenceRequiredItemProjection() {
+            @Override
+            public int getId() {
+                return id;
+            }
+
+            @Override
+            public int getIncomeEvidenceRequiredId() {
+                return incomeEvidenceRequiredId;
+            }
+
+            @Override
+            public String getMandatory() {
+                return mandatory ? "Y" : "N";
+            }
+        };
     }
 }
