@@ -32,6 +32,7 @@ import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
+import uk.gov.justice.laa.crime.util.DateUtil;
 
 @Slf4j
 @Service
@@ -215,7 +216,7 @@ public class EvidenceService {
         List<uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence> incomeEvidenceItems = new ArrayList<>();
         applicantEvidenceItems.forEach(applicantEvidenceItem -> incomeEvidenceItems.add(mapApiIncomeEvidence(applicantEvidenceItem, applicantId)));
         partnerEvidenceItems.forEach(partnerEvidenceItem -> incomeEvidenceItems.add(mapApiIncomeEvidence(partnerEvidenceItem, partnerId)));
-
+        
         return new ApiUpdateMeansAssessmentRequest()
             .withFinancialAssessmentId(financialAssessmentId)
             .withIncomeEvidence(incomeEvidenceItems)
@@ -225,7 +226,7 @@ public class EvidenceService {
     private uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence mapApiIncomeEvidence(ApiIncomeEvidence apiIncomeEvidence, int applicantId) {
         return new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence()
             .withId(apiIncomeEvidence.getId())
-            .withDateReceived(apiIncomeEvidence.getDateReceived().atStartOfDay())
+            .withDateReceived(DateUtil.convertDateToDateTime(apiIncomeEvidence.getDateReceived()))
             .withApplicantId(applicantId)
             .withApiEvidenceType(new ApiEvidenceType(apiIncomeEvidence.getEvidenceType().getName(), apiIncomeEvidence.getEvidenceType().getDescription()));
     }
