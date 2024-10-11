@@ -28,9 +28,9 @@ import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredRepository;
-import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredEntity;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
 
@@ -171,46 +171,45 @@ public class EvidenceService {
         EmploymentStatus partnerEmploymentStatus,
         BigDecimal applicantPensionAmount,
         BigDecimal partnerPensionAmount) {
-        IncomeEvidenceRequiredEntity applicantMinimumEvidenceItems = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
-            magCourtOutcome.getOutcome(),
-            applicantEmploymentStatus.getCode(),
-            partnerEmploymentStatus.getCode(),
-            "APPLICANT",
-            applicantPensionAmount.doubleValue());
+        EvidenceReceivedResultDTO applicantEvidenceReceivedResult = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
+            applicantEvidenceItems,
+            ApplicantType.APPLICANT,
+            magCourtOutcome,
+            applicantEmploymentStatus,
+            partnerEmploymentStatus,
+            applicantPensionAmount
+        );
 
-        boolean partnerRequiredEvidenceOutstanding = false;
+        if (!applicantEvidenceReceivedResult.isEvidenceReceived()) {
+            return false;
+        }
 
-        IncomeEvidenceRequiredEntity partnerMinimumEvidenceItems;
         if (!partnerEvidenceItems.isEmpty()) {
-            partnerMinimumEvidenceItems = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
-                magCourtOutcome.getOutcome(),
-                applicantEmploymentStatus.getCode(),
-                partnerEmploymentStatus.getCode(),
-                "PARTNER",
-                partnerPensionAmount.doubleValue());
+            EvidenceReceivedResultDTO partnerEvidenceReceivedResult = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
+                partnerEvidenceItems,
+                ApplicantType.PARTNER,
+                magCourtOutcome,
+                applicantEmploymentStatus,
+                partnerEmploymentStatus,
+                partnerPensionAmount
+            );
 
-            partnerRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
-                partnerMinimumEvidenceItems.getEvidenceItemsRequired(), partnerEvidenceItems);
+            if (!partnerEvidenceReceivedResult.isEvidenceReceived()) {
+                return false;
+            }
 
-            if (!checkMinimumEvidenceItemsReceived(partnerMinimumEvidenceItems,
-                partnerEvidenceItems)) {
+            boolean partnerRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
+                partnerEvidenceReceivedResult.getMinimumEvidenceItemsRequired(), partnerEvidenceItems);
+
+            if (partnerRequiredEvidenceOutstanding) {
                 return false;
             }
         }
 
-        if (!checkMinimumEvidenceItemsReceived(applicantMinimumEvidenceItems,
-            applicantEvidenceItems)) {
-            return false;
-        }
-
         boolean applicantRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
-            applicantMinimumEvidenceItems.getEvidenceItemsRequired(), applicantEvidenceItems);
+            applicantEvidenceReceivedResult.getMinimumEvidenceItemsRequired(), applicantEvidenceItems);
 
-        return !applicantRequiredEvidenceOutstanding && !partnerRequiredEvidenceOutstanding;
-    }
-
-    private boolean checkMinimumEvidenceItemsReceived(IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity, List<ApiIncomeEvidence> providedEvidenceItems) {
-        return providedEvidenceItems.size() >= incomeEvidenceRequiredEntity.getEvidenceItemsRequired();
+        return !applicantRequiredEvidenceOutstanding;
     }
 
     private ApiUpdateMeansAssessmentRequest createUpdateMeansAssessmentRequest(

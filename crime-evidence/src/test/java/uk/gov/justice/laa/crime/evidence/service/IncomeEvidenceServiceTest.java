@@ -2,6 +2,7 @@ package uk.gov.justice.laa.crime.evidence.service;
 
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -11,12 +12,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.enums.EmploymentStatus;
+import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
+import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredItemRepository;
+import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredRepository;
+import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredEntity;
+import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceRequiredItemProjection;
 
 @ExtendWith(MockitoExtension.class)
 public class IncomeEvidenceServiceTest {
+
+    @Mock
+    private IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;
 
     @Mock
     private IncomeEvidenceRequiredItemRepository incomeEvidenceRequiredItemRepository;
@@ -30,8 +40,7 @@ public class IncomeEvidenceServiceTest {
             )
         );
 
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(
-            incomeEvidenceRequiredItemRepository);
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
 
         boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(1, Collections.emptyList());
 
@@ -52,8 +61,7 @@ public class IncomeEvidenceServiceTest {
             new ApiIncomeEvidence(35, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement")
         );
 
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(
-            incomeEvidenceRequiredItemRepository);
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
 
         boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(1, evidenceItems);
 
@@ -76,12 +84,105 @@ public class IncomeEvidenceServiceTest {
             new ApiIncomeEvidence(3, null, IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
         );
 
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(
-            incomeEvidenceRequiredItemRepository);
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
 
         boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(2, evidenceItems);
 
         Assertions.assertTrue(result);
+    }
+
+    @Test
+    void givenNoEvidenceItemsProvidedAndNoMinimumFoundInDatabaseQuery_whenCheckMinimumEvidenceItemsReceivedIsInvoked_thenReturnTrue() {
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(MagCourtOutcome.APPEAL_TO_CC.getOutcome(), EmploymentStatus.EMPLOY.getCode(), EmploymentStatus.EMPLOYED_CASH.getCode(), "APPLICANT", 0d)).thenReturn(null);
+
+        List<ApiIncomeEvidence> providedEvidenceItems = Collections.emptyList();
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        EvidenceReceivedResultDTO result = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
+            providedEvidenceItems,
+            ApplicantType.APPLICANT,
+            MagCourtOutcome.APPEAL_TO_CC,
+            EmploymentStatus.EMPLOY,
+            EmploymentStatus.EMPLOYED_CASH,
+            BigDecimal.ZERO);
+
+        Assertions.assertEquals(0, result.getMinimumEvidenceItemsRequired());
+        Assertions.assertTrue(result.isEvidenceReceived());
+    }
+
+    @Test
+    void givenNoEvidenceItemsProvidedAndZeroMinimumItemsRequired_whenCheckMinimumEvidenceItemsReceivedIsInvoked_thenReturnTrue() {
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(MagCourtOutcome.APPEAL_TO_CC.getOutcome(), EmploymentStatus.EMPLOY.getCode(), EmploymentStatus.EMPLOYED_CASH.getCode(), "APPLICANT", 0d)).thenReturn(
+            IncomeEvidenceRequiredEntity.builder().evidenceItemsRequired(0).build()
+        );
+
+        List<ApiIncomeEvidence> providedEvidenceItems = Collections.emptyList();
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        EvidenceReceivedResultDTO result = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
+            providedEvidenceItems,
+            ApplicantType.APPLICANT,
+            MagCourtOutcome.APPEAL_TO_CC,
+            EmploymentStatus.EMPLOY,
+            EmploymentStatus.EMPLOYED_CASH,
+            BigDecimal.ZERO);
+
+        Assertions.assertEquals(0, result.getMinimumEvidenceItemsRequired());
+        Assertions.assertTrue(result.isEvidenceReceived());
+    }
+
+    @Test
+    void givenEvidenceItemsProvidedAndMinimumIsMet_whenCheckMinimumEvidenceItemsReceivedIsInvoked_thenReturnTrue() {
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(MagCourtOutcome.APPEAL_TO_CC.getOutcome(), EmploymentStatus.EMPLOY.getCode(), EmploymentStatus.EMPLOYED_CASH.getCode(), "APPLICANT", 0d)).thenReturn(
+            IncomeEvidenceRequiredEntity.builder().evidenceItemsRequired(2).build()
+        );
+
+        List<ApiIncomeEvidence> providedEvidenceItems = List.of(
+            new ApiIncomeEvidence(1, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"),
+            new ApiIncomeEvidence(2, LocalDate.of(2024, 9, 1), IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement"),
+            new ApiIncomeEvidence(3, LocalDate.of(2024, 9, 1), IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
+        );
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        EvidenceReceivedResultDTO result = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
+            providedEvidenceItems,
+            ApplicantType.APPLICANT,
+            MagCourtOutcome.APPEAL_TO_CC,
+            EmploymentStatus.EMPLOY,
+            EmploymentStatus.EMPLOYED_CASH,
+            BigDecimal.ZERO);
+
+        Assertions.assertEquals(2, result.getMinimumEvidenceItemsRequired());
+        Assertions.assertTrue(result.isEvidenceReceived());
+    }
+
+    @Test
+    void givenEvidenceItemsProvidedAndMinimumIsNotMet_whenCheckMinimumEvidenceItemsReceivedIsInvoked_thenReturnFalse() {
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(MagCourtOutcome.APPEAL_TO_CC.getOutcome(), EmploymentStatus.EMPLOY.getCode(), EmploymentStatus.EMPLOYED_CASH.getCode(), "APPLICANT", 0d)).thenReturn(
+            IncomeEvidenceRequiredEntity.builder().evidenceItemsRequired(4).build()
+        );
+
+        List<ApiIncomeEvidence> providedEvidenceItems = List.of(
+            new ApiIncomeEvidence(1, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"),
+            new ApiIncomeEvidence(2, LocalDate.of(2024, 9, 1), IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement"),
+            new ApiIncomeEvidence(3, LocalDate.of(2024, 9, 1), IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
+        );
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        EvidenceReceivedResultDTO result = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
+            providedEvidenceItems,
+            ApplicantType.APPLICANT,
+            MagCourtOutcome.APPEAL_TO_CC,
+            EmploymentStatus.EMPLOY,
+            EmploymentStatus.EMPLOYED_CASH,
+            BigDecimal.ZERO);
+
+        Assertions.assertEquals(4, result.getMinimumEvidenceItemsRequired());
+        Assertions.assertFalse(result.isEvidenceReceived());
     }
 
     private static IncomeEvidenceRequiredItemProjection createIncomeEvidenceRequiredItemProjection(

@@ -130,7 +130,6 @@ class EvidenceServiceTest {
     void givenNoEvidenceItems_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsNotUpdated() {
         UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
 
-
         ApiUpdateIncomeEvidenceResponse updateEvidenceResponse = evidenceService.updateEvidence(updateEvidenceDTO);
 
         // TODO: If no evidence is provided, presumably we want to not even bother doing the update?

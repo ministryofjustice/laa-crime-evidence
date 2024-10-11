@@ -1,13 +1,19 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.enums.EmploymentStatus;
+import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
+import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredItemRepository;
-import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredItemEntity;
+import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredRepository;
+import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredEntity;
+import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceRequiredItemProjection;
 
 @Slf4j
@@ -15,6 +21,7 @@ import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceReq
 @RequiredArgsConstructor
 public class IncomeEvidenceService {
 
+    private final IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;
     private final IncomeEvidenceRequiredItemRepository incomeEvidenceRequiredItemRepository;
 
     public boolean isRequiredEvidenceOutstanding(int incomeEvidenceRequiredId, List<ApiIncomeEvidence> providedEvidenceItems) {
@@ -48,5 +55,30 @@ public class IncomeEvidenceService {
         }
 
         return false;
+    }
+
+    public EvidenceReceivedResultDTO checkMinimumEvidenceItemsReceived(
+        List<ApiIncomeEvidence> providedEvidenceItems,
+        ApplicantType applicantType,
+        MagCourtOutcome magCourtOutcome,
+        EmploymentStatus applicantEmploymentStatus,
+        EmploymentStatus partnerEmploymentStatus,
+        BigDecimal pensionAmount) {
+        IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
+            magCourtOutcome.getOutcome(),
+            applicantEmploymentStatus.getCode(),
+            partnerEmploymentStatus.getCode(),
+            applicantType.toString(),
+            pensionAmount.doubleValue());
+
+        if (incomeEvidenceRequiredEntity == null) {
+            return new EvidenceReceivedResultDTO(true, 0);
+        }
+
+        // NOTE: Assumption here from the SP that if we get a null value back from the query to the
+        // income evidence required table, then this isn't an error.
+        boolean minimumEvidenceItemsReceived = providedEvidenceItems.size() >= incomeEvidenceRequiredEntity.getEvidenceItemsRequired();
+
+        return new EvidenceReceivedResultDTO(minimumEvidenceItemsReceived, incomeEvidenceRequiredEntity.getEvidenceItemsRequired());
     }
 }
