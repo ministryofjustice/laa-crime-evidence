@@ -30,7 +30,6 @@ import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
-import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredRepository;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
 
@@ -39,7 +38,6 @@ import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
 @RequiredArgsConstructor
 public class EvidenceService {
     private final IncomeEvidenceService incomeEvidenceService;
-    private final IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;
     private final MaatCourtDataService maatCourtDataService;
     private final MeansAssessmentApiService meansAssessmentApiService;
 
@@ -117,13 +115,7 @@ public class EvidenceService {
             partnerPension);
 
         // TODO: Does this need to be set as UTC?
-        LocalDateTime evidenceReceivedDate = evidenceReceived ? LocalDateTime.now() : null;
-
-        if (evidenceReceived && oldMeansAssessmentResponse.getIncomeEvidenceSummary().getEvidenceReceivedDate() == null) {
-            oldMeansAssessmentResponse.getIncomeEvidenceSummary().setEvidenceReceivedDate(evidenceReceivedDate);
-        } else if (!evidenceReceived && oldMeansAssessmentResponse.getIncomeEvidenceSummary().getEvidenceReceivedDate() != null) {
-            oldMeansAssessmentResponse.getIncomeEvidenceSummary().setEvidenceReceivedDate(null);
-        }
+        LocalDateTime evidenceReceivedDate = updateEvidenceReceivedDate(evidenceReceived, oldMeansAssessmentResponse.getIncomeEvidenceSummary());
 
         // Question: Matt said we needed this but cannot see why. The call to set_due_date in the SP
         // was checking a few edge cases (that the due date had not been removed and that the due
@@ -267,6 +259,18 @@ public class EvidenceService {
         Frequency frequency = applicantType == ApplicantType.APPLICANT ? data.getApplicantFrequency() : data.getPartnerFrequency();
 
         return amount.multiply(BigDecimal.valueOf(frequency.getWeighting()));
+    }
+
+    private LocalDateTime updateEvidenceReceivedDate(boolean evidenceReceived, ApiIncomeEvidenceSummary incomeEvidenceSummary) {
+        LocalDateTime evidenceReceivedDate = evidenceReceived ? LocalDateTime.now() : null;
+
+        if (evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() == null) {
+            incomeEvidenceSummary.setEvidenceReceivedDate(evidenceReceivedDate);
+        } else if (!evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() != null) {
+            incomeEvidenceSummary.setEvidenceReceivedDate(null);
+        }
+
+        return evidenceReceivedDate;
     }
 
     private void updateEvidenceItemsReceivedDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, LocalDateTime evidenceReceivedDate) {
