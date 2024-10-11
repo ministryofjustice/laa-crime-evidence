@@ -3,8 +3,8 @@ package uk.gov.justice.laa.crime.evidence.dto;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiApplicantDetails;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
-import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 
 @Data
@@ -14,7 +14,7 @@ public class UpdateEvidenceDTO {
     private List<ApiIncomeEvidence> applicantIncomeEvidenceItems;
     private List<ApiIncomeEvidence> partnerIncomeEvidenceItems;
     private MagCourtOutcome magCourtOutcome;
-    private EmploymentStatus applicantEmploymentStatus;
-    private EmploymentStatus partnerEmploymentStatus;
+    private ApiApplicantDetails applicantDetails;
+    private ApiApplicantDetails partnerDetails;
 
 }

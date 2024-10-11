@@ -9,8 +9,8 @@ public class UpdateEvidenceDTOBuilder {
         return UpdateEvidenceDTO.builder()
             .financialAssessmentId(request.getFinancialAssessmentId())
             .magCourtOutcome(request.getMagCourtOutcome())
-            .applicantEmploymentStatus(request.getApplicantEvidenceItems().getApplicantDetails().getEmploymentStatus())
-            .partnerEmploymentStatus(request.getPartnerEvidenceItems().getApplicantDetails().getEmploymentStatus())
+            .applicantDetails(request.getApplicantEvidenceItems().getApplicantDetails())
+            .partnerDetails(request.getPartnerEvidenceItems().getApplicantDetails())
             .applicantIncomeEvidenceItems(request.getApplicantEvidenceItems().getIncomeEvidenceItems())
             .partnerIncomeEvidenceItems(request.getPartnerEvidenceItems().getIncomeEvidenceItems())
             .build();
