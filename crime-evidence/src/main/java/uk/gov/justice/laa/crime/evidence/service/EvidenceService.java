@@ -2,7 +2,6 @@ package uk.gov.justice.laa.crime.evidence.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +23,6 @@ import uk.gov.justice.laa.crime.enums.Frequency;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 import uk.gov.justice.laa.crime.evidence.builder.EvidenceFeeRulesDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
-import uk.gov.justice.laa.crime.evidence.controller.IncomeEvidenceController;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
@@ -44,7 +42,6 @@ public class EvidenceService {
     private final IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;
     private final MaatCourtDataService maatCourtDataService;
     private final MeansAssessmentApiService meansAssessmentApiService;
-    private final IncomeEvidenceController incomeEvidenceController;
 
     private static final String PrivatePensionDescription = "Income from Private Pension(s)";
 
@@ -147,9 +144,10 @@ public class EvidenceService {
             partnerEvidenceItems
         );
 
+        // Question: do we need this response for anything? At present it does not seem to include
+        // anything that is needed for this method's return type.
         ApiMeansAssessmentResponse updateAssessmentResponse = meansAssessmentApiService.update(updateMeansAssessmentRequest);
 
-        // TODO: Possibly map this somewhere else?
         // TODO: Should the due date be what it was previously, or should this have been updated and
         //  available somewhere else?
         return new ApiUpdateIncomeEvidenceResponse()

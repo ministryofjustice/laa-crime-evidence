@@ -32,8 +32,7 @@ public class MeansAssessmentApiService {
         return response;
     }
 
-    // TODO: Need to update the request object here to match the one that has been created in crime-commons.
-    // TODO: Also need to check if this response type is correct.
+    // TODO: Is this response type what CMA will be returning when updating a means assessment?
     public ApiMeansAssessmentResponse update(ApiUpdateMeansAssessmentRequest request) {
         ApiMeansAssessmentResponse response = cmaApiClient.put(
             request,

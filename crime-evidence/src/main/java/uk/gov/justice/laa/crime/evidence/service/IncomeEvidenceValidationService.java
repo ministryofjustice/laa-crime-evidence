@@ -37,11 +37,13 @@ public class IncomeEvidenceValidationService {
         }
     }
 
+
     public void checkExtraEvidenceDescription(String incomeExtraEvidence, String incomeExtraEvidenceText) {
         if (OtherEvidenceTypes.getFrom(incomeExtraEvidence) != null && StringUtils.isBlank(incomeExtraEvidenceText)) {
             throw new IllegalArgumentException("When other evidence is requested, you must provide descriptive text.");
         }
     }
+
 
     public void checkEvidenceDueDates(Date evidenceDueDate, Date firstReminderDate, Date secondReminderDate,
                                       Date existingEvidenceDueDate) {

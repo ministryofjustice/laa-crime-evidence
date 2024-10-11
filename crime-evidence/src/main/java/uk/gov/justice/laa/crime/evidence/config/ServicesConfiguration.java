@@ -39,13 +39,7 @@ public class ServicesConfiguration {
             private String findUrl;
 
             @NotNull
-            private String createUrl;
-
-            @NotNull
             private String updateUrl;
-
-            @NotNull
-            private String rollbackUrl;
         }
     }
 

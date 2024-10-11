@@ -1,11 +1,9 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -15,18 +13,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
-import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRepository;
+import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredItemRepository;
 import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredItemEntity;
 
 @ExtendWith(MockitoExtension.class)
 public class IncomeEvidenceServiceTest {
 
     @Mock
-    private IncomeEvidenceRepository incomeEvidenceRepository;
+    private IncomeEvidenceRequiredItemRepository incomeEvidenceRequiredItemRepository;
 
     @Test
     void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithNoProvidedEvidenceItems_thenReturnFalse() {
-        when(incomeEvidenceRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
+        when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
             List.of(
                 new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
                     "test", LocalDateTime.now()),
@@ -35,7 +33,8 @@ public class IncomeEvidenceServiceTest {
             )
         );
 
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(
+            incomeEvidenceRequiredItemRepository);
 
         boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(1, Collections.emptyList());
 
@@ -44,7 +43,7 @@ public class IncomeEvidenceServiceTest {
 
     @Test
     void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithProvidedEvidenceItems_thenReturnFalse() {
-        when(incomeEvidenceRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
+        when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
             List.of(
                 new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
                     "test", LocalDateTime.now()),
@@ -58,7 +57,8 @@ public class IncomeEvidenceServiceTest {
             new ApiIncomeEvidence(35, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement")
         );
 
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(
+            incomeEvidenceRequiredItemRepository);
 
         boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(1, evidenceItems);
 
@@ -67,7 +67,7 @@ public class IncomeEvidenceServiceTest {
 
     @Test
     void givenAtLeastOneRequiredEvidenceItemNotReceived_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnTrue() {
-        when(incomeEvidenceRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
+        when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
             List.of(
                 new IncomeEvidenceRequiredItemEntity(34, 1, "N", "test", LocalDateTime.now(),
                     "test", LocalDateTime.now()),
@@ -83,7 +83,8 @@ public class IncomeEvidenceServiceTest {
             new ApiIncomeEvidence(3, null, IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
         );
 
-        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRepository);
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(
+            incomeEvidenceRequiredItemRepository);
 
         boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(2, evidenceItems);
 
