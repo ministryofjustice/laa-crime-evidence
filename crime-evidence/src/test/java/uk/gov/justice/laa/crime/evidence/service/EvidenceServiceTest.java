@@ -1,18 +1,25 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
+import org.assertj.core.api.CollectionAssert;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
+import uk.gov.justice.laa.crime.evidence.builder.UpdateEvidenceDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -24,6 +31,9 @@ class EvidenceServiceTest {
 
     @Mock
     private MaatCourtDataService maatCourtDataService;
+
+    @Mock
+    private MeansAssessmentApiService meansAssessmentApiService;
 
     @InjectMocks
     private EvidenceService evidenceService;
@@ -114,5 +124,15 @@ class EvidenceServiceTest {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
         requestDTO.getEvidenceFee().setFeeLevel(EvidenceFeeLevel.LEVEL1.getDescription());
         assertThat(evidenceService.isCalcRequired(requestDTO)).isFalse();
+    }
+
+    @Test
+    void givenNoEvidenceItems_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsNotUpdated() {
+        UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
+
+        ApiUpdateIncomeEvidenceResponse updateEvidenceResponse = evidenceService.updateEvidence(updateEvidenceDTO);
+
+        // TODO: If no evidence is provided, presumably we want to not even bother doing the update?
+        Assertions.assertNull(updateEvidenceResponse.getApplicantEvidenceItems());
     }
 }
