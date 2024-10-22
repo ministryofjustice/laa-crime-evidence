@@ -1,5 +1,8 @@
 package uk.gov.justice.laa.crime.evidence.dto;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +19,9 @@ public class UpdateEvidenceDTO {
     private MagCourtOutcome magCourtOutcome;
     private ApiApplicantDetails applicantDetails;
     private ApiApplicantDetails partnerDetails;
-
+    private BigDecimal applicantPensionAmount;
+    private BigDecimal partnerPensionAmount;
+    private LocalDate applicationReceivedDate;
+    private LocalDateTime evidenceDueDate;
+    private LocalDateTime evidenceReceivedDate;
 }

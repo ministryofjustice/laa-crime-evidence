@@ -34,7 +34,7 @@ public class TestModelDataBuilder {
     public static final int FINANCIAL_ASSESSMENT_ID = 4509;
     public static final int PARTNER_ID = 6336;
     public static final String TEST_USER_NAME = "mock-u";
-    public static final LocalDate DUE_DATE = LocalDate.of(2024, 8, 15);
+    public static final LocalDateTime DUE_DATE = LocalDateTime.of(2024, 8, 15, 0, 0, 0);
     public static final LocalDate EVIDENCE_RECEIVED_DATE = LocalDate.of(2024, 7, 12);
 
     public static ApiCalculateEvidenceFeeRequest getApiCalculateEvidenceFeeRequest(boolean isValid) {
@@ -123,7 +123,7 @@ public class TestModelDataBuilder {
 
     public static ApiUpdateIncomeEvidenceRequest getApiUpdateIncomeEvidenceRequest() {
         return new ApiUpdateIncomeEvidenceRequest()
-                .withDueDate(DUE_DATE)
+                .withEvidenceDueDate(DUE_DATE)
                 .withMagCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
                 .withApplicantEvidenceItems(getApiIncomeEvidenceItems())
                 .withFinancialAssessmentId(FINANCIAL_ASSESSMENT_ID)

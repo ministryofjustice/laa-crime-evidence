@@ -1,5 +1,7 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import org.assertj.core.api.CollectionAssert;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
@@ -13,13 +15,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiGetMeansAssessmentResponse;
+import uk.gov.justice.laa.crime.enums.EmploymentStatus;
+import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 import uk.gov.justice.laa.crime.evidence.builder.UpdateEvidenceDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
+import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -37,6 +44,9 @@ class EvidenceServiceTest {
 
     @InjectMocks
     private EvidenceService evidenceService;
+
+    @Mock
+    private IncomeEvidenceService incomeEvidenceService;
 
     @InjectSoftAssertions
     private SoftAssertions softly;
@@ -134,5 +144,17 @@ class EvidenceServiceTest {
 
         // TODO: If no evidence is provided, presumably we want to not even bother doing the update?
         Assertions.assertNull(updateEvidenceResponse.getApplicantEvidenceItems());
+    }
+
+    @Test
+    void givenMinimumEvidenceItemsLimitIsNotMet_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsUpdated() {
+//        when(meansAssessmentApiService.find(123)).thenReturn(
+//            new ApiGetMeansAssessmentResponse(123, 1, )
+//        )
+
+        when(incomeEvidenceService.checkMinimumEvidenceItemsReceived(Collections.emptyList(), ApplicantType.APPLICANT, MagCourtOutcome.APPEAL_TO_CC, EmploymentStatus.EMPLOY, null, BigDecimal.ZERO))
+            .thenReturn(EvidenceReceivedResultDTO.builder().minimumEvidenceItemsRequired(0).build());
+
+        UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
     }
 }

@@ -33,9 +33,6 @@ public class IncomeEvidenceController implements IncomeEvidenceApi {
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiUpdateIncomeEvidenceResponse> updateEvidence(ApiUpdateIncomeEvidenceRequest request) {
-        // TODO: Ask whether we should be having the pension amounts and old evidence received date
-        //   passed in as the input rather than calling CMA (as CMA has already been called by the
-        //   orchestration service and that should have all of the data already.
         UpdateEvidenceDTO updateEvidenceDTO = UpdateEvidenceDTOBuilder.build(request);
 
         evidenceService.updateEvidence(updateEvidenceDTO);

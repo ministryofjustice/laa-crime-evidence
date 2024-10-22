@@ -1,6 +1,7 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +40,9 @@ import uk.gov.justice.laa.crime.util.DateUtil;
 @RequiredArgsConstructor
 public class EvidenceService {
     private final IncomeEvidenceService incomeEvidenceService;
+    private final IncomeEvidenceValidationService incomeEvidenceValidationService;
     private final MaatCourtDataService maatCourtDataService;
     private final MeansAssessmentApiService meansAssessmentApiService;
-
-    private static final String PrivatePensionDescription = "Income from Private Pension(s)";
 
     public ApiCalculateEvidenceFeeResponse calculateEvidenceFee(CrimeEvidenceDTO crimeEvidenceDTO) {
         ApiCalculateEvidenceFeeResponse apiProcessRepOrderResponse = new ApiCalculateEvidenceFeeResponse();
@@ -95,16 +95,21 @@ public class EvidenceService {
         List<ApiIncomeEvidence> partnerEvidenceItems = updateEvidenceDTO.getPartnerIncomeEvidenceItems();
 
         if (applicantEvidenceItems.isEmpty() && partnerEvidenceItems.isEmpty()) {
-            // TODO: This is where the stored procedure creates default income evidence - likely we
-            //  should do this here so for now let's return an empty response.
-            return new ApiUpdateIncomeEvidenceResponse();
+            throw new IllegalArgumentException("No income evidence items provided");
         }
 
         ApiGetMeansAssessmentResponse oldMeansAssessmentResponse = meansAssessmentApiService.find(updateEvidenceDTO.getFinancialAssessmentId());
-        Optional<ApiAssessmentDetail> assessmentDetail = getPensionAssessmentDetail(oldMeansAssessmentResponse);
+        ApiIncomeEvidenceSummary incomeEvidenceSummary = oldMeansAssessmentResponse.getIncomeEvidenceSummary();
 
-        BigDecimal applicantPension = getPensionAmount(assessmentDetail, ApplicantType.APPLICANT);
-        BigDecimal partnerPension = getPensionAmount(assessmentDetail, ApplicantType.PARTNER);
+        incomeEvidenceValidationService.checkEvidenceDueDates(
+            DateUtil.toDate(updateEvidenceDTO.getEvidenceDueDate()),
+            DateUtil.toDate(incomeEvidenceSummary.getFirstReminderDate()),
+            DateUtil.toDate(incomeEvidenceSummary.getSecondReminderDate()),
+            DateUtil.toDate(incomeEvidenceSummary.getEvidenceDueDate()));
+
+        incomeEvidenceValidationService.checkEvidenceReceivedDate(
+            DateUtil.toDate(updateEvidenceDTO.getEvidenceReceivedDate()),
+            DateUtil.asDate(updateEvidenceDTO.getApplicationReceivedDate()));
 
         boolean evidenceReceived = checkEvidenceReceived(
             applicantEvidenceItems,
@@ -112,24 +117,14 @@ public class EvidenceService {
             updateEvidenceDTO.getMagCourtOutcome(),
             updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
             updateEvidenceDTO.getPartnerDetails().getEmploymentStatus(),
-            applicantPension,
-            partnerPension);
+            updateEvidenceDTO.getApplicantPensionAmount(),
+            updateEvidenceDTO.getPartnerPensionAmount());
 
-        // TODO: Does this need to be set as UTC?
-        LocalDateTime evidenceReceivedDate = updateEvidenceReceivedDate(evidenceReceived, oldMeansAssessmentResponse.getIncomeEvidenceSummary());
+        updateEvidenceReceivedDate(incomeEvidenceSummary, evidenceReceived, updateEvidenceDTO.getEvidenceReceivedDate());
+        updateEvidenceDueDate(incomeEvidenceSummary, updateEvidenceDTO.getEvidenceDueDate());
 
-        // Question: Matt said we needed this but cannot see why. The call to set_due_date in the SP
-        // was checking a few edge cases (that the due date had not been removed and that the due
-        // date had not been set to sometime in the past), but I think we're now already guarding
-        // against this.
-        LocalDateTime oldEvidenceDueDate = oldMeansAssessmentResponse.getIncomeEvidenceSummary().getEvidenceDueDate();
-
-        // Question: should we be passing in the ApiIncomeEvidenceSummary here and setting the income
-        // evidence items on that, or should we be passing in these evidence items directly to the
-        // update means assessment request (and not set on the base class)?
-        // OR should we be passing both and setting the evidence on both? This is not at all obvious.
         ApiUpdateMeansAssessmentRequest updateMeansAssessmentRequest = createUpdateMeansAssessmentRequest(
-            oldMeansAssessmentResponse.getIncomeEvidenceSummary(),
+            incomeEvidenceSummary,
             updateEvidenceDTO.getFinancialAssessmentId(),
             updateEvidenceDTO.getApplicantDetails().getId(),
             updateEvidenceDTO.getPartnerDetails().getId(),
@@ -137,17 +132,17 @@ public class EvidenceService {
             partnerEvidenceItems
         );
 
-        // Question: do we need this response for anything? At present it does not seem to include
-        // anything that is needed for this method's return type.
-        ApiMeansAssessmentResponse updateAssessmentResponse = meansAssessmentApiService.update(updateMeansAssessmentRequest);
+        meansAssessmentApiService.update(updateMeansAssessmentRequest);
+
+        // TODO: Map ids of new income evidence items.
 
         // TODO: Should the due date be what it was previously, or should this have been updated and
         //  available somewhere else?
         return new ApiUpdateIncomeEvidenceResponse()
             .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
             .withPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems))
-            .withDueDate(oldEvidenceDueDate.toLocalDate())
-            .withAllEvidenceReceivedDate(evidenceReceivedDate != null ? evidenceReceivedDate.toLocalDate() : null);
+            .withDueDate(DateUtil.parseLocalDate(incomeEvidenceSummary.getEvidenceDueDate()))
+            .withAllEvidenceReceivedDate(DateUtil.parseLocalDate(incomeEvidenceSummary.getEvidenceReceivedDate()));
     }
 
     protected boolean isCalcRequired(CrimeEvidenceDTO crimeEvidenceDTO) {
@@ -212,11 +207,13 @@ public class EvidenceService {
         int partnerId,
         List<ApiIncomeEvidence> applicantEvidenceItems,
         List<ApiIncomeEvidence> partnerEvidenceItems) {
-
+        // Note: the ApiIncomeEvidenceSummary is being passed only to update the evidence due and
+        // received dates. Evidence items are passed directly as part of the request and not set via
+        // the evidence summary object.
         List<uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence> incomeEvidenceItems = new ArrayList<>();
         applicantEvidenceItems.forEach(applicantEvidenceItem -> incomeEvidenceItems.add(mapApiIncomeEvidence(applicantEvidenceItem, applicantId)));
         partnerEvidenceItems.forEach(partnerEvidenceItem -> incomeEvidenceItems.add(mapApiIncomeEvidence(partnerEvidenceItem, partnerId)));
-        
+
         return new ApiUpdateMeansAssessmentRequest()
             .withFinancialAssessmentId(financialAssessmentId)
             .withIncomeEvidence(incomeEvidenceItems)
@@ -231,54 +228,30 @@ public class EvidenceService {
             .withApiEvidenceType(new ApiEvidenceType(apiIncomeEvidence.getEvidenceType().getName(), apiIncomeEvidence.getEvidenceType().getDescription()));
     }
 
-    private Optional<ApiAssessmentDetail> getPensionAssessmentDetail(ApiGetMeansAssessmentResponse meansAssessmentResponse) {
-        ApiAssessmentSectionSummary assessmentSummary;
+    private void updateEvidenceDueDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, LocalDateTime evidenceDueDate) {
+        LocalDateTime previousEvidenceDueDate = incomeEvidenceSummary.getEvidenceDueDate();
 
-        if (meansAssessmentResponse.getFullAssessment().getAssessmentSectionSummary() != null
-            && !meansAssessmentResponse.getFullAssessment().getAssessmentSectionSummary().isEmpty()) {
-            assessmentSummary = meansAssessmentResponse.getFullAssessment().getAssessmentSectionSummary().stream().findFirst().get();
-        }
-        else {
-            // NOTE: Assumption here that there is already an initial means assessment.
-            assessmentSummary = meansAssessmentResponse.getInitialAssessment().getAssessmentSectionSummary().stream().findFirst().get();
+        if (evidenceDueDate == null && previousEvidenceDueDate != null) {
+            incomeEvidenceSummary.setEvidenceDueDate(previousEvidenceDueDate);
+        } else if (LocalDateTime.now().isAfter(evidenceDueDate) && evidenceDueDate != previousEvidenceDueDate) {
+            incomeEvidenceSummary.setEvidenceDueDate(previousEvidenceDueDate);
         }
 
-        return assessmentSummary.getAssessmentDetails()
-            .stream()
-            .filter(item -> item.getAssessmentDescription().equals(PrivatePensionDescription))
-            .findFirst();
+        // TODO: What should the due date be set as if the provided evidenceDueDate is in the past
+        //  and the previousEvidenceDueDate is null? SP just raises an exception.
+
+
     }
 
-    private BigDecimal getPensionAmount(Optional<ApiAssessmentDetail> assessmentDetail, ApplicantType applicantType) {
-        if (assessmentDetail.isEmpty()) {
-            return BigDecimal.ZERO;
+    private void updateEvidenceReceivedDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, boolean evidenceReceived, LocalDateTime evidenceReceivedDate) {
+        if (evidenceReceivedDate == null) {
+            evidenceReceivedDate = evidenceReceived ? LocalDateTime.now() : null;
         }
-
-        ApiAssessmentDetail data = assessmentDetail.get();
-
-        BigDecimal amount = applicantType == ApplicantType.APPLICANT ? data.getApplicantAmount() : data.getPartnerAmount();
-        Frequency frequency = applicantType == ApplicantType.APPLICANT ? data.getApplicantFrequency() : data.getPartnerFrequency();
-
-        return amount.multiply(BigDecimal.valueOf(frequency.getWeighting()));
-    }
-
-    private LocalDateTime updateEvidenceReceivedDate(boolean evidenceReceived, ApiIncomeEvidenceSummary incomeEvidenceSummary) {
-        LocalDateTime evidenceReceivedDate = evidenceReceived ? LocalDateTime.now() : null;
 
         if (evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() == null) {
             incomeEvidenceSummary.setEvidenceReceivedDate(evidenceReceivedDate);
         } else if (!evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() != null) {
             incomeEvidenceSummary.setEvidenceReceivedDate(null);
         }
-
-        return evidenceReceivedDate;
-    }
-
-    private void updateEvidenceItemsReceivedDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, LocalDateTime evidenceReceivedDate) {
-        incomeEvidenceSummary.getIncomeEvidence().forEach(item -> {
-            if (item.getDateReceived() == null) {
-                item.setDateReceived(evidenceReceivedDate);
-            }
-        });
     }
 }

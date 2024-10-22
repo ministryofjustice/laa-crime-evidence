@@ -10,9 +10,14 @@ public class UpdateEvidenceDTOBuilder {
             .financialAssessmentId(request.getFinancialAssessmentId())
             .magCourtOutcome(request.getMagCourtOutcome())
             .applicantDetails(request.getApplicantEvidenceItems().getApplicantDetails())
+            .applicantPensionAmount(request.getApplicantPensionAmount())
+            .applicationReceivedDate(request.getMetadata().getApplicationReceivedDate())
             .partnerDetails(request.getPartnerEvidenceItems().getApplicantDetails())
+            .partnerPensionAmount(request.getPartnerPensionAmount())
             .applicantIncomeEvidenceItems(request.getApplicantEvidenceItems().getIncomeEvidenceItems())
             .partnerIncomeEvidenceItems(request.getPartnerEvidenceItems().getIncomeEvidenceItems())
+            .evidenceDueDate(request.getEvidenceDueDate())
+            .evidenceReceivedDate(request.getEvidenceReceivedDate())
             .build();
     }
 }
