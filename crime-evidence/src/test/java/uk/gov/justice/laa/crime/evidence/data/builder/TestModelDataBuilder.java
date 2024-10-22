@@ -92,6 +92,7 @@ public class TestModelDataBuilder {
 
     public static ApiIncomeEvidenceMetadata getApiIncomeEvidenceMetadata() {
         return new ApiIncomeEvidenceMetadata()
+                .withApplicationReceivedDate(LocalDate.now())
                 .withNotes("mock notes")
                 .withEvidencePending(false)
                 .withUserSession(getUserSession());
@@ -125,7 +126,6 @@ public class TestModelDataBuilder {
         return new ApiUpdateIncomeEvidenceRequest()
                 .withEvidenceDueDate(DUE_DATE)
                 .withMagCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
-                .withApplicantEvidenceItems(getApiIncomeEvidenceItems())
                 .withFinancialAssessmentId(FINANCIAL_ASSESSMENT_ID)
                 .withMetadata(getApiIncomeEvidenceMetadata());
     }

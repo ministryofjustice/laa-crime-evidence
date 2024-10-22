@@ -9,5 +9,6 @@ import lombok.Data;
 @Builder
 public class EvidenceReceivedResultDTO {
     private boolean evidenceReceived;
+    private int incomeEvidenceRequiredId;
     private int minimumEvidenceItemsRequired;
 }

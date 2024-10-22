@@ -29,6 +29,7 @@ import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -140,21 +141,8 @@ class EvidenceServiceTest {
     void givenNoEvidenceItems_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsNotUpdated() {
         UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
 
-        ApiUpdateIncomeEvidenceResponse updateEvidenceResponse = evidenceService.updateEvidence(updateEvidenceDTO);
-
-        // TODO: If no evidence is provided, presumably we want to not even bother doing the update?
-        Assertions.assertNull(updateEvidenceResponse.getApplicantEvidenceItems());
-    }
-
-    @Test
-    void givenMinimumEvidenceItemsLimitIsNotMet_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsUpdated() {
-//        when(meansAssessmentApiService.find(123)).thenReturn(
-//            new ApiGetMeansAssessmentResponse(123, 1, )
-//        )
-
-        when(incomeEvidenceService.checkMinimumEvidenceItemsReceived(Collections.emptyList(), ApplicantType.APPLICANT, MagCourtOutcome.APPEAL_TO_CC, EmploymentStatus.EMPLOY, null, BigDecimal.ZERO))
-            .thenReturn(EvidenceReceivedResultDTO.builder().minimumEvidenceItemsRequired(0).build());
-
-        UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
+        assertThatThrownBy(() -> evidenceService.updateEvidence(updateEvidenceDTO))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("No income evidence items provided");
     }
 }

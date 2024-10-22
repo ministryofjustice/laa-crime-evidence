@@ -144,16 +144,6 @@ public class EvidenceService {
                 (crimeEvidenceDTO.getEvidenceFee() == null || crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null);
     }
 
-    private List<ApiIncomeEvidence> getUpdatedEvidenceItems(
-        ApiMeansAssessmentResponse meansAssessmentResponse,
-        int personId) {
-        return meansAssessmentResponse.getIncomeEvidence()
-            .stream()
-            .filter(evidence -> evidence.getApplicantId() == personId)
-            .map(this::mapApiIncomeEvidence)
-            .toList();
-    }
-
     private boolean checkEvidenceReceived(
         List<ApiIncomeEvidence> applicantEvidenceItems,
         List<ApiIncomeEvidence> partnerEvidenceItems,
@@ -190,7 +180,7 @@ public class EvidenceService {
             }
 
             boolean partnerRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
-                partnerEvidenceReceivedResult.getMinimumEvidenceItemsRequired(), partnerEvidenceItems);
+                partnerEvidenceReceivedResult.getIncomeEvidenceRequiredId(), partnerEvidenceItems);
 
             if (partnerRequiredEvidenceOutstanding) {
                 return false;
@@ -198,9 +188,19 @@ public class EvidenceService {
         }
 
         boolean applicantRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
-            applicantEvidenceReceivedResult.getMinimumEvidenceItemsRequired(), applicantEvidenceItems);
+            applicantEvidenceReceivedResult.getIncomeEvidenceRequiredId(), applicantEvidenceItems);
 
         return !applicantRequiredEvidenceOutstanding;
+    }
+
+    private List<ApiIncomeEvidence> getUpdatedEvidenceItems(
+        ApiMeansAssessmentResponse meansAssessmentResponse,
+        int personId) {
+        return meansAssessmentResponse.getIncomeEvidence()
+            .stream()
+            .filter(evidence -> evidence.getApplicantId() == personId)
+            .map(this::mapApiIncomeEvidence)
+            .toList();
     }
 
     private ApiMeansAssessmentResponse updateMeansAssessment(

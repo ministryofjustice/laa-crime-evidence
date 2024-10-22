@@ -35,8 +35,6 @@ public class IncomeEvidenceController implements IncomeEvidenceApi {
     public ResponseEntity<ApiUpdateIncomeEvidenceResponse> updateEvidence(ApiUpdateIncomeEvidenceRequest request) {
         UpdateEvidenceDTO updateEvidenceDTO = UpdateEvidenceDTOBuilder.build(request);
 
-        evidenceService.updateEvidence(updateEvidenceDTO);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(evidenceService.updateEvidence(updateEvidenceDTO));
     }
 }

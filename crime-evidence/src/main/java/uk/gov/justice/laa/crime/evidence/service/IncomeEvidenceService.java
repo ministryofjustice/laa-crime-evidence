@@ -43,10 +43,9 @@ public class IncomeEvidenceService {
             return true;
         }
 
-        // TODO: Is the check in here correct (on id to id)?
         for (IncomeEvidenceRequiredItemProjection requiredEvidenceItem : requiredEvidenceItems) {
             Optional<ApiIncomeEvidence> evidenceItem = providedEvidenceItems.stream()
-                .filter(providedEvidenceItem -> providedEvidenceItem.getId().equals(requiredEvidenceItem.getId()))
+                .filter(providedEvidenceItem -> providedEvidenceItem.getEvidenceType().getName().equals(requiredEvidenceItem.getIncomeEvidenceRequiredDescription()))
                 .findFirst();
 
             if (evidenceItem.isEmpty() || evidenceItem.get().getDateReceived() == null) {
@@ -72,13 +71,11 @@ public class IncomeEvidenceService {
             pensionAmount.doubleValue());
 
         if (incomeEvidenceRequiredEntity == null) {
-            return new EvidenceReceivedResultDTO(true, 0);
+            return new EvidenceReceivedResultDTO(true, 0, 0);
         }
 
-        // NOTE: Assumption here from the SP that if we get a null value back from the query to the
-        // income evidence required table, then this isn't an error.
         boolean minimumEvidenceItemsReceived = providedEvidenceItems.size() >= incomeEvidenceRequiredEntity.getEvidenceItemsRequired();
 
-        return new EvidenceReceivedResultDTO(minimumEvidenceItemsReceived, incomeEvidenceRequiredEntity.getEvidenceItemsRequired());
+        return new EvidenceReceivedResultDTO(minimumEvidenceItemsReceived, incomeEvidenceRequiredEntity.getId(), incomeEvidenceRequiredEntity.getEvidenceItemsRequired());
     }
 }

@@ -24,6 +24,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "income_evidence_required", schema = "crime_evidence")
 public class IncomeEvidenceRequiredEntity {
     @Id
+    @Column(name = "ID", nullable = false)
+    private int id;
+
     @Column(name = "MCOO_OUTCOME", nullable = false)
     private String mcooOutcome;
 

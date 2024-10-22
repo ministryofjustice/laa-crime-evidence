@@ -35,8 +35,8 @@ public class IncomeEvidenceServiceTest {
     void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithNoProvidedEvidenceItems_thenReturnFalse() {
         when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
             List.of(
-                createIncomeEvidenceRequiredItemProjection(34, 1, false),
-                createIncomeEvidenceRequiredItemProjection(35, 2, false)
+                createIncomeEvidenceRequiredItemProjection(34, "mock1", false),
+                createIncomeEvidenceRequiredItemProjection(35, "mock2", false)
             )
         );
 
@@ -51,8 +51,8 @@ public class IncomeEvidenceServiceTest {
     void givenNoRequiredEvidenceItemsExist_whenIsRequiredEvidenceOutstandingIsInvokedWithProvidedEvidenceItems_thenReturnFalse() {
         when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
             List.of(
-                createIncomeEvidenceRequiredItemProjection(34, 1, false),
-                createIncomeEvidenceRequiredItemProjection(35, 2, false)
+                createIncomeEvidenceRequiredItemProjection(34, "mock1", false),
+                createIncomeEvidenceRequiredItemProjection(35, "mock2", false)
             )
         );
 
@@ -72,9 +72,9 @@ public class IncomeEvidenceServiceTest {
     void givenAtLeastOneRequiredEvidenceItemNotReceived_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnTrue() {
         when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
             List.of(
-                createIncomeEvidenceRequiredItemProjection(34, 1, false),
-                createIncomeEvidenceRequiredItemProjection(35, 2, false),
-                createIncomeEvidenceRequiredItemProjection(36, 2, true)
+                createIncomeEvidenceRequiredItemProjection(34, "mock1", false),
+                createIncomeEvidenceRequiredItemProjection(35, "mock2", false),
+                createIncomeEvidenceRequiredItemProjection(36, "mock3", true)
             )
         );
 
@@ -186,7 +186,7 @@ public class IncomeEvidenceServiceTest {
     }
 
     private static IncomeEvidenceRequiredItemProjection createIncomeEvidenceRequiredItemProjection(
-        int id, int incomeEvidenceRequiredId, boolean mandatory)
+        int id, String description, boolean mandatory)
     {
         return new IncomeEvidenceRequiredItemProjection() {
             @Override
@@ -195,13 +195,13 @@ public class IncomeEvidenceServiceTest {
             }
 
             @Override
-            public int getIncomeEvidenceRequiredId() {
-                return incomeEvidenceRequiredId;
+            public String getMandatory() {
+                return mandatory ? "Y" : "N";
             }
 
             @Override
-            public String getMandatory() {
-                return mandatory ? "Y" : "N";
+            public String getIncomeEvidenceRequiredDescription() {
+                return description;
             }
         };
     }
