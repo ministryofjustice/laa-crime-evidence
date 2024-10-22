@@ -1,27 +1,23 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
-import uk.gov.justice.laa.crime.common.model.meansassessment.ApiAssessmentDetail;
-import uk.gov.justice.laa.crime.common.model.meansassessment.ApiAssessmentSectionSummary;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiEvidenceType;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiGetMeansAssessmentResponse;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidenceSummary;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiMeansAssessmentResponse;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiUpdateMeansAssessmentRequest;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
-import uk.gov.justice.laa.crime.enums.Frequency;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
+import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.builder.EvidenceFeeRulesDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
@@ -132,12 +128,11 @@ public class EvidenceService {
             partnerEvidenceItems
         );
 
-        meansAssessmentApiService.update(updateMeansAssessmentRequest);
+        ApiMeansAssessmentResponse updateEvidenceResponse = meansAssessmentApiService.update(updateMeansAssessmentRequest);
 
-        // TODO: Map ids of new income evidence items.
-
-        // TODO: Should the due date be what it was previously, or should this have been updated and
-        //  available somewhere else?
+        applicantEvidenceItems = getUpdatedEvidenceItems(updateEvidenceResponse, updateEvidenceDTO.getApplicantDetails().getId());
+        partnerEvidenceItems = getUpdatedEvidenceItems(updateEvidenceResponse, updateEvidenceDTO.getPartnerDetails().getId());
+        
         return new ApiUpdateIncomeEvidenceResponse()
             .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
             .withPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems))
@@ -149,6 +144,16 @@ public class EvidenceService {
         return (crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.SENT_FOR_TRIAL)
                 || crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.COMMITTED_FOR_TRIAL)) &&
                 (crimeEvidenceDTO.getEvidenceFee() == null || crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null);
+    }
+
+    private List<ApiIncomeEvidence> getUpdatedEvidenceItems(
+        ApiMeansAssessmentResponse meansAssessmentResponse,
+        int personId) {
+        return meansAssessmentResponse.getIncomeEvidence()
+            .stream()
+            .filter(evidence -> evidence.getApplicantId() == personId)
+            .map(this::mapApiIncomeEvidence)
+            .toList();
     }
 
     private boolean checkEvidenceReceived(
@@ -223,9 +228,18 @@ public class EvidenceService {
     private uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence mapApiIncomeEvidence(ApiIncomeEvidence apiIncomeEvidence, int applicantId) {
         return new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence()
             .withId(apiIncomeEvidence.getId())
-            .withDateReceived(DateUtil.convertDateToDateTime(apiIncomeEvidence.getDateReceived()))
             .withApplicantId(applicantId)
+            .withDateReceived(DateUtil.convertDateToDateTime(apiIncomeEvidence.getDateReceived()))
             .withApiEvidenceType(new ApiEvidenceType(apiIncomeEvidence.getEvidenceType().getName(), apiIncomeEvidence.getEvidenceType().getDescription()));
+    }
+
+    private ApiIncomeEvidence mapApiIncomeEvidence(
+        uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence apiIncomeEvidence) {
+        return new ApiIncomeEvidence()
+            .withId(apiIncomeEvidence.getId())
+            .withDateReceived(DateUtil.parseLocalDate(apiIncomeEvidence.getDateReceived()))
+            .withDescription(apiIncomeEvidence.getOtherText())
+            .withEvidenceType(IncomeEvidenceType.getFrom(apiIncomeEvidence.getApiEvidenceType().getCode()));
     }
 
     private void updateEvidenceDueDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, LocalDateTime evidenceDueDate) {
