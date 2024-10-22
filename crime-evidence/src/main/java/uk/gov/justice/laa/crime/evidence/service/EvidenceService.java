@@ -95,17 +95,17 @@ public class EvidenceService {
         }
 
         incomeEvidenceValidationService.checkEvidenceReceivedDate(
-            DateUtil.toDate(updateEvidenceDTO.getEvidenceReceivedDate()),
-            DateUtil.asDate(updateEvidenceDTO.getApplicationReceivedDate()));
+            DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()),
+            updateEvidenceDTO.getApplicationReceivedDate());
 
         ApiGetMeansAssessmentResponse oldMeansAssessmentResponse = meansAssessmentApiService.find(updateEvidenceDTO.getFinancialAssessmentId());
         ApiIncomeEvidenceSummary incomeEvidenceSummary = oldMeansAssessmentResponse.getIncomeEvidenceSummary();
 
         incomeEvidenceValidationService.checkEvidenceDueDates(
-            DateUtil.toDate(updateEvidenceDTO.getEvidenceDueDate()),
-            DateUtil.toDate(incomeEvidenceSummary.getFirstReminderDate()),
-            DateUtil.toDate(incomeEvidenceSummary.getSecondReminderDate()),
-            DateUtil.toDate(incomeEvidenceSummary.getEvidenceDueDate()));
+            DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceDueDate()),
+            DateUtil.parseLocalDate(incomeEvidenceSummary.getFirstReminderDate()),
+            DateUtil.parseLocalDate(incomeEvidenceSummary.getSecondReminderDate()),
+            DateUtil.parseLocalDate(incomeEvidenceSummary.getEvidenceDueDate()));
 
         boolean evidenceReceived = checkEvidenceReceived(
             applicantEvidenceItems,

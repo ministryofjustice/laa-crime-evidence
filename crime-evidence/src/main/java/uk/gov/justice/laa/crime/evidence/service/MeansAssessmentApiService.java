@@ -32,7 +32,6 @@ public class MeansAssessmentApiService {
         return response;
     }
 
-    // TODO: Is this response type what CMA will be returning when updating a means assessment?
     public ApiMeansAssessmentResponse update(ApiUpdateMeansAssessmentRequest request) {
         ApiMeansAssessmentResponse response = cmaApiClient.put(
             request,
