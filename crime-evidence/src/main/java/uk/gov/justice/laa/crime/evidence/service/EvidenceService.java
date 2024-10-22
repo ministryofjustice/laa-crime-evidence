@@ -94,6 +94,10 @@ public class EvidenceService {
             throw new IllegalArgumentException("No income evidence items provided");
         }
 
+        incomeEvidenceValidationService.checkEvidenceReceivedDate(
+            DateUtil.toDate(updateEvidenceDTO.getEvidenceReceivedDate()),
+            DateUtil.asDate(updateEvidenceDTO.getApplicationReceivedDate()));
+
         ApiGetMeansAssessmentResponse oldMeansAssessmentResponse = meansAssessmentApiService.find(updateEvidenceDTO.getFinancialAssessmentId());
         ApiIncomeEvidenceSummary incomeEvidenceSummary = oldMeansAssessmentResponse.getIncomeEvidenceSummary();
 
@@ -102,10 +106,6 @@ public class EvidenceService {
             DateUtil.toDate(incomeEvidenceSummary.getFirstReminderDate()),
             DateUtil.toDate(incomeEvidenceSummary.getSecondReminderDate()),
             DateUtil.toDate(incomeEvidenceSummary.getEvidenceDueDate()));
-
-        incomeEvidenceValidationService.checkEvidenceReceivedDate(
-            DateUtil.toDate(updateEvidenceDTO.getEvidenceReceivedDate()),
-            DateUtil.asDate(updateEvidenceDTO.getApplicationReceivedDate()));
 
         boolean evidenceReceived = checkEvidenceReceived(
             applicantEvidenceItems,
@@ -119,7 +119,7 @@ public class EvidenceService {
         updateEvidenceReceivedDate(incomeEvidenceSummary, evidenceReceived, updateEvidenceDTO.getEvidenceReceivedDate());
         updateEvidenceDueDate(incomeEvidenceSummary, updateEvidenceDTO.getEvidenceDueDate());
 
-        ApiUpdateMeansAssessmentRequest updateMeansAssessmentRequest = createUpdateMeansAssessmentRequest(
+        ApiMeansAssessmentResponse updateAssessmentResponse = updateMeansAssessment(
             incomeEvidenceSummary,
             updateEvidenceDTO.getFinancialAssessmentId(),
             updateEvidenceDTO.getApplicantDetails().getId(),
@@ -128,10 +128,8 @@ public class EvidenceService {
             partnerEvidenceItems
         );
 
-        ApiMeansAssessmentResponse updateEvidenceResponse = meansAssessmentApiService.update(updateMeansAssessmentRequest);
-
-        applicantEvidenceItems = getUpdatedEvidenceItems(updateEvidenceResponse, updateEvidenceDTO.getApplicantDetails().getId());
-        partnerEvidenceItems = getUpdatedEvidenceItems(updateEvidenceResponse, updateEvidenceDTO.getPartnerDetails().getId());
+        applicantEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getApplicantDetails().getId());
+        partnerEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getPartnerDetails().getId());
         
         return new ApiUpdateIncomeEvidenceResponse()
             .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
@@ -205,7 +203,7 @@ public class EvidenceService {
         return !applicantRequiredEvidenceOutstanding;
     }
 
-    private ApiUpdateMeansAssessmentRequest createUpdateMeansAssessmentRequest(
+    private ApiMeansAssessmentResponse updateMeansAssessment(
         ApiIncomeEvidenceSummary currentIncomeEvidenceSummary,
         int financialAssessmentId,
         int applicantId,
@@ -219,10 +217,12 @@ public class EvidenceService {
         applicantEvidenceItems.forEach(applicantEvidenceItem -> incomeEvidenceItems.add(mapApiIncomeEvidence(applicantEvidenceItem, applicantId)));
         partnerEvidenceItems.forEach(partnerEvidenceItem -> incomeEvidenceItems.add(mapApiIncomeEvidence(partnerEvidenceItem, partnerId)));
 
-        return new ApiUpdateMeansAssessmentRequest()
+        ApiUpdateMeansAssessmentRequest request = new ApiUpdateMeansAssessmentRequest()
             .withFinancialAssessmentId(financialAssessmentId)
             .withIncomeEvidence(incomeEvidenceItems)
             .withIncomeEvidenceSummary(currentIncomeEvidenceSummary);
+
+        return meansAssessmentApiService.update(request);
     }
 
     private uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence mapApiIncomeEvidence(ApiIncomeEvidence apiIncomeEvidence, int applicantId) {
@@ -250,11 +250,6 @@ public class EvidenceService {
         } else if (LocalDateTime.now().isAfter(evidenceDueDate) && evidenceDueDate != previousEvidenceDueDate) {
             incomeEvidenceSummary.setEvidenceDueDate(previousEvidenceDueDate);
         }
-
-        // TODO: What should the due date be set as if the provided evidenceDueDate is in the past
-        //  and the previousEvidenceDueDate is null? SP just raises an exception.
-
-
     }
 
     private void updateEvidenceReceivedDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, boolean evidenceReceived, LocalDateTime evidenceReceivedDate) {
