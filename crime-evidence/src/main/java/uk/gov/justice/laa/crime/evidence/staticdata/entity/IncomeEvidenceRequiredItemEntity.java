@@ -30,6 +30,9 @@ public class IncomeEvidenceRequiredItemEntity {
     @Column(name = "IEVR_ID", nullable = false)
     private int incomeEvidenceRequiredId;
 
+    @Column(name = "INEV_EVIDENCE", nullable = false)
+    private String incomeEvidenceRequiredDescription;
+
     @Column(name = "MANDATORY", nullable = false)
     private String mandatory;
 

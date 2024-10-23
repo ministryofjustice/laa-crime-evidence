@@ -40,10 +40,10 @@ public class IncomeEvidenceRequiredEntity {
     private int annualPensionAmount;
 
     @Column(name = "APPLICANT_PARTNER")
-    private int applicantPartner;
+    private String applicantPartner;
 
     @Column(name = "PARTNER_EMST_CODE")
-    private int partnerEmstCode;
+    private String partnerEmstCode;
 
     @Column(name = "USER_CREATED", nullable = false)
     private String createdBy;
