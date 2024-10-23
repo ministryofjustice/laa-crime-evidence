@@ -4,6 +4,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -183,6 +184,100 @@ public class IncomeEvidenceServiceTest {
 
         Assertions.assertEquals(4, result.getMinimumEvidenceItemsRequired());
         Assertions.assertFalse(result.isEvidenceReceived());
+    }
+
+
+    @Test
+    void givenMinimumEvidenceItemsNotMet_whenCheckEvidenceReceivedIsInvoked_thenReturnFalse() {
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(MagCourtOutcome.APPEAL_TO_CC.getOutcome(), EmploymentStatus.EMPLOY.getCode(), EmploymentStatus.EMPLOYED_CASH.getCode(), "APPLICANT", 0d)).thenReturn(
+            IncomeEvidenceRequiredEntity.builder().evidenceItemsRequired(4).build()
+        );
+
+        List<ApiIncomeEvidence> applicantEvidenceItems = new ArrayList<>();
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        boolean result = incomeEvidenceService.checkEvidenceReceived(
+            applicantEvidenceItems,
+            MagCourtOutcome.APPEAL_TO_CC,
+            EmploymentStatus.EMPLOY,
+            EmploymentStatus.EMPLOYED_CASH,
+            BigDecimal.ZERO,
+            ApplicantType.APPLICANT);
+
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void givenOutstandingEvidence_whenCheckEvidenceReceivedIsInvoked_thenReturnFalse() {
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(MagCourtOutcome.APPEAL_TO_CC.getOutcome(), EmploymentStatus.EMPLOY.getCode(), EmploymentStatus.EMPLOYED_CASH.getCode(), "APPLICANT", 0d)).thenReturn(
+            IncomeEvidenceRequiredEntity.builder()
+                .id(2)
+                .evidenceItemsRequired(1).build()
+        );
+
+        when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
+            List.of(
+                createIncomeEvidenceRequiredItemProjection(34, "mock1", false),
+                createIncomeEvidenceRequiredItemProjection(35, "mock2", false),
+                createIncomeEvidenceRequiredItemProjection(36, "mock3", true)
+            )
+        );
+
+        List<ApiIncomeEvidence> applicantEvidenceItems = List.of(
+            new ApiIncomeEvidence(1, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"),
+            new ApiIncomeEvidence(2, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement"),
+            new ApiIncomeEvidence(3, null, IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
+        );
+        List<ApiIncomeEvidence> partnerEvidenceItems = new ArrayList<>();
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        boolean result = incomeEvidenceService.checkEvidenceReceived(
+            applicantEvidenceItems,
+            MagCourtOutcome.APPEAL_TO_CC,
+            EmploymentStatus.EMPLOY,
+            EmploymentStatus.EMPLOYED_CASH,
+            BigDecimal.ZERO,
+            ApplicantType.APPLICANT);
+
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void givenNoOutstandingEvidence_whenCheckEvidenceReceivedIsInvoked_thenReturnTrue() {
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(MagCourtOutcome.APPEAL_TO_CC.getOutcome(), EmploymentStatus.EMPLOY.getCode(), EmploymentStatus.EMPLOYED_CASH.getCode(), "APPLICANT", 0d)).thenReturn(
+            IncomeEvidenceRequiredEntity.builder()
+                .id(2)
+                .evidenceItemsRequired(1).build()
+        );
+
+        when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
+            List.of(
+                createIncomeEvidenceRequiredItemProjection(34, "mock1", false),
+                createIncomeEvidenceRequiredItemProjection(35, "mock2", false),
+                createIncomeEvidenceRequiredItemProjection(36, IncomeEvidenceType.EMP_LETTER.getName(), true)
+            )
+        );
+
+        List<ApiIncomeEvidence> applicantEvidenceItems = List.of(
+            new ApiIncomeEvidence(34, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"),
+            new ApiIncomeEvidence(35, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement"),
+            new ApiIncomeEvidence(36, LocalDate.of(2024, 9, 1), IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
+        );
+        List<ApiIncomeEvidence> partnerEvidenceItems = new ArrayList<>();
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        boolean result = incomeEvidenceService.checkEvidenceReceived(
+            applicantEvidenceItems,
+            MagCourtOutcome.APPEAL_TO_CC,
+            EmploymentStatus.EMPLOY,
+            EmploymentStatus.EMPLOYED_CASH,
+            BigDecimal.ZERO,
+            ApplicantType.APPLICANT);
+
+        Assertions.assertTrue(result);
     }
 
     private static IncomeEvidenceRequiredItemProjection createIncomeEvidenceRequiredItemProjection(

@@ -24,6 +24,33 @@ public class IncomeEvidenceService {
     private final IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;
     private final IncomeEvidenceRequiredItemRepository incomeEvidenceRequiredItemRepository;
 
+    public boolean checkEvidenceReceived(
+        List<ApiIncomeEvidence> evidenceItems,
+        MagCourtOutcome magCourtOutcome,
+        EmploymentStatus applicantEmploymentStatus,
+        EmploymentStatus partnerEmploymentStatus,
+        BigDecimal pensionAmount,
+        ApplicantType applicantType
+    ) {
+        EvidenceReceivedResultDTO evidenceReceivedResult = checkMinimumEvidenceItemsReceived(
+            evidenceItems,
+            applicantType,
+            magCourtOutcome,
+            applicantEmploymentStatus,
+            partnerEmploymentStatus,
+            pensionAmount
+        );
+
+        if (!evidenceReceivedResult.isEvidenceReceived()) {
+            return false;
+        }
+
+        boolean requiredEvidenceOutstanding = isRequiredEvidenceOutstanding(
+            evidenceReceivedResult.getIncomeEvidenceRequiredId(), evidenceItems);
+
+        return !requiredEvidenceOutstanding;
+    }
+
     public boolean isRequiredEvidenceOutstanding(int incomeEvidenceRequiredId, List<ApiIncomeEvidence> providedEvidenceItems) {
         // Note: The income evidence items passed in are only those items provided. There may be
         //  many more evidence items required than are passed in, therefore we need to call out to

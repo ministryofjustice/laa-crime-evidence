@@ -1,6 +1,5 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +14,6 @@ import uk.gov.justice.laa.crime.common.model.meansassessment.ApiGetMeansAssessme
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidenceSummary;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiMeansAssessmentResponse;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiUpdateMeansAssessmentRequest;
-import uk.gov.justice.laa.crime.enums.EmploymentStatus;
-import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.builder.EvidenceFeeRulesDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
@@ -25,7 +22,6 @@ import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
-import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
@@ -107,14 +103,23 @@ public class EvidenceService {
             DateUtil.parseLocalDate(incomeEvidenceSummary.getSecondReminderDate()),
             DateUtil.parseLocalDate(incomeEvidenceSummary.getEvidenceDueDate()));
 
-        boolean evidenceReceived = checkEvidenceReceived(
+        boolean evidenceReceived = incomeEvidenceService.checkEvidenceReceived(
             applicantEvidenceItems,
-            partnerEvidenceItems,
             updateEvidenceDTO.getMagCourtOutcome(),
             updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
             updateEvidenceDTO.getPartnerDetails().getEmploymentStatus(),
             updateEvidenceDTO.getApplicantPensionAmount(),
-            updateEvidenceDTO.getPartnerPensionAmount());
+            ApplicantType.APPLICANT);
+
+        if (evidenceReceived && !partnerEvidenceItems.isEmpty()) {
+            evidenceReceived = incomeEvidenceService.checkEvidenceReceived(
+                partnerEvidenceItems,
+                updateEvidenceDTO.getMagCourtOutcome(),
+                updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
+                updateEvidenceDTO.getPartnerDetails().getEmploymentStatus(),
+                updateEvidenceDTO.getPartnerPensionAmount(),
+                ApplicantType.PARTNER);
+        }
 
         updateEvidenceReceivedDate(incomeEvidenceSummary, evidenceReceived, updateEvidenceDTO.getEvidenceReceivedDate());
         updateEvidenceDueDate(incomeEvidenceSummary, updateEvidenceDTO.getEvidenceDueDate());
@@ -142,55 +147,6 @@ public class EvidenceService {
         return (crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.SENT_FOR_TRIAL)
                 || crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.COMMITTED_FOR_TRIAL)) &&
                 (crimeEvidenceDTO.getEvidenceFee() == null || crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null);
-    }
-
-    private boolean checkEvidenceReceived(
-        List<ApiIncomeEvidence> applicantEvidenceItems,
-        List<ApiIncomeEvidence> partnerEvidenceItems,
-        MagCourtOutcome magCourtOutcome,
-        EmploymentStatus applicantEmploymentStatus,
-        EmploymentStatus partnerEmploymentStatus,
-        BigDecimal applicantPensionAmount,
-        BigDecimal partnerPensionAmount) {
-        EvidenceReceivedResultDTO applicantEvidenceReceivedResult = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
-            applicantEvidenceItems,
-            ApplicantType.APPLICANT,
-            magCourtOutcome,
-            applicantEmploymentStatus,
-            partnerEmploymentStatus,
-            applicantPensionAmount
-        );
-
-        if (!applicantEvidenceReceivedResult.isEvidenceReceived()) {
-            return false;
-        }
-
-        if (!partnerEvidenceItems.isEmpty()) {
-            EvidenceReceivedResultDTO partnerEvidenceReceivedResult = incomeEvidenceService.checkMinimumEvidenceItemsReceived(
-                partnerEvidenceItems,
-                ApplicantType.PARTNER,
-                magCourtOutcome,
-                applicantEmploymentStatus,
-                partnerEmploymentStatus,
-                partnerPensionAmount
-            );
-
-            if (!partnerEvidenceReceivedResult.isEvidenceReceived()) {
-                return false;
-            }
-
-            boolean partnerRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
-                partnerEvidenceReceivedResult.getIncomeEvidenceRequiredId(), partnerEvidenceItems);
-
-            if (partnerRequiredEvidenceOutstanding) {
-                return false;
-            }
-        }
-
-        boolean applicantRequiredEvidenceOutstanding = incomeEvidenceService.isRequiredEvidenceOutstanding(
-            applicantEvidenceReceivedResult.getIncomeEvidenceRequiredId(), applicantEvidenceItems);
-
-        return !applicantRequiredEvidenceOutstanding;
     }
 
     private List<ApiIncomeEvidence> getUpdatedEvidenceItems(
