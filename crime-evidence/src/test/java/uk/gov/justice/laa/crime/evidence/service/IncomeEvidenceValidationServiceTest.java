@@ -1,31 +1,29 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.LocalDate;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
+import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
 import uk.gov.justice.laa.crime.util.DateUtil;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceValidationService.MISSING_OTHER_EVIDENCE_DESCRIPTION;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SoftAssertionsExtension.class)
 class IncomeEvidenceValidationServiceTest {
 
-    @Mock
-    private MaatCourtDataService maatCourtDataService;
-
     @InjectMocks
     private IncomeEvidenceValidationService incomeEvidenceValidationService;
-
-    @InjectSoftAssertions
-    private SoftAssertions softly;
 
     @Test
     void givenValidDates_whenCheckEvidenceReceivedDateIsInvoked_noExceptionIsThrown() {
@@ -216,5 +214,36 @@ class IncomeEvidenceValidationServiceTest {
                 .applicationReceivedDate(DateUtil.convertDateToDateTime(LocalDate.now().minusMonths(2)))
                 .build();
         incomeEvidenceValidationService.validate(evidenceDTO);
+    }
+
+    @Test
+    void givenExtraEvidenceWithDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenNoExceptionIsThrown() {
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(
+                List.of(TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER)));
+    }
+
+    @Test
+    void givenIncomeExtraEvidenceWithNoDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
+        ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_ADHOC);
+        extraIncomeEvidence.setDescription(null);
+        String errorMessage = assertThrows(IllegalArgumentException.class, () ->
+                incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence))).getMessage();
+        assertThat(errorMessage).isEqualTo(MISSING_OTHER_EVIDENCE_DESCRIPTION);
+    }
+
+    @Test
+    void givenIncomeExtraEvidenceWithEmptyDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
+        ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_BUSINESS);
+        extraIncomeEvidence.setDescription("");
+        String errorMessage = assertThrows(IllegalArgumentException.class, () ->
+                incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence))).getMessage();
+        assertThat(errorMessage).isEqualTo(MISSING_OTHER_EVIDENCE_DESCRIPTION);
+    }
+
+    @Test
+    void givenIncomeEvidence_whenCheckExtraEvidenceDescriptionsIsInvoked_thenNoExceptionIsThrown() {
+        ApiIncomeEvidence incomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.NINO);
+        incomeEvidence.setDescription("");
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(incomeEvidence));
     }
 }

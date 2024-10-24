@@ -1,11 +1,10 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
@@ -14,18 +13,20 @@ import uk.gov.justice.laa.crime.common.model.meansassessment.ApiGetMeansAssessme
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidenceSummary;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiMeansAssessmentResponse;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiUpdateMeansAssessmentRequest;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.builder.EvidenceFeeRulesDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
-import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
 import uk.gov.justice.laa.crime.util.DateUtil;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -93,6 +94,9 @@ public class EvidenceService {
         incomeEvidenceValidationService.checkEvidenceReceivedDate(
             DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()),
             updateEvidenceDTO.getApplicationReceivedDate());
+
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(applicantEvidenceItems);
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(partnerEvidenceItems);
 
         ApiGetMeansAssessmentResponse oldMeansAssessmentResponse = meansAssessmentApiService.find(updateEvidenceDTO.getFinancialAssessmentId());
         ApiIncomeEvidenceSummary incomeEvidenceSummary = oldMeansAssessmentResponse.getIncomeEvidenceSummary();
@@ -163,8 +167,7 @@ public class EvidenceService {
                 (crimeEvidenceDTO.getEvidenceFee() == null || crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null);
     }
 
-    private List<ApiIncomeEvidence> getUpdatedEvidenceItems(
-        ApiMeansAssessmentResponse meansAssessmentResponse,
+    private List<ApiIncomeEvidence> getUpdatedEvidenceItems(ApiMeansAssessmentResponse meansAssessmentResponse,
         int personId) {
         return meansAssessmentResponse.getIncomeEvidence()
             .stream()
@@ -222,11 +225,7 @@ public class EvidenceService {
 
     private void updateEvidenceReceivedDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, boolean evidenceReceived, LocalDateTime evidenceReceivedDate) {
         if (evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() == null) {
-            if (evidenceReceivedDate == null) {
-                evidenceReceivedDate = LocalDateTime.now();
-            }
-
-            incomeEvidenceSummary.setEvidenceReceivedDate(evidenceReceivedDate);
+            incomeEvidenceSummary.setEvidenceReceivedDate(evidenceReceivedDate != null ? evidenceReceivedDate : LocalDateTime.now());
         } else if (!evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() != null) {
             incomeEvidenceSummary.setEvidenceReceivedDate(null);
         }

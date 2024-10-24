@@ -190,4 +190,13 @@ public class TestModelDataBuilder {
             .financialAssessmentId(FINANCIAL_ASSESSMENT_ID)
             .build();
     }
+
+    public static ApiIncomeEvidence getIncomeEvidence(IncomeEvidenceType incomeEvidenceType) {
+        return new ApiIncomeEvidence()
+                .withId(9315)
+                .withDescription("mock evidence item")
+                .withMandatory(true)
+                .withEvidenceType(incomeEvidenceType)
+                .withDateReceived(EVIDENCE_RECEIVED_DATE);
+    }
 }
