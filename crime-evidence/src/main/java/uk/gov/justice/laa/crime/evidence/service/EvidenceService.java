@@ -103,16 +103,22 @@ public class EvidenceService {
             DateUtil.parseLocalDate(incomeEvidenceSummary.getSecondReminderDate()),
             DateUtil.parseLocalDate(incomeEvidenceSummary.getEvidenceDueDate()));
 
-        boolean evidenceReceived = incomeEvidenceService.checkEvidenceReceived(
-            applicantEvidenceItems,
-            updateEvidenceDTO.getMagCourtOutcome(),
-            updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
-            updateEvidenceDTO.getPartnerDetails() != null ? updateEvidenceDTO.getPartnerDetails().getEmploymentStatus() : null,
-            updateEvidenceDTO.getApplicantPensionAmount(),
-            ApplicantType.APPLICANT);
+        boolean applicantEvidenceItemsReceived = true;
+        boolean partnerEvidenceItemsReceived = true;
 
-        if (evidenceReceived && !partnerEvidenceItems.isEmpty()) {
-            evidenceReceived = incomeEvidenceService.checkEvidenceReceived(
+        if (!applicantEvidenceItems.isEmpty()) {
+            applicantEvidenceItemsReceived = incomeEvidenceService.checkEvidenceReceived(
+                applicantEvidenceItems,
+                updateEvidenceDTO.getMagCourtOutcome(),
+                updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
+                updateEvidenceDTO.getPartnerDetails() != null
+                    ? updateEvidenceDTO.getPartnerDetails().getEmploymentStatus() : null,
+                updateEvidenceDTO.getApplicantPensionAmount(),
+                ApplicantType.APPLICANT);
+        }
+
+        if (!partnerEvidenceItems.isEmpty()) {
+            partnerEvidenceItemsReceived = incomeEvidenceService.checkEvidenceReceived(
                 partnerEvidenceItems,
                 updateEvidenceDTO.getMagCourtOutcome(),
                 updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
@@ -121,7 +127,9 @@ public class EvidenceService {
                 ApplicantType.PARTNER);
         }
 
-        updateEvidenceReceivedDate(incomeEvidenceSummary, evidenceReceived, updateEvidenceDTO.getEvidenceReceivedDate());
+        boolean allEvidenceItemsReceived = applicantEvidenceItemsReceived && partnerEvidenceItemsReceived;
+
+        updateEvidenceReceivedDate(incomeEvidenceSummary, allEvidenceItemsReceived, updateEvidenceDTO.getEvidenceReceivedDate());
         updateEvidenceDueDate(incomeEvidenceSummary, updateEvidenceDTO.getEvidenceDueDate());
 
         ApiMeansAssessmentResponse updateAssessmentResponse = updateMeansAssessment(
@@ -135,15 +143,18 @@ public class EvidenceService {
 
         applicantEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getApplicantDetails().getId());
 
-        if (!partnerEvidenceItems.isEmpty()) {
-            partnerEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getPartnerDetails().getId());
-        }
-
-        return new ApiUpdateIncomeEvidenceResponse()
+        ApiUpdateIncomeEvidenceResponse response = new ApiUpdateIncomeEvidenceResponse()
             .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
-            .withPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems))
             .withDueDate(DateUtil.parseLocalDate(incomeEvidenceSummary.getEvidenceDueDate()))
             .withAllEvidenceReceivedDate(DateUtil.parseLocalDate(incomeEvidenceSummary.getEvidenceReceivedDate()));
+
+        if (!partnerEvidenceItems.isEmpty()) {
+            partnerEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getPartnerDetails().getId());
+
+            response.setPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems));
+        }
+
+        return response;
     }
 
     protected boolean isCalcRequired(CrimeEvidenceDTO crimeEvidenceDTO) {
@@ -212,11 +223,11 @@ public class EvidenceService {
     }
 
     private void updateEvidenceReceivedDate(ApiIncomeEvidenceSummary incomeEvidenceSummary, boolean evidenceReceived, LocalDateTime evidenceReceivedDate) {
-        if (evidenceReceivedDate == null) {
-            evidenceReceivedDate = evidenceReceived ? LocalDateTime.now() : null;
-        }
-
         if (evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() == null) {
+            if (evidenceReceivedDate == null) {
+                evidenceReceivedDate = LocalDateTime.now();
+            }
+
             incomeEvidenceSummary.setEvidenceReceivedDate(evidenceReceivedDate);
         } else if (!evidenceReceived && incomeEvidenceSummary.getEvidenceReceivedDate() != null) {
             incomeEvidenceSummary.setEvidenceReceivedDate(null);

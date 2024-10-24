@@ -244,7 +244,13 @@ class EvidenceServiceTest {
             new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence(1, DateUtil.convertDateToDateTime(evidenceItemReceivedDate), null, null, new ApiEvidenceType(IncomeEvidenceType.ACCOUNTS.getName(), IncomeEvidenceType.ACCOUNTS.getDescription()), null, 1, null, null)
         );
 
-        when(incomeEvidenceService.checkEvidenceReceived(eq(updateEvidenceDTO.getApplicantIncomeEvidenceItems()), any(), any(), any(), any(), eq(ApplicantType.APPLICANT)))
+        when(incomeEvidenceService.checkEvidenceReceived(
+            eq(updateEvidenceDTO.getApplicantIncomeEvidenceItems()),
+            any(),
+            any(),
+            any(),
+            any(),
+            eq(ApplicantType.APPLICANT)))
             .thenReturn(false);
 
         ApiMeansAssessmentResponse updateAssessmentResponse = new ApiMeansAssessmentResponse();
