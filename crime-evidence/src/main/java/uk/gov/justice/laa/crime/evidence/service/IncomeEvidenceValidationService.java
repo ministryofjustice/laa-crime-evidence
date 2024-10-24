@@ -9,8 +9,6 @@ import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.OtherEvidenceTypes;
 import uk.gov.justice.laa.crime.util.DateUtil;
 
-import java.util.Date;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor

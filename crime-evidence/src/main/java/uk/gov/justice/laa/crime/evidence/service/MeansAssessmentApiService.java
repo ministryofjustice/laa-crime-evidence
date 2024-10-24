@@ -20,19 +20,24 @@ public class MeansAssessmentApiService {
     @Qualifier("cmaApiClient")
     private final RestAPIClient cmaApiClient;
     private final ServicesConfiguration configuration;
+    private static final String REQUEST_STRING = "Request to Means Assessment Api: {}";
+    private static final String RESPONSE_STRING = "Response from Means Assessment Api: {}";
 
     public ApiGetMeansAssessmentResponse find(Integer assessmentId) {
+        log.debug(REQUEST_STRING, assessmentId);
         ApiGetMeansAssessmentResponse response = cmaApiClient.get(
             new ParameterizedTypeReference<>() {
             },
             configuration.getCmaApi().getEndpoints().getFindUrl(),
             assessmentId
         );
+        log.debug(RESPONSE_STRING, response);
 
         return response;
     }
 
     public ApiMeansAssessmentResponse update(ApiUpdateMeansAssessmentRequest request) {
+        log.debug(REQUEST_STRING, request);
         ApiMeansAssessmentResponse response = cmaApiClient.put(
             request,
             new ParameterizedTypeReference<>() {
@@ -40,6 +45,7 @@ public class MeansAssessmentApiService {
             configuration.getCmaApi().getEndpoints().getUpdateUrl(),
             Map.of()
         );
+        log.debug(RESPONSE_STRING, response);
 
         return response;
 

@@ -229,7 +229,6 @@ public class IncomeEvidenceServiceTest {
             new ApiIncomeEvidence(2, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement"),
             new ApiIncomeEvidence(3, null, IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
         );
-        List<ApiIncomeEvidence> partnerEvidenceItems = new ArrayList<>();
 
         IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
 
@@ -265,7 +264,6 @@ public class IncomeEvidenceServiceTest {
             new ApiIncomeEvidence(35, null, IncomeEvidenceType.BANK_STATEMENT, false, "Bank statement"),
             new ApiIncomeEvidence(36, LocalDate.of(2024, 9, 1), IncomeEvidenceType.EMP_LETTER, true, "Employment letter")
         );
-        List<ApiIncomeEvidence> partnerEvidenceItems = new ArrayList<>();
 
         IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
 

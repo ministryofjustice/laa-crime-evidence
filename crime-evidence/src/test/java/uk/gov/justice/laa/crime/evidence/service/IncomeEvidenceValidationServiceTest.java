@@ -1,5 +1,8 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDate;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -10,11 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
 import uk.gov.justice.laa.crime.util.DateUtil;
-
-import java.time.LocalDate;
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SoftAssertionsExtension.class)
