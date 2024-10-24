@@ -226,18 +226,18 @@ class IncomeEvidenceValidationServiceTest {
     void givenIncomeExtraEvidenceWithNoDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
         ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_ADHOC);
         extraIncomeEvidence.setDescription(null);
-        String errorMessage = assertThrows(IllegalArgumentException.class, () ->
-                incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence))).getMessage();
-        assertThat(errorMessage).isEqualTo(MISSING_OTHER_EVIDENCE_DESCRIPTION);
+        assertThrows(IllegalArgumentException.class,
+                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence)),
+                MISSING_OTHER_EVIDENCE_DESCRIPTION);
     }
 
     @Test
     void givenIncomeExtraEvidenceWithEmptyDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
         ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_BUSINESS);
         extraIncomeEvidence.setDescription("");
-        String errorMessage = assertThrows(IllegalArgumentException.class, () ->
-                incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence))).getMessage();
-        assertThat(errorMessage).isEqualTo(MISSING_OTHER_EVIDENCE_DESCRIPTION);
+        assertThrows(IllegalArgumentException.class,
+                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence)),
+                MISSING_OTHER_EVIDENCE_DESCRIPTION);
     }
 
     @Test
