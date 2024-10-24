@@ -1,5 +1,7 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +14,17 @@ import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceReq
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.commons.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
+import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(IncomeEvidenceController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class IncomeEvidenceControllerTest {
 
     private static final String ENDPOINT_URL = "/api/internal/v1/evidence";
+
+    @MockBean
+    private EvidenceService evidenceService;
 
     @Autowired
     private MockMvc mvc;
@@ -75,6 +79,7 @@ class IncomeEvidenceControllerTest {
     @Test
     void givenInvalidRequest_whenUpdateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
         ApiUpdateIncomeEvidenceRequest request = TestModelDataBuilder.getApiUpdateIncomeEvidenceRequest();
+        request.setApplicantEvidenceItems(TestModelDataBuilder.getApiIncomeEvidenceItems());
         request.setMagCourtOutcome(null);
         String content = objectMapper.writeValueAsString(request);
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, content, ENDPOINT_URL))
@@ -82,10 +87,20 @@ class IncomeEvidenceControllerTest {
     }
 
     @Test
-    void givenValidRequest_whenUpdateEvidenceIsInvoked_thenOkResponseIsReturned() throws Exception {
+    void givenValidRequestWithApplicantDetails_whenUpdateEvidenceIsInvoked_thenOkResponseIsReturned() throws Exception {
         ApiUpdateIncomeEvidenceRequest request = TestModelDataBuilder.getApiUpdateIncomeEvidenceRequest();
+        request.setApplicantEvidenceItems(TestModelDataBuilder.getApiIncomeEvidenceItems());
         String content = objectMapper.writeValueAsString(request);
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, content, ENDPOINT_URL))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void givenValidRequestWithPartnerDetails_whenUpdateEvidenceIsInvoked_thenOkResponseIsReturned() throws Exception {
+        ApiUpdateIncomeEvidenceRequest request = TestModelDataBuilder.getApiUpdateIncomeEvidenceRequest();
+        request.setPartnerEvidenceItems(TestModelDataBuilder.getApiIncomeEvidenceItems());
+        String content = objectMapper.writeValueAsString(request);
+        mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, content, ENDPOINT_URL))
+            .andExpect(status().isOk());
     }
 }
