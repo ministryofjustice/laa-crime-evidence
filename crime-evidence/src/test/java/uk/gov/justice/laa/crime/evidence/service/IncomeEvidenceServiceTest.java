@@ -91,7 +91,7 @@ public class IncomeEvidenceServiceTest {
             List.of(
                 createIncomeEvidenceRequiredItemProjection(34, "mock1", false),
                 createIncomeEvidenceRequiredItemProjection(35, "mock2", false),
-                createIncomeEvidenceRequiredItemProjection(36, "mock3", true)
+                createIncomeEvidenceRequiredItemProjection(36, IncomeEvidenceType.EMP_LETTER.getName(), true)
             )
         );
 
