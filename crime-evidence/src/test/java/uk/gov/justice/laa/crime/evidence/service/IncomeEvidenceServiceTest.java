@@ -24,7 +24,7 @@ import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceRequiredItemProjection;
 
 @ExtendWith(MockitoExtension.class)
-public class IncomeEvidenceServiceTest {
+class IncomeEvidenceServiceTest {
 
     @Mock
     private IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;

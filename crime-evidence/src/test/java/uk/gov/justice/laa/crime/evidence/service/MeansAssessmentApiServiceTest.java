@@ -21,7 +21,7 @@ import uk.gov.justice.laa.crime.evidence.config.MockServicesConfiguration;
 import uk.gov.justice.laa.crime.evidence.config.ServicesConfiguration;
 
 @ExtendWith(MockitoExtension.class)
-public class MeansAssessmentApiServiceTest {
+class MeansAssessmentApiServiceTest {
     @Mock
     private RestAPIClient cmaApiClient;
 
