@@ -6,14 +6,19 @@ import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiApplicantDetails;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiEvidenceType;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiGetMeansAssessmentResponse;
 import uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidenceSummary;
+import uk.gov.justice.laa.crime.common.model.meansassessment.ApiMeansAssessmentResponse;
+import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
@@ -21,11 +26,14 @@ import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
+import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.util.DateUtil;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -196,5 +204,52 @@ class EvidenceServiceTest {
             .isInstanceOf(IllegalArgumentException.class);
 
         verify(meansAssessmentApiService, atLeastOnce()).find(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID);
+    }
+
+    @Test
+    void givenEvidenceHasNotBeenReceivedAndIncomeEvidenceHasReceivedDate_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceReceivedDateIsRemoved() {
+        UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
+        updateEvidenceDTO.setApplicationReceivedDate(LocalDate.now());
+        updateEvidenceDTO.setApplicantIncomeEvidenceItems(List.of(
+            new ApiIncomeEvidence(1, LocalDate.of(2024, 9, 1), IncomeEvidenceType.ACCOUNTS, false, "Company accounts"))
+        );
+
+        // TODO: what if partner doesn't exist, will throw null pointer.
+        updateEvidenceDTO.setApplicantDetails(buildApplicantDetails(1, EmploymentStatus.EMPLOY));
+        updateEvidenceDTO.setPartnerDetails(buildApplicantDetails(2, EmploymentStatus.EMPLOY));
+
+        LocalDateTime evidenceDueDate = LocalDateTime.now().plusMonths(1);
+        updateEvidenceDTO.setEvidenceDueDate(evidenceDueDate);
+
+        ApiIncomeEvidenceSummary incomeEvidenceSummary = new ApiIncomeEvidenceSummary();
+        incomeEvidenceSummary.setEvidenceDueDate(evidenceDueDate);
+        incomeEvidenceSummary.setEvidenceReceivedDate(LocalDateTime.now());
+
+        ApiGetMeansAssessmentResponse getMeansAssessmentResponse = new ApiGetMeansAssessmentResponse();
+        getMeansAssessmentResponse.setIncomeEvidenceSummary(incomeEvidenceSummary);
+
+        when(meansAssessmentApiService.find(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)).thenReturn(getMeansAssessmentResponse);
+
+        List<uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence> incomeEvidenceItems = List.of(
+            new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence(1, LocalDateTime.now(), LocalDateTime.now(), "Y", new ApiEvidenceType(IncomeEvidenceType.ACCOUNTS.getName(), IncomeEvidenceType.ACCOUNTS.getDescription()), "Y", 1, null, null)
+        );
+        ApiMeansAssessmentResponse updateAssessmentResponse = new ApiMeansAssessmentResponse();
+        updateAssessmentResponse.setIncomeEvidence(incomeEvidenceItems);
+
+        when(meansAssessmentApiService.update(any())).thenReturn(updateAssessmentResponse);
+        when(incomeEvidenceService.checkEvidenceReceived(eq(updateEvidenceDTO.getApplicantIncomeEvidenceItems()), any(), any(), any(), any(), eq(ApplicantType.APPLICANT)))
+            .thenReturn(false);
+
+        evidenceService.updateEvidence(updateEvidenceDTO);
+
+        Assertions.assertNull(incomeEvidenceSummary.getEvidenceReceivedDate());
+    }
+
+    private ApiApplicantDetails buildApplicantDetails(int applicantId, EmploymentStatus employmentStatus) {
+        ApiApplicantDetails applicantDetails = new ApiApplicantDetails();
+        applicantDetails.setId(applicantId);
+        applicantDetails.setEmploymentStatus(employmentStatus);
+
+        return applicantDetails;
     }
 }
