@@ -217,8 +217,6 @@ public class EvidenceService {
 
         if (evidenceDueDate == null && previousEvidenceDueDate != null) {
             incomeEvidenceSummary.setEvidenceDueDate(previousEvidenceDueDate);
-        } else if (LocalDateTime.now().isAfter(evidenceDueDate) && evidenceDueDate != previousEvidenceDueDate) {
-            incomeEvidenceSummary.setEvidenceDueDate(previousEvidenceDueDate);
         }
     }
 
