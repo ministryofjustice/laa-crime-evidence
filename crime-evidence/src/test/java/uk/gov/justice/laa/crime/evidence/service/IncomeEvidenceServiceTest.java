@@ -70,6 +70,22 @@ public class IncomeEvidenceServiceTest {
     }
 
     @Test
+    void givenRequiredEvidenceItemsAndNoEvidenceItemsProvided_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnTrue() {
+        when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(1)).thenReturn(
+            List.of(
+                createIncomeEvidenceRequiredItemProjection(34, "mock1", false),
+                createIncomeEvidenceRequiredItemProjection(35, "mock2", true)
+            )
+        );
+
+        IncomeEvidenceService incomeEvidenceService = new IncomeEvidenceService(incomeEvidenceRequiredRepository, incomeEvidenceRequiredItemRepository);
+
+        boolean result = incomeEvidenceService.isRequiredEvidenceOutstanding(1, Collections.emptyList());
+
+        Assertions.assertTrue(result);
+    }
+
+    @Test
     void givenAtLeastOneRequiredEvidenceItemNotReceived_whenIsRequiredEvidenceOutstandingIsInvoked_thenReturnTrue() {
         when(incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(2)).thenReturn(
             List.of(
