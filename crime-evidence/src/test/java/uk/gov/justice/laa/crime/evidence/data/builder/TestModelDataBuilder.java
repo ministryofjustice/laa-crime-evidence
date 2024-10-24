@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
+import uk.gov.justice.laa.crime.util.DateUtil;
 
 @Component
 public class TestModelDataBuilder {
@@ -162,6 +163,29 @@ public class TestModelDataBuilder {
         return UpdateEvidenceDTO.builder()
             .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
             .applicantIncomeEvidenceItems(Collections.emptyList())
+            .partnerIncomeEvidenceItems(Collections.emptyList())
+            .financialAssessmentId(FINANCIAL_ASSESSMENT_ID)
+            .build();
+    }
+
+    public static UpdateEvidenceDTO getUpdateEvidenceRequest(
+        LocalDate applicationReceivedDate,
+        ApiApplicantDetails applicantDetails,
+        List<ApiIncomeEvidence> applicantEvidenceItems,
+        LocalDate evidenceDueDate,
+        LocalDate evidenceReceivedDate
+    ) {
+        if (applicantEvidenceItems == null) {
+            applicantEvidenceItems = Collections.emptyList();
+        }
+
+        return UpdateEvidenceDTO.builder()
+            .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+            .applicantIncomeEvidenceItems(applicantEvidenceItems)
+            .applicantDetails(applicantDetails)
+            .applicationReceivedDate(applicationReceivedDate)
+            .evidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate))
+            .evidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceReceivedDate))
             .partnerIncomeEvidenceItems(Collections.emptyList())
             .financialAssessmentId(FINANCIAL_ASSESSMENT_ID)
             .build();

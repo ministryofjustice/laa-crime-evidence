@@ -107,7 +107,7 @@ public class EvidenceService {
             applicantEvidenceItems,
             updateEvidenceDTO.getMagCourtOutcome(),
             updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
-            updateEvidenceDTO.getPartnerDetails().getEmploymentStatus(),
+            updateEvidenceDTO.getPartnerDetails() != null ? updateEvidenceDTO.getPartnerDetails().getEmploymentStatus() : null,
             updateEvidenceDTO.getApplicantPensionAmount(),
             ApplicantType.APPLICANT);
 
@@ -128,14 +128,17 @@ public class EvidenceService {
             incomeEvidenceSummary,
             updateEvidenceDTO.getFinancialAssessmentId(),
             updateEvidenceDTO.getApplicantDetails().getId(),
-            updateEvidenceDTO.getPartnerDetails().getId(),
+            updateEvidenceDTO.getPartnerDetails() != null ? updateEvidenceDTO.getPartnerDetails().getId() : null,
             applicantEvidenceItems,
             partnerEvidenceItems
         );
 
         applicantEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getApplicantDetails().getId());
-        partnerEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getPartnerDetails().getId());
-        
+
+        if (!partnerEvidenceItems.isEmpty()) {
+            partnerEvidenceItems = getUpdatedEvidenceItems(updateAssessmentResponse, updateEvidenceDTO.getPartnerDetails().getId());
+        }
+
         return new ApiUpdateIncomeEvidenceResponse()
             .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
             .withPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems))
@@ -163,7 +166,7 @@ public class EvidenceService {
         ApiIncomeEvidenceSummary currentIncomeEvidenceSummary,
         int financialAssessmentId,
         int applicantId,
-        int partnerId,
+        Integer partnerId,
         List<ApiIncomeEvidence> applicantEvidenceItems,
         List<ApiIncomeEvidence> partnerEvidenceItems) {
         // Note: the ApiIncomeEvidenceSummary is being passed only to update the evidence due and
@@ -181,7 +184,7 @@ public class EvidenceService {
         return meansAssessmentApiService.update(request);
     }
 
-    private uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence mapApiIncomeEvidence(ApiIncomeEvidence apiIncomeEvidence, int applicantId) {
+    private uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence mapApiIncomeEvidence(ApiIncomeEvidence apiIncomeEvidence, Integer applicantId) {
         return new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence()
             .withId(apiIncomeEvidence.getId())
             .withApplicantId(applicantId)
