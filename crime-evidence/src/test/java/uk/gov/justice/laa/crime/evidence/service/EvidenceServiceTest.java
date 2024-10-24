@@ -147,7 +147,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void givenNoEvidenceItems_whenUpdateEvidenceIsInvoked_thenEvidenceIsNotUpdated() {
+    void givenNoEvidenceItems_whenUpdateEvidenceIsInvoked_thenExceptionIsThrown() {
         UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest();
 
         assertThatThrownBy(() -> evidenceService.updateEvidence(updateEvidenceDTO))
@@ -156,7 +156,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void givenValidationErrorOnEvidenceReceivedDate_whenUpdateEvidenceIsInvoked_thenEvidenceIsNotUpdated() {
+    void givenValidationErrorOnEvidenceReceivedDate_whenUpdateEvidenceIsInvoked_thenExceptionIsThrown() {
         LocalDate applicationReceivedDate = LocalDate.of(2024, 8, 30);
         LocalDate evidenceItemReceivedDate = LocalDate.of(2024, 8, 29);
 
@@ -179,7 +179,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void givenValidationErrorOnEvidenceDueDate_whenUpdateEvidenceIsInvoked_thenEvidenceIsNotUpdated() {
+    void givenValidationErrorOnEvidenceDueDate_whenUpdateEvidenceIsInvoked_thenExceptionIsThrown() {
         LocalDate applicationReceivedDate = LocalDate.of(2024, 8, 30);
         LocalDate evidenceItemReceivedDate = LocalDate.of(2024, 8, 31);
         LocalDate evidenceDueDate = LocalDate.of(2024, 9, 30);
@@ -261,6 +261,59 @@ class EvidenceServiceTest {
         evidenceService.updateEvidence(updateEvidenceDTO);
 
         Assertions.assertNull(incomeEvidenceSummary.getEvidenceReceivedDate());
+
+        ApiUpdateMeansAssessmentRequest expectedRequest = new ApiUpdateMeansAssessmentRequest()
+            .withFinancialAssessmentId(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)
+            .withIncomeEvidence(incomeEvidenceItems)
+            .withIncomeEvidenceSummary(incomeEvidenceSummary);
+
+        verify(meansAssessmentApiService, atLeastOnce()).update(expectedRequest);
+    }
+
+    @Test
+    void givenOnlyPartnerEvidenceIsProvided_whenUpdateEvidenceIsInvoked_thenIncomeEvidenceIsUpdated() {
+        LocalDate applicationReceivedDate = LocalDate.of(2024, 8, 30);
+        LocalDate evidenceItemReceivedDate = LocalDate.of(2024, 9, 1);
+        LocalDate evidenceDueDate = LocalDate.of(2024, 9, 30);
+        LocalDate evidenceReceivedDate = LocalDate.of(2024, 9, 1);
+
+        List<ApiIncomeEvidence> partnerEvidenceItems = List.of(
+            new ApiIncomeEvidence(1, evidenceItemReceivedDate, IncomeEvidenceType.ACCOUNTS, false, "Company accounts")
+        );
+
+        UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest(
+            applicationReceivedDate,
+            buildApplicantDetails(1, EmploymentStatus.EMPLOY),
+            null,
+            evidenceDueDate,
+            evidenceReceivedDate);
+        updateEvidenceDTO.setPartnerDetails(buildApplicantDetails(2, EmploymentStatus.EMPLOYED_CASH));
+        updateEvidenceDTO.setPartnerIncomeEvidenceItems(partnerEvidenceItems);
+
+        ApiIncomeEvidenceSummary incomeEvidenceSummary = buildIncomeEvidenceSummary(evidenceDueDate, evidenceReceivedDate);
+        ApiGetMeansAssessmentResponse getMeansAssessmentResponse = buildGetMeansAssessmentResponse(incomeEvidenceSummary);
+
+        when(meansAssessmentApiService.find(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)).thenReturn(getMeansAssessmentResponse);
+
+        List<uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence> incomeEvidenceItems = List.of(
+            new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence(1, DateUtil.convertDateToDateTime(evidenceItemReceivedDate), null, null, new ApiEvidenceType(IncomeEvidenceType.ACCOUNTS.getName(), IncomeEvidenceType.ACCOUNTS.getDescription()), null, 2, null, null)
+        );
+
+        when(incomeEvidenceService.checkEvidenceReceived(
+            eq(updateEvidenceDTO.getPartnerIncomeEvidenceItems()),
+            any(),
+            any(),
+            any(),
+            any(),
+            eq(ApplicantType.PARTNER)))
+            .thenReturn(false);
+
+        ApiMeansAssessmentResponse updateAssessmentResponse = new ApiMeansAssessmentResponse();
+        updateAssessmentResponse.setIncomeEvidence(incomeEvidenceItems);
+
+        when(meansAssessmentApiService.update(any())).thenReturn(updateAssessmentResponse);
+
+        evidenceService.updateEvidence(updateEvidenceDTO);
 
         ApiUpdateMeansAssessmentRequest expectedRequest = new ApiUpdateMeansAssessmentRequest()
             .withFinancialAssessmentId(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)
