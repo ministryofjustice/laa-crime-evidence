@@ -14,7 +14,6 @@ import uk.gov.justice.laa.crime.util.DateUtil;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceValidationService.MISSING_OTHER_EVIDENCE_DESCRIPTION;
 
@@ -226,8 +225,9 @@ class IncomeEvidenceValidationServiceTest {
     void givenIncomeExtraEvidenceWithNoDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
         ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_ADHOC);
         extraIncomeEvidence.setDescription(null);
+        List<ApiIncomeEvidence> evidenceList = List.of(extraIncomeEvidence);
         assertThrows(IllegalArgumentException.class,
-                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence)),
+                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(evidenceList),
                 MISSING_OTHER_EVIDENCE_DESCRIPTION);
     }
 
@@ -235,8 +235,9 @@ class IncomeEvidenceValidationServiceTest {
     void givenIncomeExtraEvidenceWithEmptyDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
         ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_BUSINESS);
         extraIncomeEvidence.setDescription("");
+        List<ApiIncomeEvidence> evidenceList = List.of(extraIncomeEvidence);
         assertThrows(IllegalArgumentException.class,
-                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(extraIncomeEvidence)),
+                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(evidenceList),
                 MISSING_OTHER_EVIDENCE_DESCRIPTION);
     }
 
