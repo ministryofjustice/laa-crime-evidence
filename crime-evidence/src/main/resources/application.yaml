@@ -56,9 +56,15 @@ spring:
     oauth2:
       client:
         provider:
+          cma:
+            token-uri: ${CMA_API_OAUTH_URL}
           maat-api:
             token-uri: ${MAAT_API_OAUTH_URL}
         registration:
+          cma:
+            client-id: ${CMA_API_OAUTH_CLIENT_ID}
+            client-secret: ${CMA_API_OAUTH_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
           maat-api:
             client-id: ${MAAT_API_OAUTH_CLIENT_ID}
             client-secret: ${MAAT_API_OAUTH_CLIENT_SECRET}
@@ -73,6 +79,11 @@ retry-config:
   jitter-value: 0.75
 
 services:
+  cma-api:
+    base-url: ${CMA_API_BASE_URL}
+    endpoints:
+      find-url: ${services.cma-api.base-url}/api/internal/v1/assessment/means/{financialAssessmentId}
+      update-url: ${services.cma-api.base-url}/api/internal/v1/assessment/means
   maat-api:
     base-url: ${MAAT_API_BASE_URL}
     assessments-domain: ${services.maat-api.base-url}/api/internal/v1/assessment
