@@ -22,8 +22,10 @@ public class UpdateEvidenceDTOBuilder {
             .partnerPensionAmount(request.getPartnerPensionAmount() != null ? request.getPartnerPensionAmount() : BigDecimal.ZERO)
             .applicantIncomeEvidenceItems(request.getApplicantEvidenceItems() != null ? request.getApplicantEvidenceItems().getIncomeEvidenceItems() : null)
             .partnerIncomeEvidenceItems(request.getPartnerEvidenceItems() != null ? request.getPartnerEvidenceItems().getIncomeEvidenceItems() : null)
+            .evidencePending(request.getMetadata().getEvidencePending())
             .evidenceDueDate(request.getEvidenceDueDate())
             .evidenceReceivedDate(request.getEvidenceReceivedDate())
+            .previousEvidenceDueDate(request.getPreviousEvidenceDueDate())
             .build();
     }
 }

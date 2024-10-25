@@ -22,6 +22,8 @@ public class UpdateEvidenceDTO {
     private BigDecimal applicantPensionAmount;
     private BigDecimal partnerPensionAmount;
     private LocalDate applicationReceivedDate;
+    private boolean evidencePending;
     private LocalDateTime evidenceDueDate;
     private LocalDateTime evidenceReceivedDate;
+    private LocalDateTime previousEvidenceDueDate;
 }

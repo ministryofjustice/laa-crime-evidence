@@ -24,15 +24,9 @@ spring:
     oauth2:
       client:
         provider:
-          cma:
-            token-uri: http://localhost:${wiremock.server.port}/oauth2/token
           maat-api:
             token-uri: http://localhost:9999/oauth2/token
         registration:
-          cma:
-            client-id: dummy-client
-            client-secret: dummy-client
-            authorization-grant-type: client_credentials
           maat-api:
             client-id: dummy-client
             client-secret: dummy-secret
@@ -51,11 +45,6 @@ springdoc:
     operationsSorter: method
 
 services:
-  cma-api:
-    base-url: http://localhost:${wiremock.server.port}
-    endpoints:
-      find-url: ${services.cma-api.base-url}/api/internal/v1/assessment/means/{financialAssessmentId}
-      update-url: ${services.cma-api.base-url}/api/internal/v1/assessment/means
   maat-api:
     oAuthEnabled: true
     baseUrl: http://localhost:9999

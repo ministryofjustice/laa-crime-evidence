@@ -13,35 +13,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ServicesConfiguration {
 
     @NotNull
-    private CmaApi cmaApi;
-
-    @NotNull
     private MaatApi maatApi;
 
     @NotNull
     private boolean oAuthEnabled;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CmaApi {
-        @NotNull
-        private String baseUrl;
-
-        @NotNull
-        private Endpoints endpoints;
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class Endpoints {
-            @NotNull
-            private String findUrl;
-
-            @NotNull
-            private String updateUrl;
-        }
-    }
 
     @Data
     @AllArgsConstructor

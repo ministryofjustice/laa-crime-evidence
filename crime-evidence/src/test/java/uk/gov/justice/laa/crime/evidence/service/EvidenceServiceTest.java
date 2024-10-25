@@ -1,6 +1,7 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
@@ -13,11 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiApplicantDetails;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
-import uk.gov.justice.laa.crime.common.model.meansassessment.ApiEvidenceType;
-import uk.gov.justice.laa.crime.common.model.meansassessment.ApiGetMeansAssessmentResponse;
-import uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidenceSummary;
-import uk.gov.justice.laa.crime.common.model.meansassessment.ApiMeansAssessmentResponse;
-import uk.gov.justice.laa.crime.common.model.meansassessment.ApiUpdateMeansAssessmentRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
@@ -34,9 +32,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,9 +41,6 @@ class EvidenceServiceTest {
 
     @Mock
     private MaatCourtDataService maatCourtDataService;
-
-    @Mock
-    private MeansAssessmentApiService meansAssessmentApiService;
 
     @InjectMocks
     private EvidenceService evidenceService;
@@ -159,6 +152,7 @@ class EvidenceServiceTest {
     void givenValidationErrorOnEvidenceReceivedDate_whenUpdateEvidenceIsInvoked_thenExceptionIsThrown() {
         LocalDate applicationReceivedDate = LocalDate.of(2024, 8, 30);
         LocalDate evidenceItemReceivedDate = LocalDate.of(2024, 8, 29);
+        LocalDate existingEvidenceDueDate = LocalDate.of(2024, 9, 7);
 
         List<ApiIncomeEvidence> applicantEvidenceItems = List.of(
             new ApiIncomeEvidence(1, evidenceItemReceivedDate, IncomeEvidenceType.ACCOUNTS, false, "Company accounts")
@@ -168,8 +162,10 @@ class EvidenceServiceTest {
             applicationReceivedDate,
             null,
             applicantEvidenceItems,
+            false,
             null,
-            evidenceItemReceivedDate);
+            evidenceItemReceivedDate,
+            existingEvidenceDueDate);
 
         doThrow(IllegalArgumentException.class).when(incomeEvidenceValidationService).checkEvidenceReceivedDate(
             DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()), updateEvidenceDTO.getApplicationReceivedDate());
@@ -182,8 +178,7 @@ class EvidenceServiceTest {
     void givenValidationErrorOnEvidenceDueDate_whenUpdateEvidenceIsInvoked_thenExceptionIsThrown() {
         LocalDate applicationReceivedDate = LocalDate.of(2024, 8, 30);
         LocalDate evidenceItemReceivedDate = LocalDate.of(2024, 8, 31);
-        LocalDate evidenceDueDate = LocalDate.of(2024, 9, 30);
-        LocalDate firstReminderDate = LocalDate.of(2024, 9, 7);
+        LocalDate existingEvidenceDueDate = LocalDate.of(2024, 9, 7);
 
         List<ApiIncomeEvidence> applicantEvidenceItems = List.of(
             new ApiIncomeEvidence(1, evidenceItemReceivedDate, IncomeEvidenceType.ACCOUNTS, false, "Company accounts")
@@ -193,28 +188,18 @@ class EvidenceServiceTest {
             applicationReceivedDate,
             null,
             applicantEvidenceItems,
+            true,
             null,
-            evidenceItemReceivedDate);
-
-        ApiIncomeEvidenceSummary incomeEvidenceSummary = new ApiIncomeEvidenceSummary();
-        incomeEvidenceSummary.setEvidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate));
-        incomeEvidenceSummary.setFirstReminderDate(DateUtil.convertDateToDateTime(firstReminderDate));
-
-        ApiGetMeansAssessmentResponse getMeansAssessmentResponse = new ApiGetMeansAssessmentResponse();
-        getMeansAssessmentResponse.setIncomeEvidenceSummary(incomeEvidenceSummary);
-
-        when(meansAssessmentApiService.find(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)).thenReturn(getMeansAssessmentResponse);
+            evidenceItemReceivedDate,
+            existingEvidenceDueDate);
 
         doThrow(IllegalArgumentException.class).when(incomeEvidenceValidationService).checkEvidenceDueDates(
             null,
-            firstReminderDate,
-            null,
-            evidenceDueDate);
+            existingEvidenceDueDate,
+            true);
 
         assertThatThrownBy(() -> evidenceService.updateEvidence(updateEvidenceDTO))
             .isInstanceOf(IllegalArgumentException.class);
-
-        verify(meansAssessmentApiService, atLeastOnce()).find(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID);
     }
 
     @Test
@@ -223,26 +208,22 @@ class EvidenceServiceTest {
         LocalDate evidenceItemReceivedDate = LocalDate.of(2024, 9, 1);
         LocalDate evidenceDueDate = LocalDate.of(2024, 9, 30);
         LocalDate evidenceReceivedDate = LocalDate.of(2024, 9, 1);
+        LocalDate existingEvidenceDueDate = LocalDate.of(2024, 9, 7);
 
         List<ApiIncomeEvidence> applicantEvidenceItems = List.of(
             new ApiIncomeEvidence(1, evidenceItemReceivedDate, IncomeEvidenceType.ACCOUNTS, false, "Company accounts")
         );
 
+        ApiApplicantDetails applicantDetails = buildApplicantDetails(1, EmploymentStatus.EMPLOY);
+
         UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest(
             applicationReceivedDate,
-            buildApplicantDetails(1, EmploymentStatus.EMPLOY),
+            applicantDetails,
             applicantEvidenceItems,
+            false,
             evidenceDueDate,
-            evidenceReceivedDate);
-
-        ApiIncomeEvidenceSummary incomeEvidenceSummary = buildIncomeEvidenceSummary(evidenceDueDate, evidenceReceivedDate);
-        ApiGetMeansAssessmentResponse getMeansAssessmentResponse = buildGetMeansAssessmentResponse(incomeEvidenceSummary);
-
-        when(meansAssessmentApiService.find(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)).thenReturn(getMeansAssessmentResponse);
-
-        List<uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence> incomeEvidenceItems = List.of(
-            new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence(1, DateUtil.convertDateToDateTime(evidenceItemReceivedDate), null, null, new ApiEvidenceType(IncomeEvidenceType.ACCOUNTS.getName(), IncomeEvidenceType.ACCOUNTS.getDescription()), null, 1, null, null)
-        );
+            evidenceReceivedDate,
+            existingEvidenceDueDate);
 
         when(incomeEvidenceService.checkEvidenceReceived(
             eq(updateEvidenceDTO.getApplicantIncomeEvidenceItems()),
@@ -253,21 +234,15 @@ class EvidenceServiceTest {
             eq(ApplicantType.APPLICANT)))
             .thenReturn(false);
 
-        ApiMeansAssessmentResponse updateAssessmentResponse = new ApiMeansAssessmentResponse();
-        updateAssessmentResponse.setIncomeEvidence(incomeEvidenceItems);
+        ApiUpdateIncomeEvidenceResponse expectedResponse = new ApiUpdateIncomeEvidenceResponse()
+            .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(applicantDetails, applicantEvidenceItems))
+            .withDueDate(evidenceDueDate)
+            .withAllEvidenceReceivedDate(null);
 
-        when(meansAssessmentApiService.update(any())).thenReturn(updateAssessmentResponse);
+        ApiUpdateIncomeEvidenceResponse actualResponse = evidenceService.updateEvidence(updateEvidenceDTO);
 
-        evidenceService.updateEvidence(updateEvidenceDTO);
-
-        Assertions.assertNull(incomeEvidenceSummary.getEvidenceReceivedDate());
-
-        ApiUpdateMeansAssessmentRequest expectedRequest = new ApiUpdateMeansAssessmentRequest()
-            .withFinancialAssessmentId(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)
-            .withIncomeEvidence(incomeEvidenceItems)
-            .withIncomeEvidenceSummary(incomeEvidenceSummary);
-
-        verify(meansAssessmentApiService, atLeastOnce()).update(expectedRequest);
+        Assertions.assertNull(updateEvidenceDTO.getEvidenceReceivedDate());
+        Assertions.assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
@@ -276,28 +251,25 @@ class EvidenceServiceTest {
         LocalDate evidenceItemReceivedDate = LocalDate.of(2024, 9, 1);
         LocalDate evidenceDueDate = LocalDate.of(2024, 9, 30);
         LocalDate evidenceReceivedDate = LocalDate.of(2024, 9, 1);
+        LocalDate existingEvidenceDueDate = LocalDate.of(2024, 9, 7);
 
         List<ApiIncomeEvidence> partnerEvidenceItems = List.of(
             new ApiIncomeEvidence(1, evidenceItemReceivedDate, IncomeEvidenceType.ACCOUNTS, false, "Company accounts")
         );
 
+        ApiApplicantDetails applicantDetails = buildApplicantDetails(1, EmploymentStatus.EMPLOY);
+        ApiApplicantDetails partnerDetails = buildApplicantDetails(2, EmploymentStatus.EMPLOYED_CASH);
+
         UpdateEvidenceDTO updateEvidenceDTO = TestModelDataBuilder.getUpdateEvidenceRequest(
             applicationReceivedDate,
-            buildApplicantDetails(1, EmploymentStatus.EMPLOY),
+            applicantDetails,
             null,
+            false,
             evidenceDueDate,
-            evidenceReceivedDate);
-        updateEvidenceDTO.setPartnerDetails(buildApplicantDetails(2, EmploymentStatus.EMPLOYED_CASH));
+            evidenceReceivedDate,
+            existingEvidenceDueDate);
+        updateEvidenceDTO.setPartnerDetails(partnerDetails);
         updateEvidenceDTO.setPartnerIncomeEvidenceItems(partnerEvidenceItems);
-
-        ApiIncomeEvidenceSummary incomeEvidenceSummary = buildIncomeEvidenceSummary(evidenceDueDate, evidenceReceivedDate);
-        ApiGetMeansAssessmentResponse getMeansAssessmentResponse = buildGetMeansAssessmentResponse(incomeEvidenceSummary);
-
-        when(meansAssessmentApiService.find(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)).thenReturn(getMeansAssessmentResponse);
-
-        List<uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence> incomeEvidenceItems = List.of(
-            new uk.gov.justice.laa.crime.common.model.meansassessment.ApiIncomeEvidence(1, DateUtil.convertDateToDateTime(evidenceItemReceivedDate), null, null, new ApiEvidenceType(IncomeEvidenceType.ACCOUNTS.getName(), IncomeEvidenceType.ACCOUNTS.getDescription()), null, 2, null, null)
-        );
 
         when(incomeEvidenceService.checkEvidenceReceived(
             eq(updateEvidenceDTO.getPartnerIncomeEvidenceItems()),
@@ -306,21 +278,18 @@ class EvidenceServiceTest {
             any(),
             any(),
             eq(ApplicantType.PARTNER)))
-            .thenReturn(false);
+            .thenReturn(true);
 
-        ApiMeansAssessmentResponse updateAssessmentResponse = new ApiMeansAssessmentResponse();
-        updateAssessmentResponse.setIncomeEvidence(incomeEvidenceItems);
+        ApiUpdateIncomeEvidenceResponse expectedResponse = new ApiUpdateIncomeEvidenceResponse()
+            .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(applicantDetails, Collections.emptyList()))
+            .withPartnerEvidenceItems(new ApiIncomeEvidenceItems(partnerDetails, partnerEvidenceItems))
+            .withDueDate(evidenceDueDate)
+            .withAllEvidenceReceivedDate(evidenceReceivedDate);
 
-        when(meansAssessmentApiService.update(any())).thenReturn(updateAssessmentResponse);
+        ApiUpdateIncomeEvidenceResponse actualResponse = evidenceService.updateEvidence(updateEvidenceDTO);
 
-        evidenceService.updateEvidence(updateEvidenceDTO);
-
-        ApiUpdateMeansAssessmentRequest expectedRequest = new ApiUpdateMeansAssessmentRequest()
-            .withFinancialAssessmentId(TestModelDataBuilder.FINANCIAL_ASSESSMENT_ID)
-            .withIncomeEvidence(incomeEvidenceItems)
-            .withIncomeEvidenceSummary(incomeEvidenceSummary);
-
-        verify(meansAssessmentApiService, atLeastOnce()).update(expectedRequest);
+        Assertions.assertNotNull(updateEvidenceDTO.getEvidenceReceivedDate());
+        Assertions.assertEquals(expectedResponse, actualResponse);
     }
 
     private ApiApplicantDetails buildApplicantDetails(int applicantId, EmploymentStatus employmentStatus) {
@@ -329,20 +298,5 @@ class EvidenceServiceTest {
         applicantDetails.setEmploymentStatus(employmentStatus);
 
         return applicantDetails;
-    }
-
-    private ApiIncomeEvidenceSummary buildIncomeEvidenceSummary(LocalDate evidenceDueDate, LocalDate evidenceReceivedDate) {
-        ApiIncomeEvidenceSummary incomeEvidenceSummary = new ApiIncomeEvidenceSummary();
-        incomeEvidenceSummary.setEvidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate));
-        incomeEvidenceSummary.setEvidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceReceivedDate));
-
-        return incomeEvidenceSummary;
-    }
-
-    private ApiGetMeansAssessmentResponse buildGetMeansAssessmentResponse(ApiIncomeEvidenceSummary incomeEvidenceSummary) {
-        ApiGetMeansAssessmentResponse getMeansAssessmentResponse = new ApiGetMeansAssessmentResponse();
-        getMeansAssessmentResponse.setIncomeEvidenceSummary(incomeEvidenceSummary);
-
-        return getMeansAssessmentResponse;
     }
 }

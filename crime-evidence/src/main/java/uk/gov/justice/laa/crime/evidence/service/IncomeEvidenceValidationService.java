@@ -6,9 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
-import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.OtherEvidenceTypes;
-import uk.gov.justice.laa.crime.util.DateUtil;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,20 +19,6 @@ public class IncomeEvidenceValidationService {
             IncomeEvidenceType.OTHER_ADHOC,
             IncomeEvidenceType.OTHER_BUSINESS);
     public static final String MISSING_OTHER_EVIDENCE_DESCRIPTION = "When other evidence is requested, you must provide descriptive text.";
-
-    public void validate(EvidenceDTO evidenceDTO){
-        checkExtraEvidenceDescription(evidenceDTO.getIncomeExtraEvidence(),
-                evidenceDTO.getIncomeExtraEvidenceText());
-
-        checkEvidenceReceivedDate(
-            DateUtil.parseLocalDate(evidenceDTO.getIncomeEvidenceReceivedDate()),
-            DateUtil.parseLocalDate(evidenceDTO.getApplicationReceivedDate()));
-
-        checkEvidenceDueDates(DateUtil.parseLocalDate(evidenceDTO.getEvidenceDueDate()),
-                DateUtil.parseLocalDate(evidenceDTO.getFirstReminderDate()),
-                DateUtil.parseLocalDate(evidenceDTO.getSecondReminderDate()),
-                DateUtil.parseLocalDate(evidenceDTO.getExistingEvidenceDueDate()));
-    }
 
     public void checkEvidenceReceivedDate(LocalDate incomeEvidenceReceivedDate, LocalDate applicationReceivedDate) {
         LocalDate currentDate = LocalDate.now();
@@ -53,11 +37,9 @@ public class IncomeEvidenceValidationService {
         }
     }
 
-    public void checkEvidenceDueDates(LocalDate evidenceDueDate, LocalDate firstReminderDate, LocalDate secondReminderDate,
-        LocalDate existingEvidenceDueDate) {
+    public void checkEvidenceDueDates(LocalDate evidenceDueDate, LocalDate existingEvidenceDueDate, boolean evidencePending) {
         LocalDate currentDate = LocalDate.now();
-        if ((evidenceDueDate == null && existingEvidenceDueDate != null) && (
-                firstReminderDate != null || secondReminderDate != null)) {
+        if (evidenceDueDate == null && existingEvidenceDueDate != null && evidencePending) {
             throw new IllegalArgumentException("Evidence due date cannot be null");
         }
 

@@ -172,8 +172,10 @@ public class TestModelDataBuilder {
         LocalDate applicationReceivedDate,
         ApiApplicantDetails applicantDetails,
         List<ApiIncomeEvidence> applicantEvidenceItems,
+        boolean evidencePending,
         LocalDate evidenceDueDate,
-        LocalDate evidenceReceivedDate
+        LocalDate evidenceReceivedDate,
+        LocalDate previousEvidenceDueDate
     ) {
         if (applicantEvidenceItems == null) {
             applicantEvidenceItems = Collections.emptyList();
@@ -184,8 +186,10 @@ public class TestModelDataBuilder {
             .applicantIncomeEvidenceItems(applicantEvidenceItems)
             .applicantDetails(applicantDetails)
             .applicationReceivedDate(applicationReceivedDate)
+            .evidencePending(evidencePending)
             .evidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate))
             .evidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceReceivedDate))
+            .previousEvidenceDueDate(DateUtil.convertDateToDateTime(previousEvidenceDueDate))
             .partnerIncomeEvidenceItems(Collections.emptyList())
             .financialAssessmentId(FINANCIAL_ASSESSMENT_ID)
             .build();

@@ -14,20 +14,6 @@ env:
     value: {{ .Values.sentry.sampleRate | quote }}
   - name: LOG_LEVEL
     value: {{ .Values.logging.level }}
-  - name: CMA_API_BASE_URL
-    value: {{ .Values.cmaApi.baseUrl }}
-  - name: CMA_API_OAUTH_URL
-    value: {{ .Values.cmaApi.oauthUrl }}
-  - name: CMA_API_OAUTH_CLIENT_ID
-    valueFrom:
-      secretKeyRef:
-        name: cma-api-oauth-client-id
-        key: CMA_API_OAUTH_CLIENT_ID
-  - name: CMA_API_OAUTH_CLIENT_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: cma-api-oauth-client-secret
-        key: CMA_API_OAUTH_CLIENT_SECRET
   - name: MAAT_API_BASE_URL
     value: {{ .Values.maatApi.baseUrl }}
   - name: MAAT_API_OAUTH_URL
