@@ -4,58 +4,59 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.OtherEvidenceTypes;
-import uk.gov.justice.laa.crime.util.DateUtil;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class IncomeEvidenceValidationService {
+    private static final List<IncomeEvidenceType> EXTRA_EVIDENCES = List.of(IncomeEvidenceType.OTHER,
+            IncomeEvidenceType.OTHER_ADHOC,
+            IncomeEvidenceType.OTHER_BUSINESS);
+    public static final String MISSING_OTHER_EVIDENCE_DESCRIPTION = "When other evidence is requested, you must provide descriptive text.";
 
-    public void validate(EvidenceDTO evidenceDTO){
-        checkExtraEvidenceDescription(evidenceDTO.getIncomeExtraEvidence(),
-                evidenceDTO.getIncomeExtraEvidenceText());
-        checkEvidenceReceivedDate(DateUtil.toDate(evidenceDTO.getIncomeEvidenceReceivedDate()),
-                DateUtil.toDate(evidenceDTO.getApplicationReceivedDate()));
-        checkEvidenceDueDates(DateUtil.toDate(evidenceDTO.getEvidenceDueDate()),
-                DateUtil.toDate(evidenceDTO.getFirstReminderDate()),
-                DateUtil.toDate(evidenceDTO.getSecondReminderDate()),
-                DateUtil.toDate(evidenceDTO.getExistingEvidenceDueDate()));
-    }
-
-    public void checkEvidenceReceivedDate(Date incomeEvidenceReceivedDate, Date applicationReceivedDate) {
-        Date currentDate = DateUtil.getCurrentDate();
-        if (incomeEvidenceReceivedDate != null && incomeEvidenceReceivedDate.after(currentDate)) {
+    public void checkEvidenceReceivedDate(LocalDate incomeEvidenceReceivedDate, LocalDate applicationReceivedDate) {
+        LocalDate currentDate = LocalDate.now();
+        if (incomeEvidenceReceivedDate != null && incomeEvidenceReceivedDate.isAfter(currentDate)) {
             throw new IllegalArgumentException("Income evidence received date cannot be in the future");
         }
 
-        if (incomeEvidenceReceivedDate != null && incomeEvidenceReceivedDate.before(applicationReceivedDate)) {
+        if (incomeEvidenceReceivedDate != null && incomeEvidenceReceivedDate.isBefore(applicationReceivedDate)) {
             throw new IllegalArgumentException("Income evidence received date cannot be before application date received");
         }
     }
 
-
     public void checkExtraEvidenceDescription(String incomeExtraEvidence, String incomeExtraEvidenceText) {
         if (OtherEvidenceTypes.getFrom(incomeExtraEvidence) != null && StringUtils.isBlank(incomeExtraEvidenceText)) {
-            throw new IllegalArgumentException("When other evidence is requested, you must provide descriptive text.");
+            throw new IllegalArgumentException(MISSING_OTHER_EVIDENCE_DESCRIPTION);
         }
     }
 
-
-    public void checkEvidenceDueDates(Date evidenceDueDate, Date firstReminderDate, Date secondReminderDate,
-                                      Date existingEvidenceDueDate) {
-        Date currentDate = DateUtil.getCurrentDate();
-        if ((evidenceDueDate == null && existingEvidenceDueDate != null) && (
-                firstReminderDate != null || secondReminderDate != null)) {
+    public void checkEvidenceDueDates(LocalDate evidenceDueDate, LocalDate existingEvidenceDueDate, boolean evidencePending) {
+        LocalDate currentDate = LocalDate.now();
+        if (evidenceDueDate == null && existingEvidenceDueDate != null && evidencePending) {
             throw new IllegalArgumentException("Evidence due date cannot be null");
         }
 
-        if (evidenceDueDate != null && evidenceDueDate.before(currentDate)
+        if (evidenceDueDate != null && evidenceDueDate.isBefore(currentDate)
                 && (!evidenceDueDate.equals(existingEvidenceDueDate))) {
             throw new IllegalArgumentException("Cannot set due date in the past.");
         }
+    }
+
+    public void checkExtraEvidenceDescriptions(List<ApiIncomeEvidence> incomeEvidences) {
+        incomeEvidences.stream()
+            .filter(apiIncomeEvidence -> EXTRA_EVIDENCES.contains(apiIncomeEvidence.getEvidenceType()))
+            .forEach(apiIncomeEvidence -> {
+                    if (StringUtils.isBlank(apiIncomeEvidence.getDescription())) {
+                        throw new IllegalArgumentException(MISSING_OTHER_EVIDENCE_DESCRIPTION);
+                    }
+                }
+            );
     }
 }

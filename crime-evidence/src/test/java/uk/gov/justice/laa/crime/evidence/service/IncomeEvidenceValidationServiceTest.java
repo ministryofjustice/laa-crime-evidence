@@ -1,61 +1,52 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.laa.crime.evidence.dto.EvidenceDTO;
-import uk.gov.justice.laa.crime.util.DateUtil;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
+import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceValidationService.MISSING_OTHER_EVIDENCE_DESCRIPTION;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SoftAssertionsExtension.class)
 class IncomeEvidenceValidationServiceTest {
 
-    @Mock
-    private MaatCourtDataService maatCourtDataService;
-
     @InjectMocks
     private IncomeEvidenceValidationService incomeEvidenceValidationService;
 
-    @InjectSoftAssertions
-    private SoftAssertions softly;
-
     @Test
-    void givenValidDates_whenCheckEvidenceReceivedDateIsInvoked_noExceptionIsThrown() {
-        incomeEvidenceValidationService.checkEvidenceReceivedDate(new Date(), new Date());
+    void givenValidDates_whenCheckEvidenceReceivedDateIsInvoked_thenNoExceptionIsThrown() {
+        incomeEvidenceValidationService.checkEvidenceReceivedDate(LocalDate.now(), LocalDate.now());
     }
 
     @Test
-    void givenValidDates_whenCheckEvidenceReceivedDateIsInvokedWithIncomeEvidenceReceivedDateNull_noExceptionIsThrown() {
-        incomeEvidenceValidationService.checkEvidenceReceivedDate(null, new Date());
+    void givenValidDates_whenCheckEvidenceReceivedDateIsInvokedWithIncomeEvidenceReceivedDateNull_thenNoExceptionIsThrown() {
+        incomeEvidenceValidationService.checkEvidenceReceivedDate(null, LocalDate.now());
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceReceivedDateIsInvokedWithIncomeEvidenceReceivedDateAfterCurrentDate_thenExceptionIsThrown() {
         LocalDate futureDate = LocalDate.now().plusMonths(2);
-        Date convertedFutureDate = DateUtil.asDate(futureDate);
-        Date currentDate = new Date();
+        LocalDate currentDate = LocalDate.now();
         assertThrows(IllegalArgumentException.class, () ->
-                incomeEvidenceValidationService.checkEvidenceReceivedDate(convertedFutureDate, currentDate)
+                incomeEvidenceValidationService.checkEvidenceReceivedDate(futureDate, currentDate)
         );
     }
 
     @Test
-    void givenValidDates_whenCheckEvidenceReceivedDateIsInvokedWithIncomeEvidenceReceivedDateBeforeCurrentDate_ExceptionIsThrown() {
+    void givenValidDates_whenCheckEvidenceReceivedDateIsInvokedWithIncomeEvidenceReceivedDateBeforeCurrentDate_thenExceptionIsThrown() {
         LocalDate pastDate = LocalDate.now().minusMonths(2);
-        Date pastDateConverted = DateUtil.asDate(pastDate);
-        Date currentDate = new Date();
+        LocalDate currentDate = LocalDate.now();
         assertThrows(IllegalArgumentException.class, () ->
-                incomeEvidenceValidationService.checkEvidenceReceivedDate(pastDateConverted, currentDate)
+                incomeEvidenceValidationService.checkEvidenceReceivedDate(pastDate, currentDate)
         );
     }
 
@@ -101,133 +92,102 @@ class IncomeEvidenceValidationServiceTest {
     }
 
     @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvoked_thenNoExceptionIsThrown() {
-        incomeEvidenceValidationService.checkEvidenceDueDates(new Date(), new Date(), new Date(), new Date());
+    void givenValidDatesAndNoEvidencePending_whenCheckEvidenceDueDatesIsInvoked_thenNoExceptionIsThrown() {
+        incomeEvidenceValidationService.checkEvidenceDueDates(LocalDate.now(), LocalDate.now(), false);
     }
 
     @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateNull_thenExceptionIsThrown() {
-        Date currentDate = new Date();
+    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateNullAndEvidencePending_thenExceptionIsThrown() {
+        LocalDate currentDate = LocalDate.now();
         assertThrows(IllegalArgumentException.class, () ->
-                incomeEvidenceValidationService.checkEvidenceDueDates(null, currentDate, currentDate, currentDate)
+                incomeEvidenceValidationService.checkEvidenceDueDates(null, currentDate, true)
         );
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateAfterCurrentDate_thenNoExceptionIsThrown() {
         LocalDate futureDate = LocalDate.now().plusMonths(2);
-        Date futureDateConverted = DateUtil.asDate(futureDate);
-        Date currentDate = new Date();
-        incomeEvidenceValidationService.checkEvidenceDueDates(futureDateConverted, currentDate, currentDate, currentDate);
+        LocalDate currentDate = LocalDate.now();
+        incomeEvidenceValidationService.checkEvidenceDueDates(futureDate, currentDate, false);
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidenceDueDateBeforeCurrentDate_thenExceptionIsThrown() {
         LocalDate pastDate = LocalDate.now().minusMonths(2);
-        Date pastDateConverted = DateUtil.asDate(pastDate);
-        Date currentDate1 = new Date();
-        Date currentDate2 = new Date();
-        Date currentDate3 = new Date();
+        LocalDate currentDate1 = LocalDate.now();
         assertThrows(IllegalArgumentException.class, () ->
-                incomeEvidenceValidationService.checkEvidenceDueDates(pastDateConverted, currentDate1, currentDate2, currentDate3)
+                incomeEvidenceValidationService.checkEvidenceDueDates(pastDate, currentDate1, false)
         );
     }
 
     @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithFirstReminderDateNull_thenNoExceptionIsThrown() {
-        incomeEvidenceValidationService.checkEvidenceDueDates(new Date(), null, new Date(), new Date());
-    }
-
-    @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithFirstReminderDateAfterCurrentDate_thenNoExceptionIsThrown() {
-        LocalDate futureDate = LocalDate.now().plusMonths(2);
-        Date currentDate1 = new Date();
-        Date futureDateConverted = DateUtil.asDate(futureDate);
-        Date currentDate2 = new Date();
-        Date currentDate3 = new Date();
-        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, futureDateConverted, currentDate2, currentDate3);
-    }
-
-    @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithFirstReminderDateBeforeCurrentDate_thenNoExceptionIsThrown() {
+    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedToAttemptToSetDueDateInThePast_thenExceptionIsThrown() {
         LocalDate pastDate = LocalDate.now().minusMonths(2);
-        Date currentDate1 = new Date();
-        Date pastDateConverted = DateUtil.asDate(pastDate);
-        Date currentDate2 = new Date();
-        Date currentDate3 = new Date();
-        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, pastDateConverted, currentDate2, currentDate3);
-    }
-
-    @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithSecondReminderDateNull_thenExceptionIsThrown() {
-        incomeEvidenceValidationService.checkEvidenceDueDates(new Date(), new Date(), null, new Date());
-    }
-
-    @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithExistingEvidenceDueDateAsNullAndEvidenceDueDateBeforeDate_thenExceptionIsThrown() {
-        LocalDate pastDate = LocalDate.now().minusMonths(2);
-        Date pastDateConverted = DateUtil.asDate(pastDate);
-        Date currentDate1 = new Date();
-        Date currentDate2 = new Date();
         assertThrows(IllegalArgumentException.class, () ->
-                incomeEvidenceValidationService.checkEvidenceDueDates(pastDateConverted, currentDate1, currentDate2, null)
+            incomeEvidenceValidationService.checkEvidenceDueDates(pastDate, null, false)
         );
+    }
+
+    @Test
+    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithNoEvidencePending_thenNoExceptionIsThrown() {
+        incomeEvidenceValidationService.checkEvidenceDueDates(LocalDate.now(), null, false);
+    }
+
+    @Test
+    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithEvidencePending_thenNoExceptionIsThrown() {
+        incomeEvidenceValidationService.checkEvidenceDueDates(LocalDate.now(), LocalDate.now(), true);
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithExistingEvidenceDueDateAsNullAndEvidenceDueDateAfterDate_thenNoExceptionIsThrown() {
         LocalDate futureDate = LocalDate.now().plusMonths(2);
-        Date futureDateConverted = DateUtil.asDate(futureDate);
-        Date currentDate1 = new Date();
-        Date currentDate2 = new Date();
-        incomeEvidenceValidationService.checkEvidenceDueDates(futureDateConverted, currentDate1, currentDate2, null);
+        LocalDate currentDate1 = LocalDate.now();
+        incomeEvidenceValidationService.checkEvidenceDueDates(futureDate, currentDate1, false);
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithExistingEvidenceDueDateAsNullAndEvidenceDueDateAsNull_thenNoExceptionIsThrown() {
-        Date currentDate1 = new Date();
-        Date currentDate2 = new Date();
-        incomeEvidenceValidationService.checkEvidenceDueDates(null, currentDate1, currentDate2, null);
-    }
-
-    @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithSecondReminderDateAfterCurrentDate_thenNoExceptionIsThrown() {
-        LocalDate futureDate = LocalDate.now().plusMonths(2);
-        Date currentDate1 = new Date();
-        Date currentDate2 = new Date();
-        Date futureDateConverted = DateUtil.asDate(futureDate);
-        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, currentDate2, futureDateConverted, currentDate2);
-    }
-
-    @Test
-    void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithSecondReminderDateBeforeCurrentDate_thenNoExceptionIsThrown() {
-        LocalDate pastDate = LocalDate.now().minusMonths(2);
-        Date currentDate1 = new Date();
-        Date currentDate2 = new Date();
-        Date pastDateConverted = DateUtil.asDate(pastDate);
-        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, currentDate2, pastDateConverted, currentDate2);
+        LocalDate currentDate1 = LocalDate.now();
+        incomeEvidenceValidationService.checkEvidenceDueDates(null, currentDate1, false);
     }
 
     @Test
     void givenValidDates_whenCheckEvidenceDueDatesIsInvokedWithExistingEvidenceDueDateBeforeCurrentDate_thenNoExceptionIsThrown() {
-        LocalDate pastDate = LocalDate.now().minusMonths(2);
-        Date currentDate1 = new Date();
-        Date currentDate2 = new Date();
-        Date pastDateConverted = DateUtil.asDate(pastDate);
-        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, currentDate2, currentDate2, pastDateConverted);
+        LocalDate currentDate1 = LocalDate.now();
+        LocalDate currentDate2 = LocalDate.now();
+        incomeEvidenceValidationService.checkEvidenceDueDates(currentDate1, currentDate2, false);
     }
 
     @Test
-    void givenValidDates_whenValidateIsInvoked_thenNoExceptionIsThrown() {
-        EvidenceDTO evidenceDTO = EvidenceDTO.builder().evidenceDueDate(DateUtil.convertDateToDateTime(LocalDate.now().plusMonths(2)))
-                .firstReminderDate(DateUtil.convertDateToDateTime(LocalDate.now().plusMonths(1)))
-                .secondReminderDate(DateUtil.convertDateToDateTime(LocalDate.now().plusMonths(1)))
-                .existingEvidenceDueDate(DateUtil.convertDateToDateTime(LocalDate.now().minusMonths(1)))
-                .incomeExtraEvidence("OTHER")
-                .incomeExtraEvidenceText("Some text")
-                .incomeEvidenceReceivedDate(DateUtil.convertDateToDateTime(LocalDate.now().minusMonths(1)))
-                .applicationReceivedDate(DateUtil.convertDateToDateTime(LocalDate.now().minusMonths(2)))
-                .build();
-        incomeEvidenceValidationService.validate(evidenceDTO);
+    void givenExtraEvidenceWithDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenNoExceptionIsThrown() {
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(
+                List.of(TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER)));
+    }
+
+    @Test
+    void givenIncomeExtraEvidenceWithNoDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
+        ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_ADHOC);
+        extraIncomeEvidence.setDescription(null);
+        List<ApiIncomeEvidence> evidenceList = List.of(extraIncomeEvidence);
+        assertThrows(IllegalArgumentException.class,
+                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(evidenceList),
+                MISSING_OTHER_EVIDENCE_DESCRIPTION);
+    }
+
+    @Test
+    void givenIncomeExtraEvidenceWithEmptyDescription_whenCheckExtraEvidenceDescriptionsIsInvoked_thenExceptionIsThrown() {
+        ApiIncomeEvidence extraIncomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.OTHER_BUSINESS);
+        extraIncomeEvidence.setDescription("");
+        List<ApiIncomeEvidence> evidenceList = List.of(extraIncomeEvidence);
+        assertThrows(IllegalArgumentException.class,
+                () -> incomeEvidenceValidationService.checkExtraEvidenceDescriptions(evidenceList),
+                MISSING_OTHER_EVIDENCE_DESCRIPTION);
+    }
+
+    @Test
+    void givenIncomeEvidence_whenCheckExtraEvidenceDescriptionsIsInvoked_thenNoExceptionIsThrown() {
+        ApiIncomeEvidence incomeEvidence = TestModelDataBuilder.getIncomeEvidence(IncomeEvidenceType.NINO);
+        incomeEvidence.setDescription("");
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(List.of(incomeEvidence));
     }
 }
