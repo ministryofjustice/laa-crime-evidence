@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "jacoco"
-    id "org.springframework.boot" version "3.1.5"
+    id "org.springframework.boot" version "3.3.5"
     id 'io.spring.dependency-management' version '1.1.4'
     id "org.sonarqube" version "4.4.1.3373"
     id "info.solidsoft.pitest" version "1.15.0"
@@ -17,7 +17,7 @@ def versions = [
         pitest                : "1.16.0",
         crimeCommonsClasses   : "3.29.3",
         commonsModSchemas     : "1.17.0",
-        commonsRestClient     : "3.4.0",
+        commonsRestClient     : "3.18.0",
         wmStubRunnerVersion   : "4.1.2",
         springDocWebMVCVersion: "2.5.0",
         postgresqlVersion     : "42.7.2"
