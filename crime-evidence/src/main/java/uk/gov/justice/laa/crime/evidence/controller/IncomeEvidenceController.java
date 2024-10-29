@@ -13,9 +13,12 @@ import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceReq
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
+import uk.gov.justice.laa.crime.evidence.builder.CreateEvidenceDTOBuilder;
 import uk.gov.justice.laa.crime.evidence.builder.UpdateEvidenceDTOBuilder;
+import uk.gov.justice.laa.crime.evidence.dto.CreateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
+import uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceService;
 
 @Slf4j
 @RestController
@@ -25,10 +28,12 @@ import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
 public class IncomeEvidenceController implements IncomeEvidenceApi {
 
     private final EvidenceService evidenceService;
+    private final IncomeEvidenceService incomeEvidenceService;
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiCreateIncomeEvidenceResponse> createEvidence(ApiCreateIncomeEvidenceRequest request) {
-        return ResponseEntity.ok().build();
+        CreateEvidenceDTO createEvidenceDTO = CreateEvidenceDTOBuilder.build(request);
+        return ResponseEntity.ok(incomeEvidenceService.createEvidence(createEvidenceDTO));
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)

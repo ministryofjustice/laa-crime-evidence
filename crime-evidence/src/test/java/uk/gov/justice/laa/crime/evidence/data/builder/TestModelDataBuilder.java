@@ -32,7 +32,6 @@ public class TestModelDataBuilder {
 
     public static final String EMST_CODE = "SELF";
     public static final int APPLICANT_ID = 5708;
-    public static final int FINANCIAL_ASSESSMENT_ID = 4509;
     public static final int PARTNER_ID = 6336;
     public static final String TEST_USER_NAME = "mock-u";
     public static final LocalDateTime DUE_DATE = LocalDateTime.of(2024, 8, 15, 0, 0, 0);
@@ -103,7 +102,6 @@ public class TestModelDataBuilder {
         return new ApiCreateIncomeEvidenceRequest()
                 .withMagCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
                 .withApplicantDetails(getApiApplicantDetails())
-                .withFinancialAssessmentId(FINANCIAL_ASSESSMENT_ID)
                 .withPartnerDetails(getApiPartnerDetails())
                 .withMetadata(getApiIncomeEvidenceMetadata());
     }
@@ -127,7 +125,6 @@ public class TestModelDataBuilder {
         return new ApiUpdateIncomeEvidenceRequest()
                 .withEvidenceDueDate(DUE_DATE)
                 .withMagCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
-                .withFinancialAssessmentId(FINANCIAL_ASSESSMENT_ID)
                 .withMetadata(getApiIncomeEvidenceMetadata());
     }
 
@@ -164,7 +161,6 @@ public class TestModelDataBuilder {
             .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
             .applicantIncomeEvidenceItems(Collections.emptyList())
             .partnerIncomeEvidenceItems(Collections.emptyList())
-            .financialAssessmentId(FINANCIAL_ASSESSMENT_ID)
             .build();
     }
 
@@ -191,7 +187,6 @@ public class TestModelDataBuilder {
             .evidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceReceivedDate))
             .previousEvidenceDueDate(DateUtil.convertDateToDateTime(previousEvidenceDueDate))
             .partnerIncomeEvidenceItems(Collections.emptyList())
-            .financialAssessmentId(FINANCIAL_ASSESSMENT_ID)
             .build();
     }
 

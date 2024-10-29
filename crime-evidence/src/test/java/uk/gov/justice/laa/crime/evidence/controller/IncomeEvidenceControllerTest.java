@@ -15,6 +15,7 @@ import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceReq
 import uk.gov.justice.laa.crime.commons.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
+import uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceService;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 @WebMvcTest(IncomeEvidenceController.class)
@@ -34,6 +35,9 @@ class IncomeEvidenceControllerTest {
 
     @MockBean
     private TraceIdHandler traceIdHandler;
+
+    @MockBean
+    private IncomeEvidenceService incomeEvidenceService;
 
     @Test
     void givenMissingRequestBody_whenCreateEvidenceIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
