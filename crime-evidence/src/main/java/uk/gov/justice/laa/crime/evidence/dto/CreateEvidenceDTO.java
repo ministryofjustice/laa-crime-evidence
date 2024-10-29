@@ -5,12 +5,14 @@ import lombok.Data;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiApplicantDetails;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 public class CreateEvidenceDTO {
     private MagCourtOutcome magCourtOutcome;
     private ApiApplicantDetails applicantDetails;
     private ApiApplicantDetails partnerDetails;
-    private double applicantPensionAmount;
-    private double partnerPensionAmount;
+    private BigDecimal applicantPensionAmount;
+    private BigDecimal partnerPensionAmount;
 }

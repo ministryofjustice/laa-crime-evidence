@@ -1,7 +1,5 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,18 +12,16 @@ import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceReq
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.commons.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
 import uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceService;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(IncomeEvidenceController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class IncomeEvidenceControllerTest {
 
     private static final String ENDPOINT_URL = "/api/internal/v1/evidence";
-
-    @MockBean
-    private EvidenceService evidenceService;
 
     @Autowired
     private MockMvc mvc;

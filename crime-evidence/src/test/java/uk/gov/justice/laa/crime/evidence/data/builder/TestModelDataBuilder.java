@@ -1,5 +1,6 @@
 package uk.gov.justice.laa.crime.evidence.data.builder;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.laa.crime.common.model.evidence.*;
@@ -9,6 +10,7 @@ import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
+import uk.gov.justice.laa.crime.evidence.dto.CreateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeDTO;
 
@@ -187,6 +189,8 @@ public class TestModelDataBuilder {
             .evidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceReceivedDate))
             .previousEvidenceDueDate(DateUtil.convertDateToDateTime(previousEvidenceDueDate))
             .partnerIncomeEvidenceItems(Collections.emptyList())
+            .partnerPensionAmount(BigDecimal.ZERO)
+            .applicantPensionAmount(BigDecimal.ZERO)
             .build();
     }
 
@@ -197,5 +201,15 @@ public class TestModelDataBuilder {
                 .withMandatory(true)
                 .withEvidenceType(incomeEvidenceType)
                 .withDateReceived(EVIDENCE_RECEIVED_DATE);
+    }
+
+    public static CreateEvidenceDTO getCreateEvidenceRequest() {
+        return CreateEvidenceDTO.builder()
+                .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+                .applicantDetails(getApiApplicantDetails())
+                .partnerDetails(getApiPartnerDetails())
+                .applicantPensionAmount(BigDecimal.TEN)
+                .partnerPensionAmount(BigDecimal.ZERO)
+                .build();
     }
 }

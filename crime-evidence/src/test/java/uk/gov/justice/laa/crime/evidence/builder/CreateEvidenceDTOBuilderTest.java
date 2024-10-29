@@ -36,8 +36,8 @@ class CreateEvidenceDTOBuilderTest {
     @ParameterizedTest
     @MethodSource("createIncomeEvidenceRequest")
     void givenCreateIncomeEvidenceRequest_whenBuildIsInvoked_thenCorrectCreateEvidenceDTOFieldsArePopulated(ApiCreateIncomeEvidenceRequest request) {
-        double applicantPension = request.getApplicantPensionAmount() != null ? request.getApplicantPensionAmount().doubleValue() : 0;
-        double partnerPension = request.getPartnerPensionAmount() != null ? request.getPartnerPensionAmount().doubleValue() : 0;
+        BigDecimal applicantPension = request.getApplicantPensionAmount() != null ? request.getApplicantPensionAmount() : BigDecimal.ZERO;
+        BigDecimal partnerPension = request.getPartnerPensionAmount() != null ? request.getPartnerPensionAmount() : BigDecimal.ZERO;
         CreateEvidenceDTO createEvidenceDTO = CreateEvidenceDTOBuilder.build(request);
         softly.assertThat(createEvidenceDTO.getMagCourtOutcome()).isEqualTo(request.getMagCourtOutcome());
         softly.assertThat(createEvidenceDTO.getPartnerDetails()).isEqualTo(request.getPartnerDetails());
