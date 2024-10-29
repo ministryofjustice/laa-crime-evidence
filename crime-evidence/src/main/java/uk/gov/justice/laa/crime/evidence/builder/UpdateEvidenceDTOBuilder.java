@@ -13,7 +13,6 @@ public class UpdateEvidenceDTOBuilder {
 
     public static UpdateEvidenceDTO build(final ApiUpdateIncomeEvidenceRequest request) {
         return UpdateEvidenceDTO.builder()
-            .financialAssessmentId(request.getFinancialAssessmentId())
             .magCourtOutcome(request.getMagCourtOutcome())
             .applicantDetails(request.getApplicantEvidenceItems() != null ? request.getApplicantEvidenceItems().getApplicantDetails() : null)
             .applicantPensionAmount(request.getApplicantPensionAmount() != null ? request.getApplicantPensionAmount() : BigDecimal.ZERO)

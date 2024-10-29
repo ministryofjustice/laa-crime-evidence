@@ -13,7 +13,6 @@ import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
 @Data
 @Builder
 public class UpdateEvidenceDTO {
-    private int financialAssessmentId;
     private List<ApiIncomeEvidence> applicantIncomeEvidenceItems;
     private List<ApiIncomeEvidence> partnerIncomeEvidenceItems;
     private MagCourtOutcome magCourtOutcome;

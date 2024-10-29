@@ -1,20 +1,30 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceResponse;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
+import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
+import uk.gov.justice.laa.crime.evidence.dto.CreateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceReceivedResultDTO;
+import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredItemRepository;
 import uk.gov.justice.laa.crime.evidence.repository.IncomeEvidenceRequiredRepository;
 import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredEntity;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceRequiredItemProjection;
+import uk.gov.justice.laa.crime.util.DateUtil;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -23,6 +33,7 @@ public class IncomeEvidenceService {
 
     private final IncomeEvidenceRequiredRepository incomeEvidenceRequiredRepository;
     private final IncomeEvidenceRequiredItemRepository incomeEvidenceRequiredItemRepository;
+    private final IncomeEvidenceValidationService incomeEvidenceValidationService;
 
     public boolean checkEvidenceReceived(
         List<ApiIncomeEvidence> evidenceItems,
@@ -52,10 +63,12 @@ public class IncomeEvidenceService {
     }
 
     public boolean isRequiredEvidenceOutstanding(int incomeEvidenceRequiredId, List<ApiIncomeEvidence> providedEvidenceItems) {
-        // Note: The income evidence items passed in are only those items provided. There may be
-        //  many more evidence items required than are passed in, therefore we need to call out to
-        //  find all of the required income evidence items first (based on the income evidence
-        //  required id) and then filter down to check that the mandatory items are present.
+        /*
+         Note: The income evidence items passed in are only those items provided. There may be
+          many more evidence items required than are passed in, therefore we need to call out to
+          find all the required income evidence items first (based on the income evidence
+          required id) and then filter down to check that the mandatory items are present.
+        */
         List<IncomeEvidenceRequiredItemProjection> requiredEvidenceItems = incomeEvidenceRequiredItemRepository
             .findByIncomeEvidenceRequiredId(incomeEvidenceRequiredId)
             .stream()
@@ -93,7 +106,7 @@ public class IncomeEvidenceService {
         IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
             magCourtOutcome.getOutcome(),
             applicantEmploymentStatus.getCode(),
-            partnerEmploymentStatus.getCode(),
+            partnerEmploymentStatus != null ? partnerEmploymentStatus.getCode() : null,
             applicantType.toString(),
             pensionAmount.doubleValue());
 
@@ -104,5 +117,126 @@ public class IncomeEvidenceService {
         boolean minimumEvidenceItemsReceived = providedEvidenceItems.size() >= incomeEvidenceRequiredEntity.getEvidenceItemsRequired();
 
         return new EvidenceReceivedResultDTO(minimumEvidenceItemsReceived, incomeEvidenceRequiredEntity.getId(), incomeEvidenceRequiredEntity.getEvidenceItemsRequired());
+    }
+
+    public ApiCreateIncomeEvidenceResponse createEvidence(CreateEvidenceDTO createEvidenceDTO) {
+
+        List<ApiIncomeEvidence> applicantIncomeEvidenceList = getDefaultEvidenceItems(
+                createEvidenceDTO, ApplicantType.APPLICANT, createEvidenceDTO.getApplicantPensionAmount());
+        ApiCreateIncomeEvidenceResponse apiCreateIncomeEvidenceResponse = new ApiCreateIncomeEvidenceResponse()
+                .withApplicantEvidenceItems(new ApiIncomeEvidenceItems()
+                        .withApplicantDetails(createEvidenceDTO.getApplicantDetails())
+                        .withIncomeEvidenceItems(applicantIncomeEvidenceList));
+
+        if (createEvidenceDTO.getPartnerDetails() != null) {
+            List<ApiIncomeEvidence> incomeEvidenceList = getDefaultEvidenceItems(
+                    createEvidenceDTO, ApplicantType.PARTNER, createEvidenceDTO.getPartnerPensionAmount());
+            apiCreateIncomeEvidenceResponse.withPartnerEvidenceItems(new ApiIncomeEvidenceItems()
+                    .withIncomeEvidenceItems(incomeEvidenceList)
+                    .withApplicantDetails(createEvidenceDTO.getPartnerDetails()));
+        }
+
+        return apiCreateIncomeEvidenceResponse;
+    }
+
+    private List<ApiIncomeEvidence> getDefaultEvidenceItems(CreateEvidenceDTO createEvidenceDTO, ApplicantType applicantType, BigDecimal pensionAmount) {
+        IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
+                createEvidenceDTO.getMagCourtOutcome().getOutcome(),
+                createEvidenceDTO.getApplicantDetails().getEmploymentStatus().getCode(),
+                createEvidenceDTO.getPartnerDetails() != null ? createEvidenceDTO.getPartnerDetails().getEmploymentStatus().getCode() : null,
+                applicantType.toString(),
+                pensionAmount.doubleValue());
+
+        if (incomeEvidenceRequiredEntity != null && incomeEvidenceRequiredEntity.getEvidenceItemsRequired() > 0) {
+            return incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(incomeEvidenceRequiredEntity.getId())
+                    .stream()
+                    .map(this::buildEvidence)
+                    .toList();
+        }
+
+        return new ArrayList<>();
+    }
+
+    private ApiIncomeEvidence buildEvidence(IncomeEvidenceRequiredItemProjection incomeEvidenceRequiredItemProjection) {
+        return new ApiIncomeEvidence()
+                .withMandatory("Y".equals(incomeEvidenceRequiredItemProjection.getMandatory()))
+                .withEvidenceType(IncomeEvidenceType.getFrom(incomeEvidenceRequiredItemProjection.getIncomeEvidenceRequiredDescription()));
+    }
+
+    public ApiUpdateIncomeEvidenceResponse updateEvidence(UpdateEvidenceDTO updateEvidenceDTO) {
+        List<ApiIncomeEvidence> applicantEvidenceItems = updateEvidenceDTO.getApplicantIncomeEvidenceItems();
+        List<ApiIncomeEvidence> partnerEvidenceItems = updateEvidenceDTO.getPartnerIncomeEvidenceItems();
+
+        if (applicantEvidenceItems.isEmpty() && partnerEvidenceItems.isEmpty()) {
+            throw new IllegalArgumentException("No income evidence items provided");
+        }
+
+        incomeEvidenceValidationService.checkEvidenceReceivedDate(
+                DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()),
+                updateEvidenceDTO.getApplicationReceivedDate());
+
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(applicantEvidenceItems);
+        incomeEvidenceValidationService.checkExtraEvidenceDescriptions(partnerEvidenceItems);
+
+        incomeEvidenceValidationService.checkEvidenceDueDates(
+                DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceDueDate()),
+                DateUtil.parseLocalDate(updateEvidenceDTO.getPreviousEvidenceDueDate()),
+                updateEvidenceDTO.isEvidencePending());
+
+        boolean applicantEvidenceItemsReceived = true;
+        boolean partnerEvidenceItemsReceived = true;
+
+        if (!applicantEvidenceItems.isEmpty()) {
+            applicantEvidenceItemsReceived = checkEvidenceReceived(
+                    applicantEvidenceItems,
+                    updateEvidenceDTO.getMagCourtOutcome(),
+                    updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
+                    updateEvidenceDTO.getPartnerDetails() != null
+                            ? updateEvidenceDTO.getPartnerDetails().getEmploymentStatus() : null,
+                    updateEvidenceDTO.getApplicantPensionAmount(),
+                    ApplicantType.APPLICANT);
+        }
+
+        if (!partnerEvidenceItems.isEmpty()) {
+            partnerEvidenceItemsReceived = checkEvidenceReceived(
+                    partnerEvidenceItems,
+                    updateEvidenceDTO.getMagCourtOutcome(),
+                    updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
+                    updateEvidenceDTO.getPartnerDetails().getEmploymentStatus(),
+                    updateEvidenceDTO.getPartnerPensionAmount(),
+                    ApplicantType.PARTNER);
+        }
+
+        boolean allEvidenceItemsReceived = applicantEvidenceItemsReceived && partnerEvidenceItemsReceived;
+
+        updateEvidenceReceivedDate(updateEvidenceDTO, allEvidenceItemsReceived);
+        updateEvidenceDueDate(updateEvidenceDTO);
+
+        ApiUpdateIncomeEvidenceResponse response = new ApiUpdateIncomeEvidenceResponse()
+                .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
+                .withDueDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceDueDate()))
+                .withAllEvidenceReceivedDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()));
+
+        if (!partnerEvidenceItems.isEmpty()) {
+            response.setPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems));
+        }
+
+        return response;
+    }
+
+    private void updateEvidenceDueDate(UpdateEvidenceDTO updateEvidenceDTO) {
+        LocalDateTime previousEvidenceDueDate = updateEvidenceDTO.getPreviousEvidenceDueDate();
+
+        if (updateEvidenceDTO.getEvidenceDueDate() == null && previousEvidenceDueDate != null) {
+            updateEvidenceDTO.setEvidenceDueDate(previousEvidenceDueDate);
+        }
+    }
+
+    private void updateEvidenceReceivedDate(UpdateEvidenceDTO updateEvidenceDTO, boolean evidenceReceived) {
+        if (evidenceReceived && updateEvidenceDTO.getEvidenceReceivedDate() == null) {
+            updateEvidenceDTO.setEvidenceReceivedDate(LocalDateTime.now());
+        } else if (!evidenceReceived && updateEvidenceDTO.getEvidenceReceivedDate() != null) {
+            updateEvidenceDTO.setEvidenceReceivedDate(null);
+        }
     }
 }
