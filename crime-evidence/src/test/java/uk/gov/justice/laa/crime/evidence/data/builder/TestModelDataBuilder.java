@@ -3,6 +3,7 @@ package uk.gov.justice.laa.crime.evidence.data.builder;
 import java.math.BigDecimal;
 import java.util.Collections;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.laa.crime.common.model.common.ApiUserSession;
 import uk.gov.justice.laa.crime.common.model.evidence.*;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
