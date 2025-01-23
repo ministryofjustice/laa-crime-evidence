@@ -6,8 +6,6 @@ Environment variables for service containers
 env:
   - name: AWS_REGION
     value: {{ .Values.aws_region }}
-  - name: SENTRY_DSN
-    value: {{ .Values.sentry.dsn }}
   - name: SENTRY_ENV
     value: {{ .Values.java.host_env }}
   - name: SENTRY_SAMPLE_RATE
@@ -28,6 +26,11 @@ env:
       secretKeyRef:
         name: maat-api-oauth-client-secret
         key: MAAT_API_OAUTH_CLIENT_SECRET
+  - name: SENTRY_DSN
+    valueFrom:
+      secretKeyRef:
+        name: sentry-dsn
+        key: SENTRY_DSN
   - name: JWT_ISSUER_URI
     value: {{ .Values.jwt.issuerUri }}
   - name: DATASOURCE_HOST_PORT
