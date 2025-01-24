@@ -45,7 +45,7 @@ If the command is not found, [follow the steps on the 1Password developer docs t
 Once you're ready to run the application:
 
 ```sh
-./startup-local.sh
+./start-local.sh
 ```
 
 ### Decrypting values files
@@ -102,7 +102,7 @@ The apps should then startup cleanly if you run
 ./startup-local.sh
 ```
 
-laa-crime-evidence application will be running on http://localhost:8088
+laa-crime-evidence application will be running on http://localhost:8189
 
 ### Cloud Platform Set Up
 
