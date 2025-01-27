@@ -25,6 +25,10 @@ public class UpdateEvidenceDTOBuilder {
             .evidenceDueDate(request.getEvidenceDueDate())
             .evidenceReceivedDate(request.getEvidenceReceivedDate())
             .previousEvidenceDueDate(request.getPreviousEvidenceDueDate())
+            .upliftAppliedDate(request.getUpliftAppliedDate())
+            .upliftRemovedDate(request.getUpliftRemovedDate())
+            .oldUpliftAppliedDate(request.getOldUpliftAppliedDate())
+            .oldUpliftRemovedDate(request.getOldUpliftRemovedDate())
             .build();
     }
 }
