@@ -523,4 +523,86 @@ class IncomeEvidenceServiceTest {
 
         assertEquals(expectedResponse, incomeEvidenceService.createEvidence(createEvidenceDTO));
     }
+
+    @Test
+    void givenUpliftAppliedDateIsModified_whenUpdateEvidenceIsInvoked_thenUpliftRemovedDateIsRemoved() {
+        LocalDate applicationReceivedDate = LocalDate.of(2024, 8, 30);
+        LocalDate evidenceDueDate = LocalDate.of(2024, 9, 30);
+
+        LocalDate oldUpliftAppliedDate = LocalDate.of(2025, 1, 12);
+        LocalDate oldUpliftRemovedDate = LocalDate.of(2025, 1, 15);
+        LocalDate upliftAppliedDate = LocalDate.of(2025, 1, 20);
+
+        List<ApiIncomeEvidence> applicantEvidenceItems = List.of(
+                new ApiIncomeEvidence(1, null, IncomeEvidenceType.ACCOUNTS, false, "Company accounts")
+        );
+
+        ApiApplicantDetails applicantDetails = buildApplicantDetails(1, EmploymentStatus.EMPLOY);
+
+        UpdateEvidenceDTO updateEvidenceDTO = UpdateEvidenceDTO.builder()
+                .applicantIncomeEvidenceItems(applicantEvidenceItems)
+                .partnerIncomeEvidenceItems(Collections.emptyList())
+                .applicantDetails(applicantDetails)
+                .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+                .applicantPensionAmount(BigDecimal.ZERO)
+                .applicationReceivedDate(applicationReceivedDate)
+                .evidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate))
+                .upliftAppliedDate(upliftAppliedDate)
+                .oldUpliftAppliedDate(oldUpliftAppliedDate)
+                .oldUpliftRemovedDate(oldUpliftRemovedDate)
+                .upliftRemovedDate(oldUpliftRemovedDate)
+                .build();
+
+        ApiUpdateIncomeEvidenceResponse expectedResponse = new ApiUpdateIncomeEvidenceResponse()
+                .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(applicantDetails, applicantEvidenceItems))
+                .withDueDate(evidenceDueDate)
+                .withAllEvidenceReceivedDate(null)
+                .withUpliftAppliedDate(upliftAppliedDate)
+                .withUpliftRemovedDate(null);
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(any(), any(), any(), any(), any()))
+                .thenReturn(IncomeEvidenceRequiredEntity.builder().evidenceItemsRequired(3).build());
+
+        ApiUpdateIncomeEvidenceResponse actualResponse = incomeEvidenceService.updateEvidence(updateEvidenceDTO);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void givenAllEvidenceReceivedUpliftIsCurrentlyApplied_whenUpdateEvidenceIsInvoked_thenUpliftRemovedDateIsSet() {
+        LocalDate applicationReceivedDate = LocalDate.of(2024, 8, 30);
+        LocalDate evidenceDueDate = LocalDate.of(2024, 9, 30);
+        LocalDate oldUpliftAppliedDate = LocalDate.of(2025, 1, 12);
+
+        List<ApiIncomeEvidence> applicantEvidenceItems = List.of(
+                new ApiIncomeEvidence(1, null, IncomeEvidenceType.ACCOUNTS, false, "Company accounts")
+        );
+
+        ApiApplicantDetails applicantDetails = buildApplicantDetails(1, EmploymentStatus.EMPLOY);
+
+        UpdateEvidenceDTO updateEvidenceDTO = UpdateEvidenceDTO.builder()
+                .applicantIncomeEvidenceItems(applicantEvidenceItems)
+                .partnerIncomeEvidenceItems(Collections.emptyList())
+                .applicantDetails(applicantDetails)
+                .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+                .applicantPensionAmount(BigDecimal.ZERO)
+                .applicationReceivedDate(applicationReceivedDate)
+                .evidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate))
+                .evidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceDueDate))
+                .upliftAppliedDate(oldUpliftAppliedDate)
+                .oldUpliftAppliedDate(oldUpliftAppliedDate)
+                .build();
+
+        ApiUpdateIncomeEvidenceResponse expectedResponse = new ApiUpdateIncomeEvidenceResponse()
+                .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(applicantDetails, applicantEvidenceItems))
+                .withDueDate(evidenceDueDate)
+                .withAllEvidenceReceivedDate(evidenceDueDate)
+                .withUpliftAppliedDate(oldUpliftAppliedDate)
+                .withUpliftRemovedDate(LocalDate.now());
+        when(incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(any(), any(), any(), any(), any()))
+                .thenReturn(IncomeEvidenceRequiredEntity.builder().evidenceItemsRequired(0).build());
+
+        ApiUpdateIncomeEvidenceResponse actualResponse = incomeEvidenceService.updateEvidence(updateEvidenceDTO);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
 }
