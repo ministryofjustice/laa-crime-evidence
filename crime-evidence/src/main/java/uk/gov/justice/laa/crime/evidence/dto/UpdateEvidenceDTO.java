@@ -25,4 +25,8 @@ public class UpdateEvidenceDTO {
     private LocalDateTime evidenceDueDate;
     private LocalDateTime evidenceReceivedDate;
     private LocalDateTime previousEvidenceDueDate;
+    private LocalDate upliftAppliedDate;
+    private LocalDate upliftRemovedDate;
+    private LocalDate oldUpliftAppliedDate;
+    private LocalDate oldUpliftRemovedDate;
 }

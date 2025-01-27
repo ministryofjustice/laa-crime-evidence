@@ -21,6 +21,7 @@ import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceReq
 import uk.gov.justice.laa.crime.util.DateUtil;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -209,19 +210,36 @@ public class IncomeEvidenceService {
 
         boolean allEvidenceItemsReceived = applicantEvidenceItemsReceived && partnerEvidenceItemsReceived;
 
+        incomeEvidenceValidationService.validateUpliftDates(updateEvidenceDTO, allEvidenceItemsReceived);
+
         updateEvidenceReceivedDate(updateEvidenceDTO, allEvidenceItemsReceived);
         updateEvidenceDueDate(updateEvidenceDTO);
+        updateUpliftRemovedDate(updateEvidenceDTO, allEvidenceItemsReceived);
 
         ApiUpdateIncomeEvidenceResponse response = new ApiUpdateIncomeEvidenceResponse()
                 .withApplicantEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
                 .withDueDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceDueDate()))
-                .withAllEvidenceReceivedDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()));
+                .withAllEvidenceReceivedDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()))
+                .withUpliftAppliedDate(updateEvidenceDTO.getUpliftAppliedDate())
+                .withUpliftRemovedDate(updateEvidenceDTO.getUpliftRemovedDate());
 
         if (!partnerEvidenceItems.isEmpty()) {
             response.setPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems));
         }
 
         return response;
+    }
+
+    private void updateUpliftRemovedDate(UpdateEvidenceDTO updateEvidenceDTO, boolean allEvidenceItemsReceived) {
+        if (updateEvidenceDTO.getUpliftAppliedDate() != null &&
+                !updateEvidenceDTO.getUpliftAppliedDate().equals(updateEvidenceDTO.getOldUpliftAppliedDate())) {
+            updateEvidenceDTO.setUpliftRemovedDate(null);
+        }
+
+        if (allEvidenceItemsReceived && updateEvidenceDTO.getUpliftAppliedDate() != null
+                && updateEvidenceDTO.getUpliftRemovedDate() == null) {
+            updateEvidenceDTO.setUpliftRemovedDate(LocalDate.now());
+        }
     }
 
     private void updateEvidenceDueDate(UpdateEvidenceDTO updateEvidenceDTO) {
