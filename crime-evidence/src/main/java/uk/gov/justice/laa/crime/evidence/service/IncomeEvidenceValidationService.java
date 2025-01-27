@@ -73,14 +73,19 @@ public class IncomeEvidenceValidationService {
         LocalDate upliftRemovedDate = updateEvidenceDTO.getUpliftRemovedDate();
         LocalDate oldUpliftAppliedDate = updateEvidenceDTO.getOldUpliftAppliedDate();
         LocalDate oldUpliftRemovedDate = updateEvidenceDTO.getOldUpliftRemovedDate();
-        LocalDate currentDate = LocalDate.now();
 
+        validateUpliftRemovedDate(upliftRemovedDate, oldUpliftAppliedDate, oldUpliftRemovedDate);
+
+        validateUpliftAppliedDate(allEvidenceReceived, upliftAppliedDate, oldUpliftAppliedDate, oldUpliftRemovedDate);
+    }
+
+    private static void validateUpliftRemovedDate(LocalDate upliftRemovedDate, LocalDate oldUpliftAppliedDate, LocalDate oldUpliftRemovedDate) {
         if (upliftRemovedDate != null) {
             if (oldUpliftAppliedDate == null) {
                 throw new CrimeEvidenceDataException(CANNOT_SET_UPLIFT_REMOVED_DATE_WHEN_NO_UPLIFT_APPLIED);
             }
 
-            if (!upliftRemovedDate.equals(oldUpliftRemovedDate) && !upliftRemovedDate.equals(currentDate)) {
+            if (!upliftRemovedDate.equals(oldUpliftRemovedDate) && !upliftRemovedDate.equals(LocalDate.now())) {
                 throw new CrimeEvidenceDataException(MUST_SET_UPLIFT_REMOVED_DATE_TO_TODAY);
             }
         }
@@ -92,13 +97,15 @@ public class IncomeEvidenceValidationService {
                 throw new CrimeEvidenceDataException(CANNOT_MODIFY_UPLIFT_REMOVED_DATE);
             }
         }
+    }
 
+    private static void validateUpliftAppliedDate(boolean allEvidenceReceived, LocalDate upliftAppliedDate, LocalDate oldUpliftAppliedDate, LocalDate oldUpliftRemovedDate) {
         if (upliftAppliedDate != null) {
             if (oldUpliftAppliedDate == null && allEvidenceReceived) {
                 throw new CrimeEvidenceDataException(CANNOT_APPLY_UPLIFT_IF_NO_OUTSTANDING_EVIDENCE_REQUIRED);
             }
 
-            if (!upliftAppliedDate.equals(oldUpliftAppliedDate) && !upliftAppliedDate.equals(currentDate)) {
+            if (!upliftAppliedDate.equals(oldUpliftAppliedDate) && !upliftAppliedDate.equals(LocalDate.now())) {
                 throw new CrimeEvidenceDataException(MUST_SET_UPLIFT_DATE_TO_TODAY);
             }
         }
