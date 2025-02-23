@@ -24,8 +24,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Collections.emptyList;
 
 @Slf4j
 @Service
@@ -166,7 +169,7 @@ public class IncomeEvidenceService {
 
     public ApiUpdateIncomeEvidenceResponse updateEvidence(UpdateEvidenceDTO updateEvidenceDTO) {
         List<ApiIncomeEvidence> applicantEvidenceItems = updateEvidenceDTO.getApplicantIncomeEvidenceItems();
-        List<ApiIncomeEvidence> partnerEvidenceItems = updateEvidenceDTO.getPartnerIncomeEvidenceItems();
+        List<ApiIncomeEvidence> partnerEvidenceItems = Optional.ofNullable(updateEvidenceDTO.getPartnerIncomeEvidenceItems()).orElse(emptyList());
 
         if (applicantEvidenceItems.isEmpty() && partnerEvidenceItems.isEmpty()) {
             throw new IllegalArgumentException("No income evidence items provided");
@@ -223,7 +226,7 @@ public class IncomeEvidenceService {
                 .withUpliftAppliedDate(updateEvidenceDTO.getUpliftAppliedDate())
                 .withUpliftRemovedDate(updateEvidenceDTO.getUpliftRemovedDate());
 
-        if (null!= partnerEvidenceItems && !partnerEvidenceItems.isEmpty()) {
+        if (!partnerEvidenceItems.isEmpty()) {
             response.setPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems));
         }
 
