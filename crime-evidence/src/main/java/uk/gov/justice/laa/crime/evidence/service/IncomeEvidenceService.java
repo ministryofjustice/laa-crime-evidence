@@ -223,7 +223,7 @@ public class IncomeEvidenceService {
                 .withUpliftAppliedDate(updateEvidenceDTO.getUpliftAppliedDate())
                 .withUpliftRemovedDate(updateEvidenceDTO.getUpliftRemovedDate());
 
-        if (!partnerEvidenceItems.isEmpty()) {
+        if (null!= partnerEvidenceItems && !partnerEvidenceItems.isEmpty()) {
             response.setPartnerEvidenceItems(new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems));
         }
 
