@@ -59,13 +59,13 @@ public class IncomeEvidenceValidationService {
 
     public void checkExtraEvidenceDescriptions(List<ApiIncomeEvidence> incomeEvidences) {
         incomeEvidences.stream()
-            .filter(apiIncomeEvidence -> EXTRA_EVIDENCES.contains(apiIncomeEvidence.getEvidenceType()))
-            .forEach(apiIncomeEvidence -> {
-                    if (StringUtils.isBlank(apiIncomeEvidence.getDescription())) {
-                        throw new CrimeEvidenceDataException(MISSING_OTHER_EVIDENCE_DESCRIPTION);
-                    }
-                }
-            );
+                .filter(apiIncomeEvidence -> EXTRA_EVIDENCES.contains(apiIncomeEvidence.getEvidenceType()))
+                .forEach(apiIncomeEvidence -> {
+                            if (StringUtils.isBlank(apiIncomeEvidence.getDescription())) {
+                                throw new CrimeEvidenceDataException(MISSING_OTHER_EVIDENCE_DESCRIPTION);
+                            }
+                        }
+                );
     }
 
     public void validateUpliftDates(UpdateEvidenceDTO updateEvidenceDTO, boolean allEvidenceReceived) {
