@@ -1,14 +1,14 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.commons.client.RestAPIClient;
 import uk.gov.justice.laa.crime.evidence.config.ServicesConfiguration;
-
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -20,10 +20,10 @@ public class MaatCourtDataService {
     private final ServicesConfiguration configuration;
     private static final String RESPONSE_STRING = "Response from Court Data API: %s";
 
-    public Long getRepOrderCapitalByRepId(Integer repId) {
+    public Long getCapitalAssetCount(Integer repId) {
 
         ResponseEntity<Void> response = maatAPIClient.head(
-                configuration.getMaatApi().getRepOrderEndpoints().getRepOrderCapitalUrl(),
+                configuration.getMaatApi().getRepOrderEndpoints().getGetCapitalAssetCountUrl(),
                 Map.of(),
                 repId
         );

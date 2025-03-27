@@ -34,7 +34,7 @@ class EvidenceServiceTest {
     @Test
     void givenValidCrimeEvidence_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
-        when(maatCourtDataService.getRepOrderCapitalByRepId(anyInt()))
+        when(maatCourtDataService.getCapitalAssetCount(anyInt()))
                 .thenReturn(2L);
         ApiCalculateEvidenceFeeResponse response = evidenceService.calculateEvidenceFee(requestDTO);
 

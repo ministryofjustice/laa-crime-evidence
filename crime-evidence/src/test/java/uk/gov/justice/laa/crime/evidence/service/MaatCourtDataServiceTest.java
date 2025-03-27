@@ -30,11 +30,11 @@ class MaatCourtDataServiceTest {
     private ServicesConfiguration configuration = MockServicesConfiguration.getConfiguration(1000);
 
     @Test
-    void givenAValidRepId_whenGetRepOrderCapitalByRepIdIsInvoked_thenResponseIsReturned() {
+    void givenAValidRepId_whenGetCapitalAssetCountIsInvoked_thenResponseIsReturned() {
         ResponseEntity<Void> expected = new ResponseEntity<>(HttpStatus.OK);
         when(maatCourtDataClient.head(any(), anyMap(), any()))
                 .thenReturn(expected);
-        maatCourtDataService.getRepOrderCapitalByRepId(TestModelDataBuilder.TEST_REP_ID);
+        maatCourtDataService.getCapitalAssetCount(TestModelDataBuilder.TEST_REP_ID);
         verify(maatCourtDataClient, atLeastOnce()).head(any(), anyMap(), any());
     }
 }

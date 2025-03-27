@@ -33,7 +33,7 @@ public class EvidenceService {
 
             if (capEvidenceCount != null) {
                 capEvidenceOutstandingCount = crimeEvidenceDTO.getCapitalEvidence().stream().filter(f -> f.getDateReceived() == null).count();
-                capEvidenceCount = maatCourtDataService.getRepOrderCapitalByRepId(crimeEvidenceDTO.getRepId());
+                capEvidenceCount = maatCourtDataService.getCapitalAssetCount(crimeEvidenceDTO.getRepId()).longValue();
             }
 
             if (null != crimeEvidenceDTO.getIncomeEvidenceReceivedDate()) {
