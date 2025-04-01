@@ -34,7 +34,7 @@ class CrimeEvidenceIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void givenAValidContent_whenApiResponseIsError_thenCalculateEvidenceFeeIsFails()
+    void givenAValidContent_whenApiResponseIsError_thenCalculateEvidenceFeeIsFail()
             throws Exception {
 
         wiremock.stubFor(
