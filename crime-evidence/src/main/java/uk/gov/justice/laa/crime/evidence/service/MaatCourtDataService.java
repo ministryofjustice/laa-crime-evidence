@@ -22,7 +22,7 @@ public class MaatCourtDataService {
         Integer response = maatAPIClient.get(
                 new ParameterizedTypeReference<>() {
                 },
-                configuration.getMaatApi().getRepOrderEndpoints().getGetCapitalAssetCountUrl(),
+                configuration.getMaatApi().getRepOrderEndpoints().getCapitalAssetCountUrl(),
                 repId
         );
         log.info(String.format(RESPONSE_STRING, response));

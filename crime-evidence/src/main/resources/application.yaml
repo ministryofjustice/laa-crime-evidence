@@ -77,7 +77,7 @@ services:
     base-url: ${MAAT_API_BASE_URL}
     assessments-domain: ${services.maat-api.base-url}/api/internal/v1/assessment
     rep-order-endpoints:
-      get-capital-asset-count-url: ${services.maat-api.assessments-domain}/rep-orders/{repId}/capital-assets/count
+      capital-asset-count-url: ${services.maat-api.assessments-domain}/rep-orders/{repId}/capital-assets/count
 
 sentry:
   dsn: ${SENTRY_DSN}

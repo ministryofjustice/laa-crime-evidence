@@ -50,7 +50,7 @@ services:
     baseUrl: http://localhost:9999
     assessments-domain: ${services.maat-api.baseUrl}/api/internal/v1/assessment
     rep-order-endpoints:
-      get-capital-asset-count-url: ${services.maat-api.assessments-domain}/rep-orders/{repId}/capital-assets/count
+      capital-asset-count-url: ${services.maat-api.assessments-domain}/rep-orders/{repId}/capital-assets/count
 
 retry-config:
   max-retries: 2
