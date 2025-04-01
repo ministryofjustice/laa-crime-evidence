@@ -35,7 +35,7 @@ public class ServicesConfiguration {
         public static class RepOrderEndpoints {
 
             @NotNull
-            private String repOrderCapitalUrl;
+            private String capitalAssetCountUrl;
         }
     }
 }

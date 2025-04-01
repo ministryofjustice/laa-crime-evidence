@@ -11,7 +11,7 @@ public class MockServicesConfiguration {
 
         ServicesConfiguration.MaatApi.RepOrderEndpoints repOrderEndpoints =
                 new ServicesConfiguration.MaatApi.RepOrderEndpoints(
-                        "/rep-orders/capital/reporder/{repId}"
+                        "/rep-orders/{repId}/capital-assets/count"
                 );
 
         maatApiConfiguration.setBaseUrl(host);
