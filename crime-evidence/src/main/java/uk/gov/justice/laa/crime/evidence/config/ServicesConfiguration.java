@@ -25,17 +25,5 @@ public class ServicesConfiguration {
 
         @NotNull
         private String baseUrl;
-
-        @NotNull
-        private RepOrderEndpoints repOrderEndpoints;
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class RepOrderEndpoints {
-
-            @NotNull
-            private String capitalAssetCountUrl;
-        }
     }
 }
