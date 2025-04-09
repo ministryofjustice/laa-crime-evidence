@@ -75,6 +75,7 @@ retry-config:
 services:
   maat-api:
     base-url: ${MAAT_API_BASE_URL}
+    registration-id: maat-api
 
 sentry:
   dsn: ${SENTRY_DSN}

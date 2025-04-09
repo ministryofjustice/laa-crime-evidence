@@ -25,5 +25,8 @@ public class ServicesConfiguration {
 
         @NotNull
         private String baseUrl;
+
+        @NotNull
+        private String registrationId;
     }
 }
