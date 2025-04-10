@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.laa.crime.commons.client.RestAPIClient;
+import uk.gov.justice.laa.crime.evidence.client.MaatCourtDataApiClient;
 import uk.gov.justice.laa.crime.evidence.config.MockServicesConfiguration;
 import uk.gov.justice.laa.crime.evidence.config.ServicesConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
@@ -19,7 +20,7 @@ import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 class MaatCourtDataServiceTest {
 
     @Mock
-    private RestAPIClient maatCourtDataClient;
+    private MaatCourtDataApiClient maatCourtDataApiClient;
 
     @InjectMocks
     private MaatCourtDataService maatCourtDataService;
@@ -29,7 +30,7 @@ class MaatCourtDataServiceTest {
 
     @Test
     void givenAValidRepId_whenGetCapitalAssetCountIsInvoked_thenResponseIsReturned() {
-        when(maatCourtDataClient.get(any(), any(), any())).thenReturn(5);
+        when(maatCourtDataApiClient.getCapitalAssetCount(any())).thenReturn(5);
         assertThat(maatCourtDataService.getCapitalAssetCount(TestModelDataBuilder.TEST_REP_ID))
                 .isEqualTo(5);
     }

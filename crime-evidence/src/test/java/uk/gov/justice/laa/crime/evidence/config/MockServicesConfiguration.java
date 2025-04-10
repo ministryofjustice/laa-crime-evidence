@@ -9,13 +9,8 @@ public class MockServicesConfiguration {
         ServicesConfiguration servicesConfiguration = new ServicesConfiguration();
         ServicesConfiguration.MaatApi maatApiConfiguration = new ServicesConfiguration.MaatApi();
 
-        ServicesConfiguration.MaatApi.RepOrderEndpoints repOrderEndpoints =
-                new ServicesConfiguration.MaatApi.RepOrderEndpoints(
-                        "/rep-orders/{repId}/capital-assets/count"
-                );
-
         maatApiConfiguration.setBaseUrl(host);
-        maatApiConfiguration.setRepOrderEndpoints(repOrderEndpoints);
+        maatApiConfiguration.setRegistrationId("maat-api");
 
         servicesConfiguration.setOAuthEnabled(false);
         servicesConfiguration.setMaatApi(maatApiConfiguration);

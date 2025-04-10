@@ -16,7 +16,7 @@ public class MaatCourtDataService {
     public Integer getCapitalAssetCount(Integer repId) {
         log.debug("Request to retrieve capital asset count for repId: {}", repId);
         Integer response = maatCourtDataApiClient.getCapitalAssetCount(repId);
-        log.debug(String.format(RESPONSE_STRING, response)); // Do we need these if we logging req and resp in config???
+        log.debug(String.format(RESPONSE_STRING, response));
         return response;
     }
 }
