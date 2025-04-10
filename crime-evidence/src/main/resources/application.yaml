@@ -17,6 +17,7 @@ management:
   tracing:
     propagation:
       type: w3c,b3
+    enabled: true
 
 springdoc:
   packagesToScan: uk.gov.justice.laa.crime.evidence
@@ -66,6 +67,28 @@ spring:
       resource-server:
         jwt:
           issuer-uri: ${JWT_ISSUER_URI}
+
+  autoconfigure:
+    exclude: org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
+
+resilience4j:
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 2s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - org.springframework.web.reactive.function.client.WebClientResponseException.BadGateway
+          - org.springframework.web.reactive.function.client.WebClientResponseException.TooManyRequests
+          - org.springframework.web.reactive.function.client.WebClientResponseException.ServiceUnavailable
+          - org.springframework.web.reactive.function.client.WebClientResponseException.GatewayTimeout
+
+    instances:
+      maatCourtDataWebClient:
+        base-config: default
 
 retry-config:
   max-retries: 3
