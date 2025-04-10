@@ -17,8 +17,7 @@ import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 class CrimeEvidenceIntegrationTest extends IntegrationTestBase {
-
-    private static final String ERROR_MSG = "Call to service MAAT-API failed.";
+    
     private static final String CALCULATE_EVIDENCE_FEE =
             EVIDENCE_BASE_URL.concat("/calculate-evidence-fee");
     public static final String CAPITAL_ASSET_COUNT_URL =
@@ -48,7 +47,8 @@ class CrimeEvidenceIntegrationTest extends IntegrationTestBase {
                         CALCULATE_EVIDENCE_FEE))
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(ERROR_MSG));
+                .andExpect(jsonPath("$.message")
+                        .value("500 Internal Server Error from GET http://localhost:9999" + CAPITAL_ASSET_COUNT_URL));
     }
 
     @Test

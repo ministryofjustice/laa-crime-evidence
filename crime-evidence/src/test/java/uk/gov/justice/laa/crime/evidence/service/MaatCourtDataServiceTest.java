@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.laa.crime.commons.client.RestAPIClient;
 import uk.gov.justice.laa.crime.evidence.client.MaatCourtDataApiClient;
-import uk.gov.justice.laa.crime.evidence.config.MockServicesConfiguration;
-import uk.gov.justice.laa.crime.evidence.config.ServicesConfiguration;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,12 +17,8 @@ class MaatCourtDataServiceTest {
 
     @Mock
     private MaatCourtDataApiClient maatCourtDataApiClient;
-
     @InjectMocks
     private MaatCourtDataService maatCourtDataService;
-
-    @Spy
-    private ServicesConfiguration configuration = MockServicesConfiguration.getConfiguration(1000);
 
     @Test
     void givenAValidRepId_whenGetCapitalAssetCountIsInvoked_thenResponseIsReturned() {
