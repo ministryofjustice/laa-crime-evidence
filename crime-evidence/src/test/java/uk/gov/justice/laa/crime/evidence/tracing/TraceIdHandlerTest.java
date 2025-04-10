@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class TraceIdHandlerTest {
+class TraceIdHandlerTest {
 
     private static final String TRACE_ID = "trace-id";
 
@@ -45,6 +45,6 @@ public class TraceIdHandlerTest {
         when(tracer.currentTraceContext()).thenReturn(currentTraceContext);
         when(currentTraceContext.context()).thenReturn(traceContext);
         when(traceContext.traceId()).thenReturn(TRACE_ID);
-        assertEquals(traceIdHandler.getTraceId(), TRACE_ID);
+        assertEquals(TRACE_ID, traceIdHandler.getTraceId());
     }
 }

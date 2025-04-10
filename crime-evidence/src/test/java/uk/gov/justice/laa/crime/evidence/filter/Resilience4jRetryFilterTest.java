@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SoftAssertionsExtension.class)
-public class Resilience4jRetryFilterTest {
+class Resilience4jRetryFilterTest {
     @InjectSoftAssertions
     private SoftAssertions softly;
 
@@ -75,8 +75,8 @@ public class Resilience4jRetryFilterTest {
                         response::block
                 ).isInstanceOf(WebClientResponseException.BadGateway.class)
                 .hasMessageContaining("502 Bad Gateway");
-
         verifyCorrectNumberOfCalls(NUM_RETRIES, DEFAULT_CONFIG_NAME);
+        softly.assertAll();
     }
 
     @Test
@@ -95,6 +95,7 @@ public class Resilience4jRetryFilterTest {
 
         verifyCorrectNumberOfCalls(1, DEFAULT_CONFIG_NAME);
         softly.assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
+        softly.assertAll();
     }
 
     @Test
@@ -120,6 +121,7 @@ public class Resilience4jRetryFilterTest {
 
         verifyCorrectNumberOfCalls(NUM_RETRIES, DEFAULT_CONFIG_NAME);
         softly.assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
+        softly.assertAll();
     }
 
     private void verifyCorrectNumberOfCalls(int numRetries, String configName) {
@@ -143,8 +145,8 @@ public class Resilience4jRetryFilterTest {
                         response::block
                 ).isInstanceOf(WebClientResponseException.class)
                 .hasMessageContaining("401 Unauthorized");
-
         verifyCorrectNumberOfCalls(1, DEFAULT_CONFIG_NAME);
+        softly.assertAll();
     }
 
     @Test
@@ -178,8 +180,8 @@ public class Resilience4jRetryFilterTest {
                         response::block
                 ).isInstanceOf(WebClientResponseException.Conflict.class)
                 .hasMessageContaining("409 Conflict");
-
         verifyCorrectNumberOfCalls(2, "override");
+        softly.assertAll();
     }
 
     @Test
@@ -206,8 +208,8 @@ public class Resilience4jRetryFilterTest {
                         response::block
                 ).isInstanceOf(WebClientResponseException.Conflict.class)
                 .hasMessageContaining("409 Conflict");
-
         verifyCorrectNumberOfCalls(2, DEFAULT_CONFIG_NAME);
+        softly.assertAll();
     }
 
     private static WebClientResponseException getWebClientResponseException(HttpStatus status) {

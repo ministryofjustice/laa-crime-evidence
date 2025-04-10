@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-public class WebClientFiltersTest {
+class WebClientFiltersTest {
 
     public static final ClientRequest CLIENT_REQUEST =
             ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
