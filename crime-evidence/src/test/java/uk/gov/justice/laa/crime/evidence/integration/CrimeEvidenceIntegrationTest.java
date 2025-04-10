@@ -17,7 +17,7 @@ import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 class CrimeEvidenceIntegrationTest extends IntegrationTestBase {
-    
+
     private static final String CALCULATE_EVIDENCE_FEE =
             EVIDENCE_BASE_URL.concat("/calculate-evidence-fee");
     public static final String CAPITAL_ASSET_COUNT_URL =
