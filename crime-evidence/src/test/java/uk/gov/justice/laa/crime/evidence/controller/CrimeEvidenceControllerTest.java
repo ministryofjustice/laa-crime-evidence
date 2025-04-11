@@ -10,10 +10,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import uk.gov.justice.laa.crime.commons.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
+import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

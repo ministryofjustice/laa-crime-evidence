@@ -10,9 +10,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
-import uk.gov.justice.laa.crime.commons.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 import uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceService;
+import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
