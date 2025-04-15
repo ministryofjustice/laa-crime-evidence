@@ -21,7 +21,7 @@ def versions = [
         springDocWebMVCVersion: "2.5.0",
         resilience4jVersion   : "2.2.0",
         postgresqlVersion     : "42.7.2",
-        tomcatEmbedCoreVersion: "10.1.34",
+        tomcatEmbedCoreVersion: "10.1.39",
         oauth2ResourceServer  : "3.4.1",
         securityCrypto        : "6.4.4"
 ]
