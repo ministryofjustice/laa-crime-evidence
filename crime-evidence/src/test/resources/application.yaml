@@ -47,10 +47,8 @@ springdoc:
 services:
   maat-api:
     oAuthEnabled: true
-    baseUrl: http://localhost:9999
-    assessments-domain: ${services.maat-api.baseUrl}/api/internal/v1/assessment
-    rep-order-endpoints:
-      capital-asset-count-url: ${services.maat-api.assessments-domain}/rep-orders/{repId}/capital-assets/count
+    baseUrl: http://localhost:9999/api/internal/v1/assessment
+    registrationId: maat-api
 
 retry-config:
   max-retries: 2
