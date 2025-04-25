@@ -17,6 +17,7 @@ management:
   tracing:
     propagation:
       type: w3c,b3
+    enabled: true
 
 springdoc:
   packagesToScan: uk.gov.justice.laa.crime.evidence
@@ -67,17 +68,32 @@ spring:
         jwt:
           issuer-uri: ${JWT_ISSUER_URI}
 
-retry-config:
-  max-retries: 3
-  min-back-off-period: 5
-  jitter-value: 0.75
+  autoconfigure:
+    exclude: org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
+
+resilience4j:
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 2s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - org.springframework.web.reactive.function.client.WebClientResponseException.BadGateway
+          - org.springframework.web.reactive.function.client.WebClientResponseException.TooManyRequests
+          - org.springframework.web.reactive.function.client.WebClientResponseException.ServiceUnavailable
+          - org.springframework.web.reactive.function.client.WebClientResponseException.GatewayTimeout
+
+    instances:
+      maatCourtDataWebClient:
+        base-config: default
 
 services:
   maat-api:
     base-url: ${MAAT_API_BASE_URL}
-    assessments-domain: ${services.maat-api.base-url}/api/internal/v1/assessment
-    rep-order-endpoints:
-      capital-asset-count-url: ${services.maat-api.assessments-domain}/rep-orders/{repId}/capital-assets/count
+    registration-id: maat-api
 
 sentry:
   dsn: ${SENTRY_DSN}
