@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "jacoco"
-    id "org.springframework.boot" version "3.3.5"
+    id "org.springframework.boot" version "3.4.4"
     id 'io.spring.dependency-management' version '1.1.4'
     id "org.sonarqube" version "4.4.1.3373"
     id "info.solidsoft.pitest" version "1.15.0"
@@ -15,15 +15,12 @@ jacoco {
 
 def versions = [
         pitest                : "1.16.0",
-        crimeCommonsClasses   : "4.6.0",
+        crimeCommonsClasses   : "4.7.1",
         commonsModSchemas     : "1.32.0",
         wmStubRunnerVersion   : "4.1.2",
         springDocWebMVCVersion: "2.5.0",
         resilience4jVersion   : "2.2.0",
-        postgresqlVersion     : "42.7.2",
-        tomcatEmbedCoreVersion: "10.1.39",
-        oauth2ResourceServer  : "3.4.1",
-        securityCrypto        : "6.4.4"
+        postgresqlVersion     : "42.7.2"
 ]
 
 java {
@@ -47,16 +44,16 @@ dependencies {
     implementation "uk.gov.justice.service.laa-crime:crime-commons-classes:$versions.crimeCommonsClasses"
     implementation "uk.gov.justice.service.laa-crime:crime-commons-mod-schemas:$versions.commonsModSchemas"
 
-    implementation "org.apache.tomcat.embed:tomcat-embed-core:$versions.tomcatEmbedCoreVersion"
+    implementation "org.apache.tomcat.embed:tomcat-embed-core"
 
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-webflux"
-    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server:$versions.oauth2ResourceServer"
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
-    implementation "org.springframework.security:spring-security-crypto:$versions.securityCrypto"
+    implementation "org.springframework.security:spring-security-crypto"
 
     implementation "io.github.resilience4j:resilience4j-reactor:$versions.resilience4jVersion"
     implementation "io.github.resilience4j:resilience4j-spring-boot3:$versions.resilience4jVersion"
