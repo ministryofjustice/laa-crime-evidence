@@ -14,6 +14,7 @@ jacoco {
 }
 
 def versions = [
+        sentry                : "8.11.1",
         pitest                : "1.16.0",
         crimeCommonsClasses   : "4.7.1",
         commonsModSchemas     : "1.32.0",
@@ -41,6 +42,11 @@ repositories {
 }
 
 dependencies {
+
+    implementation platform("io.sentry:sentry-bom:${versions.sentry}")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta")
+    implementation("io.sentry:sentry-logback")
+
     implementation "uk.gov.justice.service.laa-crime:crime-commons-classes:$versions.crimeCommonsClasses"
     implementation "uk.gov.justice.service.laa-crime:crime-commons-mod-schemas:$versions.commonsModSchemas"
 
