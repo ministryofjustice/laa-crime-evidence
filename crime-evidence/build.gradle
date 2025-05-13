@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "jacoco"
-    id "org.springframework.boot" version "3.4.4"
+    id "org.springframework.boot" version "3.4.5"
     id 'io.spring.dependency-management' version '1.1.4'
     id "org.sonarqube" version "6.1.0.5360"
     id "info.solidsoft.pitest" version "1.15.0"
@@ -17,8 +17,8 @@ def versions = [
         sentry                : "8.11.1",
         crimeCommonsClasses   : "4.7.1",
         commonsModSchemas     : "1.32.0",
-        springDocWebMVCVersion: "2.5.0",
-        resilience4jVersion   : "2.2.0",
+        springdoc             : "2.8.6",
+        resilience4j          : "2.3.0",
         wiremock              : "3.10.0"
 ]
 
@@ -56,8 +56,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
 
-    implementation "io.github.resilience4j:resilience4j-reactor:$versions.resilience4jVersion"
-    implementation "io.github.resilience4j:resilience4j-spring-boot3:$versions.resilience4jVersion"
+    implementation "io.github.resilience4j:resilience4j-reactor:$versions.resilience4j"
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:$versions.resilience4j"
 
     implementation "org.postgresql:postgresql"
     implementation "org.liquibase:liquibase-core"
@@ -66,7 +66,7 @@ dependencies {
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "io.micrometer:micrometer-tracing-bridge-brave"
 
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springDocWebMVCVersion"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springdoc"
 
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
@@ -74,7 +74,7 @@ dependencies {
     testImplementation "com.h2database:h2"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.security:spring-security-test"
-    testImplementation "org.wiremock.integrations:wiremock-spring-boot:${versions.wiremock}"
+    testImplementation "org.wiremock.integrations:wiremock-spring-boot:$versions.wiremock"
 
     testCompileOnly "org.projectlombok:lombok"
     testAnnotationProcessor "org.projectlombok:lombok"
