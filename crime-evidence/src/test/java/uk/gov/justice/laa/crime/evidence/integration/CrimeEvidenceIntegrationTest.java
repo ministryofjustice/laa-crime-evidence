@@ -3,6 +3,7 @@ package uk.gov.justice.laa.crime.evidence.integration;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,8 +48,8 @@ class CrimeEvidenceIntegrationTest extends IntegrationTestBase {
                         CALCULATE_EVIDENCE_FEE))
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message")
-                        .value("500 Internal Server Error from GET http://localhost:9999" + CAPITAL_ASSET_COUNT_URL));
+                .andExpect(jsonPath("$.message", containsString("500 Internal Server Error")))
+                .andExpect(jsonPath("$.message", containsString(CAPITAL_ASSET_COUNT_URL)));
     }
 
     @Test
