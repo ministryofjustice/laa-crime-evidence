@@ -1,9 +1,9 @@
 plugins {
     id "java"
     id "jacoco"
-    id "org.springframework.boot" version "3.3.5"
+    id "org.springframework.boot" version "3.5.0"
     id 'io.spring.dependency-management' version '1.1.4'
-    id "org.sonarqube" version "4.4.1.3373"
+    id "org.sonarqube" version "6.2.0.5505"
     id "info.solidsoft.pitest" version "1.15.0"
 }
 
@@ -14,16 +14,12 @@ jacoco {
 }
 
 def versions = [
-        pitest                : "1.16.0",
-        crimeCommonsClasses   : "4.6.0",
+        sentry                : "8.11.1",
+        crimeCommonsClasses   : "4.10.0",
         commonsModSchemas     : "1.32.0",
-        wmStubRunnerVersion   : "4.1.2",
-        springDocWebMVCVersion: "2.5.0",
-        resilience4jVersion   : "2.2.0",
-        postgresqlVersion     : "42.7.2",
-        tomcatEmbedCoreVersion: "10.1.39",
-        oauth2ResourceServer  : "3.4.1",
-        securityCrypto        : "6.4.4"
+        springdoc             : "2.8.6",
+        resilience4j          : "2.3.0",
+        wiremock              : "3.10.0"
 ]
 
 java {
@@ -39,51 +35,52 @@ configurations {
 repositories {
     mavenCentral()
     maven {
-        url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+        url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
     }
 }
 
 dependencies {
+
+    implementation platform("io.sentry:sentry-bom:${versions.sentry}")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta")
+    implementation("io.sentry:sentry-logback")
+
     implementation "uk.gov.justice.service.laa-crime:crime-commons-classes:$versions.crimeCommonsClasses"
     implementation "uk.gov.justice.service.laa-crime:crime-commons-mod-schemas:$versions.commonsModSchemas"
-
-    implementation "org.apache.tomcat.embed:tomcat-embed-core:$versions.tomcatEmbedCoreVersion"
 
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-webflux"
-    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server:$versions.oauth2ResourceServer"
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
-    implementation "org.springframework.security:spring-security-crypto:$versions.securityCrypto"
 
-    implementation "io.github.resilience4j:resilience4j-reactor:$versions.resilience4jVersion"
-    implementation "io.github.resilience4j:resilience4j-spring-boot3:$versions.resilience4jVersion"
+    implementation "io.github.resilience4j:resilience4j-reactor:$versions.resilience4j"
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:$versions.resilience4j"
 
-    implementation "org.postgresql:postgresql:$versions.postgresqlVersion"
+    implementation "org.postgresql:postgresql"
     implementation "org.liquibase:liquibase-core"
 
-    implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "io.micrometer:micrometer-tracing"
+    implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "io.micrometer:micrometer-tracing-bridge-brave"
 
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springDocWebMVCVersion"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$versions.springdoc"
 
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
 
     testImplementation "com.h2database:h2"
-    testImplementation "org.pitest:pitest:$versions.pitest"
-    testImplementation "org.springframework.security:spring-security-test"
-    testImplementation "org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$versions.wmStubRunnerVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.wiremock.integrations:wiremock-spring-boot:$versions.wiremock"
 
     testCompileOnly "org.projectlombok:lombok"
     testAnnotationProcessor "org.projectlombok:lombok"
 }
 
 configurations {
-    all {
+    configureEach {
         exclude group: 'junit', module: 'junit'
     }
 }
@@ -111,19 +108,31 @@ jacocoTestReport {
 }
 
 pitest {
-    targetClasses = ["uk.gov.justice.laa.crime.evidence.*", "uk.gov.justice.laa.crime.evidence.controller.*", "uk.gov.justice.laa.crime.evidence.validation.*"]
-    excludedClasses = ["uk.gov.justice.laa.crime.evidence.dto.*", "uk.gov.justice.laa.crime.evidence.mapper.*", "uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication"]
+    targetClasses = ["uk.gov.justice.laa.crime.evidence.*",
+                     "uk.gov.justice.laa.crime.evidence.controller.*",
+                     "uk.gov.justice.laa.crime.evidence.validation.*"
+    ]
+    excludedClasses = ["uk.gov.justice.laa.crime.evidence.dto.*",
+                       "uk.gov.justice.laa.crime.evidence.mapper.*",
+                       "uk.gov.justice.laa.crime.evidence.CrimeEvidenceApplication"
+    ]
     threads = 5
     outputFormats = ["XML", "HTML"]
     timestampedReports = false
     mutationThreshold = 60
 }
 
-tasks.named("sonarqube") {
-    it.dependsOn "test"
+
+def isCiBuild = System.getenv("SONAR_TOKEN") != null
+
+if (isCiBuild) {
+    tasks.named("sonar") {
+        dependsOn "test"
+    }
 }
 
-sonarqube {
+sonar {
+    skipProject = !isCiBuild
     properties {
         property "sonar.exclusions", "**/entity/**.java , **/model/**.java , **/dto/**.java , **/config/**.java, **/jms/**.java,**/exception/**.java,**/handler/**.java"
         property "sonar.coverage.exclusions", "**/CrimeEvidenceApplication.java"
