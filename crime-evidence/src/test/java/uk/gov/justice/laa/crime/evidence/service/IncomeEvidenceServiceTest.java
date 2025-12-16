@@ -136,7 +136,7 @@ class IncomeEvidenceServiceTest {
                 EmploymentStatus.EMPLOYED_CASH,
                 BigDecimal.ZERO);
 
-        assertThat(result.getMinimumEvidenceItemsRequired()).isEqualTo(0);
+        assertThat(result.getMinimumEvidenceItemsRequired()).isZero();
         assertThat(result.isEvidenceReceived()).isTrue();
     }
 
@@ -163,7 +163,7 @@ class IncomeEvidenceServiceTest {
                 EmploymentStatus.EMPLOYED_CASH,
                 BigDecimal.ZERO);
 
-        assertThat(result.getMinimumEvidenceItemsRequired()).isEqualTo(0);
+        assertThat(result.getMinimumEvidenceItemsRequired()).isZero();
         assertThat(result.isEvidenceReceived()).isTrue();
     }
 
