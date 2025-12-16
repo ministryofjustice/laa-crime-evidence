@@ -1,9 +1,9 @@
 package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
+import org.junit.jupiter.api.Test;
 
 class IncomeEvidenceTest {
 
@@ -14,9 +14,8 @@ class IncomeEvidenceTest {
 
     @Test
     void givenAInValidValue_whenGetFromIsInvoked_thenReturnsException() {
-        assertThatThrownBy(
-                () -> IncomeEvidence.getFrom("MOCK_RESULT_STRING")
-        ).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> IncomeEvidence.getFrom("MOCK_RESULT_STRING"))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -31,4 +30,3 @@ class IncomeEvidenceTest {
         assertThat(result).isEqualTo(IncomeEvidence.SIGNATURE);
     }
 }
-

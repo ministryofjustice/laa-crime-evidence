@@ -1,15 +1,16 @@
 package uk.gov.justice.laa.crime.evidence.repository;
 
+import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredEntity;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import uk.gov.justice.laa.crime.evidence.staticdata.entity.IncomeEvidenceRequiredEntity;
 
 @Repository
 public interface IncomeEvidenceRequiredRepository extends CrudRepository<IncomeEvidenceRequiredEntity, String> {
     @Query(
-        value =
-            """
+            value =
+                    """
                 select *
                 from   crime_evidence.income_evidence_required i
                 where  mcoo_outcome = ?1
@@ -26,6 +27,11 @@ public interface IncomeEvidenceRequiredRepository extends CrudRepository<IncomeE
                                       and  i2.ANNUAL_PENSION_AMOUNT <= COALESCE(?5,0)
                                       and i2.ANNUAL_PENSION_AMOUNT   > I.ANNUAL_PENSION_AMOUNT)
             """,
-        nativeQuery = true)
-    IncomeEvidenceRequiredEntity getNumberOfEvidenceItemsRequired(String mcooOutcome, String applicantEmstCode, String partnerEmstCode, String applicantPartner, Double annualPensionAmount);
+            nativeQuery = true)
+    IncomeEvidenceRequiredEntity getNumberOfEvidenceItemsRequired(
+            String mcooOutcome,
+            String applicantEmstCode,
+            String partnerEmstCode,
+            String applicantPartner,
+            Double annualPensionAmount);
 }

@@ -1,13 +1,7 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpMethod;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
@@ -15,7 +9,15 @@ import uk.gov.justice.laa.crime.evidence.service.IncomeEvidenceService;
 import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(IncomeEvidenceController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -101,6 +103,6 @@ class IncomeEvidenceControllerTest {
         request.setPartnerEvidenceItems(TestModelDataBuilder.getApiIncomeEvidenceItems());
         String content = objectMapper.writeValueAsString(request);
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.PUT, content, ENDPOINT_URL))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 }

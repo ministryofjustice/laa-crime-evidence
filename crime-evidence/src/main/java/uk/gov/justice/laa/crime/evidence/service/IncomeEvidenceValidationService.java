@@ -2,8 +2,6 @@ package uk.gov.justice.laa.crime.evidence.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.enums.evidence.IncomeEvidenceType;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
@@ -12,13 +10,15 @@ import uk.gov.justice.laa.crime.evidence.exception.CrimeEvidenceDataException;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class IncomeEvidenceValidationService {
-    private static final List<IncomeEvidenceType> EXTRA_EVIDENCES = List.of(IncomeEvidenceType.OTHER,
-            IncomeEvidenceType.OTHER_ADHOC,
-            IncomeEvidenceType.OTHER_BUSINESS);
+    private static final List<IncomeEvidenceType> EXTRA_EVIDENCES =
+            List.of(IncomeEvidenceType.OTHER, IncomeEvidenceType.OTHER_ADHOC, IncomeEvidenceType.OTHER_BUSINESS);
     public static final String MISSING_OTHER_EVIDENCE_DESCRIPTION =
             "When other evidence is requested, you must provide descriptive text.";
     public static final String CANNOT_SET_UPLIFT_REMOVED_DATE_WHEN_NO_UPLIFT_APPLIED =
@@ -32,7 +32,8 @@ public class IncomeEvidenceValidationService {
     public static final String MUST_SET_UPLIFT_DATE_TO_TODAY = "Must set uplift date to today.";
     public static final String CANNOT_CLEAR_UPLIFT_APPLIED_DATE =
             "Cannot clear uplift applied date. Set uplift removed date instead.";
-    public static final String CANNOT_SET_NEW_UPLIFT_DATE = "Cannot set new uplift date if existing one is not removed.";
+    public static final String CANNOT_SET_NEW_UPLIFT_DATE =
+            "Cannot set new uplift date if existing one is not removed.";
 
     public void checkEvidenceReceivedDate(LocalDate incomeEvidenceReceivedDate, LocalDate applicationReceivedDate) {
         LocalDate currentDate = LocalDate.now();
@@ -41,17 +42,20 @@ public class IncomeEvidenceValidationService {
         }
 
         if (incomeEvidenceReceivedDate != null && incomeEvidenceReceivedDate.isBefore(applicationReceivedDate)) {
-            throw new CrimeEvidenceDataException("Income evidence received date cannot be before application date received");
+            throw new CrimeEvidenceDataException(
+                    "Income evidence received date cannot be before application date received");
         }
     }
 
-    public void checkEvidenceDueDates(LocalDate evidenceDueDate, LocalDate existingEvidenceDueDate, boolean evidencePending) {
+    public void checkEvidenceDueDates(
+            LocalDate evidenceDueDate, LocalDate existingEvidenceDueDate, boolean evidencePending) {
         LocalDate currentDate = LocalDate.now();
         if (evidenceDueDate == null && existingEvidenceDueDate != null && evidencePending) {
             throw new CrimeEvidenceDataException("Evidence due date cannot be null");
         }
 
-        if (evidenceDueDate != null && evidenceDueDate.isBefore(currentDate)
+        if (evidenceDueDate != null
+                && evidenceDueDate.isBefore(currentDate)
                 && (!evidenceDueDate.equals(existingEvidenceDueDate))) {
             throw new CrimeEvidenceDataException("Cannot set due date in the past.");
         }
@@ -61,11 +65,10 @@ public class IncomeEvidenceValidationService {
         incomeEvidences.stream()
                 .filter(apiIncomeEvidence -> EXTRA_EVIDENCES.contains(apiIncomeEvidence.getEvidenceType()))
                 .forEach(apiIncomeEvidence -> {
-                            if (StringUtils.isBlank(apiIncomeEvidence.getDescription())) {
-                                throw new CrimeEvidenceDataException(MISSING_OTHER_EVIDENCE_DESCRIPTION);
-                            }
-                        }
-                );
+                    if (StringUtils.isBlank(apiIncomeEvidence.getDescription())) {
+                        throw new CrimeEvidenceDataException(MISSING_OTHER_EVIDENCE_DESCRIPTION);
+                    }
+                });
     }
 
     public void validateUpliftDates(UpdateEvidenceDTO updateEvidenceDTO, boolean allEvidenceReceived) {
@@ -79,7 +82,8 @@ public class IncomeEvidenceValidationService {
         validateUpliftAppliedDate(allEvidenceReceived, upliftAppliedDate, oldUpliftAppliedDate, oldUpliftRemovedDate);
     }
 
-    private static void validateUpliftRemovedDate(LocalDate upliftRemovedDate, LocalDate oldUpliftAppliedDate, LocalDate oldUpliftRemovedDate) {
+    private static void validateUpliftRemovedDate(
+            LocalDate upliftRemovedDate, LocalDate oldUpliftAppliedDate, LocalDate oldUpliftRemovedDate) {
         if (upliftRemovedDate != null) {
             if (oldUpliftAppliedDate == null) {
                 throw new CrimeEvidenceDataException(CANNOT_SET_UPLIFT_REMOVED_DATE_WHEN_NO_UPLIFT_APPLIED);
@@ -99,7 +103,11 @@ public class IncomeEvidenceValidationService {
         }
     }
 
-    private static void validateUpliftAppliedDate(boolean allEvidenceReceived, LocalDate upliftAppliedDate, LocalDate oldUpliftAppliedDate, LocalDate oldUpliftRemovedDate) {
+    private static void validateUpliftAppliedDate(
+            boolean allEvidenceReceived,
+            LocalDate upliftAppliedDate,
+            LocalDate oldUpliftAppliedDate,
+            LocalDate oldUpliftRemovedDate) {
         if (upliftAppliedDate != null) {
             if (oldUpliftAppliedDate == null && allEvidenceReceived) {
                 throw new CrimeEvidenceDataException(CANNOT_APPLY_UPLIFT_IF_NO_OUTSTANDING_EVIDENCE_REQUIRED);
@@ -119,5 +127,4 @@ public class IncomeEvidenceValidationService {
             }
         }
     }
-
 }

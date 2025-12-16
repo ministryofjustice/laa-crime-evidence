@@ -1,5 +1,15 @@
 package uk.gov.justice.laa.crime.evidence.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
+import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
+import uk.gov.justice.laa.crime.evidence.common.Constants;
+import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
+import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -8,15 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
-import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
-import uk.gov.justice.laa.crime.evidence.common.Constants;
-import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SoftAssertionsExtension.class)
@@ -34,15 +35,13 @@ class EvidenceServiceTest {
     @Test
     void givenValidCrimeEvidence_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
-        when(maatCourtDataService.getCapitalAssetCount(anyInt()))
-                .thenReturn(2);
+        when(maatCourtDataService.getCapitalAssetCount(anyInt())).thenReturn(2);
         ApiCalculateEvidenceFeeResponse response = evidenceService.calculateEvidenceFee(requestDTO);
 
         softly.assertThat(response.getEvidenceFee().getDescription())
                 .isEqualTo(EvidenceFeeLevel.LEVEL1.getDescription());
 
-        softly.assertThat(response.getEvidenceFee().getFeeLevel())
-                .isEqualTo(EvidenceFeeLevel.LEVEL1.getFeeLevel());
+        softly.assertThat(response.getEvidenceFee().getFeeLevel()).isEqualTo(EvidenceFeeLevel.LEVEL1.getFeeLevel());
         softly.assertAll();
     }
 
@@ -56,7 +55,8 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void givenCrimeEvidenceWithNoCapitalEvidenceReceivedDate_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
+    void
+            givenCrimeEvidenceWithNoCapitalEvidenceReceivedDate_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
         requestDTO.setCapitalEvidenceReceivedDate(null);
         ApiCalculateEvidenceFeeResponse response = evidenceService.calculateEvidenceFee(requestDTO);
@@ -65,7 +65,8 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void givenCrimeEvidenceWithNoIncomeEvidenceReceivedDate_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
+    void
+            givenCrimeEvidenceWithNoIncomeEvidenceReceivedDate_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
         requestDTO.setIncomeEvidenceReceivedDate(null);
         ApiCalculateEvidenceFeeResponse response = evidenceService.calculateEvidenceFee(requestDTO);

@@ -1,10 +1,16 @@
 package uk.gov.justice.laa.crime.evidence.data.builder;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import org.springframework.stereotype.Component;
 import uk.gov.justice.laa.crime.common.model.common.ApiUserSession;
-import uk.gov.justice.laa.crime.common.model.evidence.*;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiApplicantDetails;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCapitalEvidence;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceRequest;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceMetadata;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 import uk.gov.justice.laa.crime.enums.MagCourtOutcome;
@@ -14,22 +20,24 @@ import uk.gov.justice.laa.crime.evidence.dto.CapitalEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CreateEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeDTO;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import uk.gov.justice.laa.crime.evidence.dto.UpdateEvidenceDTO;
 import uk.gov.justice.laa.crime.util.DateUtil;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class TestModelDataBuilder {
 
     public static final Integer TEST_REP_ID = 91919;
-    public static final LocalDateTime CAPITAL_EVIDENCE_RECEIVED_DATE =
-            LocalDateTime.of(2023, 3, 9, 15, 1, 25);
-    public static final LocalDateTime INCOME_EVIDENCE_RECEIVED_DATE =
-            LocalDateTime.of(2023, 2, 19, 15, 1, 25);
+    public static final LocalDateTime CAPITAL_EVIDENCE_RECEIVED_DATE = LocalDateTime.of(2023, 3, 9, 15, 1, 25);
+    public static final LocalDateTime INCOME_EVIDENCE_RECEIVED_DATE = LocalDateTime.of(2023, 2, 19, 15, 1, 25);
 
     public static final String MSG_COURT_OUTCOME = "SENT FOR TRIAL";
 
@@ -52,8 +60,7 @@ public class TestModelDataBuilder {
     }
 
     public static ApiCalculateEvidenceFeeResponse getApiCalculateEvidenceFeeResponse() {
-        return new ApiCalculateEvidenceFeeResponse()
-                .withEvidenceFee(getApiEvidenceFee());
+        return new ApiCalculateEvidenceFeeResponse().withEvidenceFee(getApiEvidenceFee());
     }
 
     public static ApiEvidenceFee getApiEvidenceFee() {
@@ -63,8 +70,11 @@ public class TestModelDataBuilder {
     }
 
     public static List<ApiCapitalEvidence> getApiCapitalEvidenceList() {
-        return List.of(new ApiCapitalEvidence().withEvidenceType("MOCK_TEST").withDateReceived(CAPITAL_EVIDENCE_RECEIVED_DATE),
-                new ApiCapitalEvidence().withEvidenceType("MOCK_TEST1").withDateReceived(INCOME_EVIDENCE_RECEIVED_DATE));
+        return List.of(
+                new ApiCapitalEvidence().withEvidenceType("MOCK_TEST").withDateReceived(CAPITAL_EVIDENCE_RECEIVED_DATE),
+                new ApiCapitalEvidence()
+                        .withEvidenceType("MOCK_TEST1")
+                        .withDateReceived(INCOME_EVIDENCE_RECEIVED_DATE));
     }
 
     public static ApiCalculateEvidenceFeeRequest getApiCalculateEvidenceFeeInvalidRequest() {
@@ -84,9 +94,7 @@ public class TestModelDataBuilder {
     }
 
     public static ApiApplicantDetails getApiApplicantDetails() {
-        return new ApiApplicantDetails()
-                .withId(APPLICANT_ID)
-                .withEmploymentStatus(EmploymentStatus.EMPLOY);
+        return new ApiApplicantDetails().withId(APPLICANT_ID).withEmploymentStatus(EmploymentStatus.EMPLOY);
     }
 
     public static ApiApplicantDetails getApiPartnerDetails() {
@@ -112,16 +120,12 @@ public class TestModelDataBuilder {
     public static ApiIncomeEvidenceItems getApiIncomeEvidenceItems() {
         return new ApiIncomeEvidenceItems()
                 .withApplicantDetails(getApiApplicantDetails())
-                .withIncomeEvidenceItems(
-                        List.of(
-                                new ApiIncomeEvidence()
-                                        .withId(9315)
-                                        .withDescription("mock evidence item")
-                                        .withMandatory(true)
-                                        .withEvidenceType(IncomeEvidenceType.WAGE_SLIP)
-                                        .withDateReceived(EVIDENCE_RECEIVED_DATE)
-                                )
-                );
+                .withIncomeEvidenceItems(List.of(new ApiIncomeEvidence()
+                        .withId(9315)
+                        .withDescription("mock evidence item")
+                        .withMandatory(true)
+                        .withEvidenceType(IncomeEvidenceType.WAGE_SLIP)
+                        .withDateReceived(EVIDENCE_RECEIVED_DATE)));
     }
 
     public static ApiUpdateIncomeEvidenceRequest getApiUpdateIncomeEvidenceRequest() {
@@ -136,12 +140,12 @@ public class TestModelDataBuilder {
                 .repId(TEST_REP_ID)
                 .magCourtOutcome(Constants.SENT_FOR_TRIAL)
                 .evidenceFee(EvidenceFeeDTO.builder().build())
-                .capitalEvidence(List.of(CapitalEvidenceDTO.builder()
-                        .evidenceType("")
-                        .build(), CapitalEvidenceDTO.builder()
-                        .evidenceType("")
-                        .dateReceived(LocalDateTime.of(2023, 3, 3, 12, 12, 12))
-                        .build()))
+                .capitalEvidence(List.of(
+                        CapitalEvidenceDTO.builder().evidenceType("").build(),
+                        CapitalEvidenceDTO.builder()
+                                .evidenceType("")
+                                .dateReceived(LocalDateTime.of(2023, 3, 3, 12, 12, 12))
+                                .build()))
                 .capitalEvidenceReceivedDate(CAPITAL_EVIDENCE_RECEIVED_DATE)
                 .incomeEvidenceReceivedDate(INCOME_EVIDENCE_RECEIVED_DATE)
                 .emstCode("SELF")
@@ -161,38 +165,37 @@ public class TestModelDataBuilder {
 
     public static UpdateEvidenceDTO getUpdateEvidenceRequest() {
         return UpdateEvidenceDTO.builder()
-            .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
-            .applicantIncomeEvidenceItems(Collections.emptyList())
-            .partnerIncomeEvidenceItems(Collections.emptyList())
-            .build();
+                .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+                .applicantIncomeEvidenceItems(Collections.emptyList())
+                .partnerIncomeEvidenceItems(Collections.emptyList())
+                .build();
     }
 
     public static UpdateEvidenceDTO getUpdateEvidenceRequest(
-        LocalDate applicationReceivedDate,
-        ApiApplicantDetails applicantDetails,
-        List<ApiIncomeEvidence> applicantEvidenceItems,
-        boolean evidencePending,
-        LocalDate evidenceDueDate,
-        LocalDate evidenceReceivedDate,
-        LocalDate previousEvidenceDueDate
-    ) {
+            LocalDate applicationReceivedDate,
+            ApiApplicantDetails applicantDetails,
+            List<ApiIncomeEvidence> applicantEvidenceItems,
+            boolean evidencePending,
+            LocalDate evidenceDueDate,
+            LocalDate evidenceReceivedDate,
+            LocalDate previousEvidenceDueDate) {
         if (applicantEvidenceItems == null) {
             applicantEvidenceItems = Collections.emptyList();
         }
 
         return UpdateEvidenceDTO.builder()
-            .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
-            .applicantIncomeEvidenceItems(applicantEvidenceItems)
-            .applicantDetails(applicantDetails)
-            .applicationReceivedDate(applicationReceivedDate)
-            .evidencePending(evidencePending)
-            .evidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate))
-            .evidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceReceivedDate))
-            .previousEvidenceDueDate(DateUtil.convertDateToDateTime(previousEvidenceDueDate))
-            .partnerIncomeEvidenceItems(Collections.emptyList())
-            .partnerPensionAmount(BigDecimal.ZERO)
-            .applicantPensionAmount(BigDecimal.ZERO)
-            .build();
+                .magCourtOutcome(MagCourtOutcome.SENT_FOR_TRIAL)
+                .applicantIncomeEvidenceItems(applicantEvidenceItems)
+                .applicantDetails(applicantDetails)
+                .applicationReceivedDate(applicationReceivedDate)
+                .evidencePending(evidencePending)
+                .evidenceDueDate(DateUtil.convertDateToDateTime(evidenceDueDate))
+                .evidenceReceivedDate(DateUtil.convertDateToDateTime(evidenceReceivedDate))
+                .previousEvidenceDueDate(DateUtil.convertDateToDateTime(previousEvidenceDueDate))
+                .partnerIncomeEvidenceItems(Collections.emptyList())
+                .partnerPensionAmount(BigDecimal.ZERO)
+                .applicantPensionAmount(BigDecimal.ZERO)
+                .build();
     }
 
     public static ApiIncomeEvidence getIncomeEvidence(IncomeEvidenceType incomeEvidenceType) {
