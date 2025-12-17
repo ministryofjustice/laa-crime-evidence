@@ -136,6 +136,7 @@ jobs:
     steps:
       - checkout:
           path: ~/laa-crime-evidence
+          method: full
       - restore_cache:
           key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:

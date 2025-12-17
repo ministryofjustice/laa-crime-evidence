@@ -1,14 +1,16 @@
 package uk.gov.justice.laa.crime.evidence.staticdata.enums;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 
 import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 
 /**
  * static data migrated from TOGDATA.EVIDENCE_FEE_RULES table
@@ -17,7 +19,6 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public enum EvidenceFeeRules {
-
     SELF_CASH("SELF-CASH", "Y", "Y", 0, null, EvidenceFeeLevel.LEVEL1),
     SELF_SOT("SELF-SOT", "Y", "Y", 0, null, EvidenceFeeLevel.LEVEL1),
     SELF("SELF", "Y", "Y", 0, null, EvidenceFeeLevel.LEVEL1),
@@ -30,9 +31,9 @@ public enum EvidenceFeeRules {
     NONPASS_LEVEL2("NONPASS", "Y", "Y", 1, 4, EvidenceFeeLevel.LEVEL2),
     NONPASS_LEVEL1("NONPASS", "Y", "Y", 5, null, EvidenceFeeLevel.LEVEL1);
 
-
     @JsonPropertyDescription("Specifies the Evidence Fee Rules")
     private final String emstCode;
+
     private final String allIncomeEvidenceReceived;
     private final String allCapitalEvidenceReceived;
     private final Integer capitalEvidenceItemsLower;
@@ -44,22 +45,26 @@ public enum EvidenceFeeRules {
 
         return Stream.of(EvidenceFeeRules.values())
                 .filter(f -> isEquals(f, evidenceFeeRulesDTO))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private static boolean validateEvidenceFeeRulesDTO(EvidenceFeeRulesDTO evidenceFeeRulesDTO) {
-        return evidenceFeeRulesDTO == null || (
-                StringUtils.isBlank(evidenceFeeRulesDTO.getEmstCode()) ||
-                        StringUtils.isBlank(evidenceFeeRulesDTO.getAllIncomeEvidenceReceived()) ||
-                        StringUtils.isBlank(evidenceFeeRulesDTO.getAllCapitalEvidenceReceived()) ||
-                        evidenceFeeRulesDTO.getCapitalEvidenceItemsLower() == null);
+        return evidenceFeeRulesDTO == null
+                || (StringUtils.isBlank(evidenceFeeRulesDTO.getEmstCode())
+                        || StringUtils.isBlank(evidenceFeeRulesDTO.getAllIncomeEvidenceReceived())
+                        || StringUtils.isBlank(evidenceFeeRulesDTO.getAllCapitalEvidenceReceived())
+                        || evidenceFeeRulesDTO.getCapitalEvidenceItemsLower() == null);
     }
 
     private static boolean isEquals(EvidenceFeeRules evidenceFeeRules, EvidenceFeeRulesDTO evidenceFeeRulesDTO) {
-        return evidenceFeeRules.emstCode.equals(evidenceFeeRulesDTO.getEmstCode()) &&
-                evidenceFeeRules.allIncomeEvidenceReceived.equals(evidenceFeeRulesDTO.getAllIncomeEvidenceReceived()) &&
-                evidenceFeeRules.allCapitalEvidenceReceived.equals(evidenceFeeRulesDTO.getAllCapitalEvidenceReceived()) &&
-                evidenceFeeRules.capitalEvidenceItemsLower <= evidenceFeeRulesDTO.getCapitalEvidenceItemsLower() &&
-                (evidenceFeeRules.capitalEvidenceItemsUpper == null || evidenceFeeRules.capitalEvidenceItemsUpper >= evidenceFeeRulesDTO.getCapitalEvidenceItemsUpper());
+        return evidenceFeeRules.emstCode.equals(evidenceFeeRulesDTO.getEmstCode())
+                && evidenceFeeRules.allIncomeEvidenceReceived.equals(evidenceFeeRulesDTO.getAllIncomeEvidenceReceived())
+                && evidenceFeeRules.allCapitalEvidenceReceived.equals(
+                        evidenceFeeRulesDTO.getAllCapitalEvidenceReceived())
+                && evidenceFeeRules.capitalEvidenceItemsLower <= evidenceFeeRulesDTO.getCapitalEvidenceItemsLower()
+                && (evidenceFeeRules.capitalEvidenceItemsUpper == null
+                        || evidenceFeeRules.capitalEvidenceItemsUpper
+                                >= evidenceFeeRulesDTO.getCapitalEvidenceItemsUpper());
     }
 }

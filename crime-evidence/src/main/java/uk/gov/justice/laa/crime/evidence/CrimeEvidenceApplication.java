@@ -1,11 +1,12 @@
 package uk.gov.justice.laa.crime.evidence;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Hooks;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import reactor.core.publisher.Hooks;
 
 @Slf4j
 @SpringBootApplication

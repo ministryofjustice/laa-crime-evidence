@@ -1,6 +1,17 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
+import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
+import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
+import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
+import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,17 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
-import uk.gov.justice.laa.crime.evidence.service.EvidenceService;
-import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
-import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(CrimeEvidenceController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -54,25 +56,24 @@ class CrimeEvidenceControllerTest {
 
     @Test
     void givenInvalidRequest_whenCalculateEvidenceFeeIsInvoked_thenBadRequestResponseIsReturned() throws Exception {
-        String content = objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeInvalidRequest());
+        String content =
+                objectMapper.writeValueAsString(TestModelDataBuilder.getApiCalculateEvidenceFeeInvalidRequest());
         mvc.perform(RequestBuilderUtils.buildRequestGivenContent(HttpMethod.POST, content, ENDPOINT_URL))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
     void givenValidRequest_whenCalculateEvidenceFeeIsInvoked_thenOkResponseIsReturned() throws Exception {
-        var apiCalculateEvidenceFeeRequest =
-                TestModelDataBuilder.getApiCalculateEvidenceFeeRequest(true);
+        var apiCalculateEvidenceFeeRequest = TestModelDataBuilder.getApiCalculateEvidenceFeeRequest(true);
         var calculateEvidenceFeeRequestJson = objectMapper.writeValueAsString(apiCalculateEvidenceFeeRequest);
-        var calculateEvidenceFeeResponse =
-                TestModelDataBuilder.getApiCalculateEvidenceFeeResponse();
+        var calculateEvidenceFeeResponse = TestModelDataBuilder.getApiCalculateEvidenceFeeResponse();
 
         when(evidenceService.calculateEvidenceFee(any(CrimeEvidenceDTO.class)))
                 .thenReturn(calculateEvidenceFeeResponse);
 
         MvcResult result = mvc.perform(RequestBuilderUtils.buildRequestGivenContent(
-                        HttpMethod.POST, calculateEvidenceFeeRequestJson, ENDPOINT_URL)
-                ).andExpect(status().isOk())
+                        HttpMethod.POST, calculateEvidenceFeeRequestJson, ENDPOINT_URL))
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
         String expected = objectMapper.writeValueAsString(calculateEvidenceFeeResponse);
