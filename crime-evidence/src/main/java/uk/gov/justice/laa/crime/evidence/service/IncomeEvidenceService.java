@@ -132,8 +132,7 @@ public class IncomeEvidenceService {
     public ApiCreateIncomeEvidenceResponse createEvidence(CreateEvidenceDTO createEvidenceDTO) {
 
         List<ApiIncomeEvidence> applicantIncomeEvidenceList = getDefaultEvidenceItems(
-                createEvidenceDTO, ApplicantType.APPLICANT,
-                createEvidenceDTO.getApplicantPensionAmount());
+                createEvidenceDTO, ApplicantType.APPLICANT, createEvidenceDTO.getApplicantPensionAmount());
         ApiCreateIncomeEvidenceResponse apiCreateIncomeEvidenceResponse = new ApiCreateIncomeEvidenceResponse()
                 .withApplicantEvidenceItems(new ApiIncomeEvidenceItems()
                         .withApplicantDetails(createEvidenceDTO.getApplicantDetails())
@@ -141,8 +140,7 @@ public class IncomeEvidenceService {
 
         if (createEvidenceDTO.getPartnerDetails() != null) {
             List<ApiIncomeEvidence> incomeEvidenceList = getDefaultEvidenceItems(
-                    createEvidenceDTO, ApplicantType.PARTNER,
-                    createEvidenceDTO.getPartnerPensionAmount());
+                    createEvidenceDTO, ApplicantType.PARTNER, createEvidenceDTO.getPartnerPensionAmount());
             apiCreateIncomeEvidenceResponse.withPartnerEvidenceItems(new ApiIncomeEvidenceItems()
                     .withIncomeEvidenceItems(incomeEvidenceList)
                     .withApplicantDetails(createEvidenceDTO.getPartnerDetails()));
@@ -180,8 +178,7 @@ public class IncomeEvidenceService {
         return new ArrayList<>();
     }
 
-    private ApiIncomeEvidence buildEvidence(
-            IncomeEvidenceRequiredItemProjection incomeEvidenceRequiredItemProjection) {
+    private ApiIncomeEvidence buildEvidence(IncomeEvidenceRequiredItemProjection incomeEvidenceRequiredItemProjection) {
         return new ApiIncomeEvidence()
                 .withMandatory("Y".equals(incomeEvidenceRequiredItemProjection.getMandatory()))
                 .withEvidenceType(IncomeEvidenceType.getFrom(
@@ -235,11 +232,9 @@ public class IncomeEvidenceService {
                     ApplicantType.PARTNER);
         }
 
-        boolean allEvidenceItemsReceived =
-                applicantEvidenceItemsReceived && partnerEvidenceItemsReceived;
+        boolean allEvidenceItemsReceived = applicantEvidenceItemsReceived && partnerEvidenceItemsReceived;
 
-        incomeEvidenceValidationService.validateUpliftDates(updateEvidenceDTO,
-                allEvidenceItemsReceived);
+        incomeEvidenceValidationService.validateUpliftDates(updateEvidenceDTO, allEvidenceItemsReceived);
 
         updateEvidenceReceivedDate(updateEvidenceDTO, allEvidenceItemsReceived);
         updateEvidenceDueDate(updateEvidenceDTO);
@@ -249,8 +244,7 @@ public class IncomeEvidenceService {
                 .withApplicantEvidenceItems(
                         new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
                 .withDueDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceDueDate()))
-                .withAllEvidenceReceivedDate(
-                        DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()))
+                .withAllEvidenceReceivedDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()))
                 .withUpliftAppliedDate(updateEvidenceDTO.getUpliftAppliedDate())
                 .withUpliftRemovedDate(updateEvidenceDTO.getUpliftRemovedDate());
 
@@ -283,8 +277,7 @@ public class IncomeEvidenceService {
         }
     }
 
-    private void updateEvidenceReceivedDate(UpdateEvidenceDTO updateEvidenceDTO,
-            boolean evidenceReceived) {
+    private void updateEvidenceReceivedDate(UpdateEvidenceDTO updateEvidenceDTO, boolean evidenceReceived) {
         if (evidenceReceived && updateEvidenceDTO.getEvidenceReceivedDate() == null) {
             updateEvidenceDTO.setEvidenceReceivedDate(LocalDateTime.now());
         } else if (!evidenceReceived && updateEvidenceDTO.getEvidenceReceivedDate() != null) {
