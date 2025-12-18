@@ -1,8 +1,12 @@
 package uk.gov.justice.laa.crime.evidence.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import uk.gov.justice.laa.crime.evidence.dto.ErrorDTO;
+import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
+
+import java.io.IOException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -10,10 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import uk.gov.justice.laa.crime.evidence.dto.ErrorDTO;
-import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @RestControllerAdvice
@@ -40,7 +42,8 @@ public class CrimeEvidenceExceptionHandler {
 
     @ExceptionHandler(WebClientRequestException.class)
     public ResponseEntity<ErrorDTO> handleRuntimeException(WebClientRequestException exception) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), traceIdHandler.getTraceId());
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), traceIdHandler.getTraceId());
     }
 
     @ExceptionHandler(CrimeEvidenceDataException.class)
@@ -49,8 +52,15 @@ public class CrimeEvidenceExceptionHandler {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), traceIdHandler.getTraceId());
     }
 
-    private static ResponseEntity<ErrorDTO> buildErrorResponse(HttpStatusCode status, String errorMessage, String traceId) {
+    private static ResponseEntity<ErrorDTO> buildErrorResponse(
+            HttpStatusCode status, String errorMessage, String traceId) {
         log.error("Exception Occurred. Status - {}, Detail - {}, TraceId - {}", status, errorMessage, traceId);
-        return new ResponseEntity<>(ErrorDTO.builder().traceId(traceId).code(status.toString()).message(errorMessage).build(), status);
+        return new ResponseEntity<>(
+                ErrorDTO.builder()
+                        .traceId(traceId)
+                        .code(status.toString())
+                        .message(errorMessage)
+                        .build(),
+                status);
     }
 }

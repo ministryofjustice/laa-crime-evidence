@@ -1,5 +1,12 @@
 package uk.gov.justice.laa.crime.evidence.builder;
 
+import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceRequest;
+import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
+import uk.gov.justice.laa.crime.evidence.dto.CreateEvidenceDTO;
+
+import java.math.BigDecimal;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -7,12 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceRequest;
-import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.dto.CreateEvidenceDTO;
-
-import java.math.BigDecimal;
-import java.util.stream.Stream;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class CreateEvidenceDTOBuilderTest {
@@ -21,23 +22,25 @@ class CreateEvidenceDTOBuilderTest {
 
     public static Stream<Arguments> createIncomeEvidenceRequest() {
         return Stream.of(
-            Arguments.of(new ApiCreateIncomeEvidenceRequest()
-                .withApplicantDetails(TestModelDataBuilder.getApiApplicantDetails())),
-            Arguments.of(new ApiCreateIncomeEvidenceRequest()
-                .withApplicantDetails(TestModelDataBuilder.getApiApplicantDetails())
-                .withApplicantPensionAmount(BigDecimal.ONE)),
-            Arguments.of(new ApiCreateIncomeEvidenceRequest()
-                .withApplicantDetails(TestModelDataBuilder.getApiApplicantDetails())
-                .withPartnerDetails(TestModelDataBuilder.getApiPartnerDetails())
-                .withPartnerPensionAmount(BigDecimal.TEN))
-        );
+                Arguments.of(new ApiCreateIncomeEvidenceRequest()
+                        .withApplicantDetails(TestModelDataBuilder.getApiApplicantDetails())),
+                Arguments.of(new ApiCreateIncomeEvidenceRequest()
+                        .withApplicantDetails(TestModelDataBuilder.getApiApplicantDetails())
+                        .withApplicantPensionAmount(BigDecimal.ONE)),
+                Arguments.of(new ApiCreateIncomeEvidenceRequest()
+                        .withApplicantDetails(TestModelDataBuilder.getApiApplicantDetails())
+                        .withPartnerDetails(TestModelDataBuilder.getApiPartnerDetails())
+                        .withPartnerPensionAmount(BigDecimal.TEN)));
     }
 
     @ParameterizedTest
     @MethodSource("createIncomeEvidenceRequest")
-    void givenCreateIncomeEvidenceRequest_whenBuildIsInvoked_thenCorrectCreateEvidenceDTOFieldsArePopulated(ApiCreateIncomeEvidenceRequest request) {
-        BigDecimal applicantPension = request.getApplicantPensionAmount() != null ? request.getApplicantPensionAmount() : BigDecimal.ZERO;
-        BigDecimal partnerPension = request.getPartnerPensionAmount() != null ? request.getPartnerPensionAmount() : BigDecimal.ZERO;
+    void givenCreateIncomeEvidenceRequest_whenBuildIsInvoked_thenCorrectCreateEvidenceDTOFieldsArePopulated(
+            ApiCreateIncomeEvidenceRequest request) {
+        BigDecimal applicantPension =
+                request.getApplicantPensionAmount() != null ? request.getApplicantPensionAmount() : BigDecimal.ZERO;
+        BigDecimal partnerPension =
+                request.getPartnerPensionAmount() != null ? request.getPartnerPensionAmount() : BigDecimal.ZERO;
         CreateEvidenceDTO createEvidenceDTO = CreateEvidenceDTOBuilder.build(request);
         softly.assertThat(createEvidenceDTO.getMagCourtOutcome()).isEqualTo(request.getMagCourtOutcome());
         softly.assertThat(createEvidenceDTO.getPartnerDetails()).isEqualTo(request.getPartnerDetails());

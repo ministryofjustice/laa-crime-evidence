@@ -2,7 +2,6 @@ package uk.gov.justice.laa.crime.evidence.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
@@ -11,6 +10,8 @@ import uk.gov.justice.laa.crime.evidence.common.Constants;
 import uk.gov.justice.laa.crime.evidence.dto.CrimeEvidenceDTO;
 import uk.gov.justice.laa.crime.evidence.dto.EvidenceFeeRulesDTO;
 import uk.gov.justice.laa.crime.evidence.staticdata.enums.EvidenceFeeRules;
+
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -28,19 +29,27 @@ public class EvidenceService {
         if (isCalcRequired(crimeEvidenceDTO)) {
 
             if (crimeEvidenceDTO.getCapitalEvidence() != null) {
-                capEvidenceCount = crimeEvidenceDTO.getCapitalEvidence().stream().filter(f -> f.getDateReceived() != null).count();
+                capEvidenceCount = crimeEvidenceDTO.getCapitalEvidence().stream()
+                        .filter(f -> f.getDateReceived() != null)
+                        .count();
             }
 
             if (capEvidenceCount != null) {
-                capEvidenceOutstandingCount = crimeEvidenceDTO.getCapitalEvidence().stream().filter(f -> f.getDateReceived() == null).count();
-                capEvidenceCount = maatCourtDataService.getCapitalAssetCount(crimeEvidenceDTO.getRepId()).longValue();
+                capEvidenceOutstandingCount = crimeEvidenceDTO.getCapitalEvidence().stream()
+                        .filter(f -> f.getDateReceived() == null)
+                        .count();
+                capEvidenceCount = maatCourtDataService
+                        .getCapitalAssetCount(crimeEvidenceDTO.getRepId())
+                        .longValue();
             }
 
             if (null != crimeEvidenceDTO.getIncomeEvidenceReceivedDate()) {
                 incomeEvidenceReceived = "Y";
             }
 
-            if (null != crimeEvidenceDTO.getCapitalEvidenceReceivedDate() || capEvidenceCount == null || capEvidenceOutstandingCount == 0) {
+            if (null != crimeEvidenceDTO.getCapitalEvidenceReceivedDate()
+                    || capEvidenceCount == null
+                    || capEvidenceOutstandingCount == 0) {
                 capitalEvidenceReceived = "Y";
             }
 
@@ -49,11 +58,11 @@ public class EvidenceService {
                     capitalEvidenceReceived,
                     incomeEvidenceReceived,
                     capEvidenceCount,
-                    capEvidenceCount
-            );
+                    capEvidenceCount);
             EvidenceFeeRules evidenceFeeRules = EvidenceFeeRules.getFrom(evidenceFeeRulesDTO);
             if (evidenceFeeRules != null) {
-                EvidenceFeeLevel evidenceFeeLevel = EvidenceFeeLevel.getFrom(evidenceFeeRules.getEvidenceFeeLevel().toString());
+                EvidenceFeeLevel evidenceFeeLevel = EvidenceFeeLevel.getFrom(
+                        evidenceFeeRules.getEvidenceFeeLevel().toString());
                 if (evidenceFeeLevel != null) {
                     apiProcessRepOrderResponse.withEvidenceFee(new ApiEvidenceFee()
                             .withFeeLevel(evidenceFeeLevel.getFeeLevel())
@@ -66,8 +75,8 @@ public class EvidenceService {
 
     protected boolean isCalcRequired(CrimeEvidenceDTO crimeEvidenceDTO) {
         return (crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.SENT_FOR_TRIAL)
-                || crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.COMMITTED_FOR_TRIAL)) &&
-                (crimeEvidenceDTO.getEvidenceFee() == null || crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null);
+                        || crimeEvidenceDTO.getMagCourtOutcome().equalsIgnoreCase(Constants.COMMITTED_FOR_TRIAL))
+                && (crimeEvidenceDTO.getEvidenceFee() == null
+                        || crimeEvidenceDTO.getEvidenceFee().getFeeLevel() == null);
     }
-
 }

@@ -2,15 +2,8 @@ package uk.gov.justice.laa.crime.evidence.service;
 
 import static java.util.Collections.emptyList;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
@@ -28,6 +21,15 @@ import uk.gov.justice.laa.crime.evidence.staticdata.enums.ApplicantType;
 import uk.gov.justice.laa.crime.evidence.staticdata.projection.IncomeEvidenceRequiredItemProjection;
 import uk.gov.justice.laa.crime.util.DateUtil;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -43,40 +45,37 @@ public class IncomeEvidenceService {
             EmploymentStatus applicantEmploymentStatus,
             EmploymentStatus partnerEmploymentStatus,
             BigDecimal pensionAmount,
-            ApplicantType applicantType
-    ) {
+            ApplicantType applicantType) {
         EvidenceReceivedResultDTO evidenceReceivedResult = checkMinimumEvidenceItemsReceived(
                 evidenceItems,
                 applicantType,
                 magCourtOutcome,
                 applicantEmploymentStatus,
                 partnerEmploymentStatus,
-                pensionAmount
-        );
+                pensionAmount);
 
         if (!evidenceReceivedResult.isEvidenceReceived()) {
             return false;
         }
 
-        boolean requiredEvidenceOutstanding = isRequiredEvidenceOutstanding(
-                evidenceReceivedResult.getIncomeEvidenceRequiredId(), evidenceItems);
+        boolean requiredEvidenceOutstanding =
+                isRequiredEvidenceOutstanding(evidenceReceivedResult.getIncomeEvidenceRequiredId(), evidenceItems);
 
         return !requiredEvidenceOutstanding;
     }
 
-    public boolean isRequiredEvidenceOutstanding(int incomeEvidenceRequiredId,
-            List<ApiIncomeEvidence> providedEvidenceItems) {
+    public boolean isRequiredEvidenceOutstanding(
+            int incomeEvidenceRequiredId, List<ApiIncomeEvidence> providedEvidenceItems) {
         /*
          Note: The income evidence items passed in are only those items provided. There may be
           many more evidence items required than are passed in, therefore we need to call out to
           find all the required income evidence items first (based on the income evidence
           required id) and then filter down to check that the mandatory items are present.
         */
-        List<IncomeEvidenceRequiredItemProjection> requiredEvidenceItems = incomeEvidenceRequiredItemRepository
-                .findByIncomeEvidenceRequiredId(incomeEvidenceRequiredId)
-                .stream()
-                .filter(item -> "Y".equals(item.getMandatory()))
-                .toList();
+        List<IncomeEvidenceRequiredItemProjection> requiredEvidenceItems =
+                incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(incomeEvidenceRequiredId).stream()
+                        .filter(item -> "Y".equals(item.getMandatory()))
+                        .toList();
 
         if (requiredEvidenceItems.isEmpty()) {
             return false;
@@ -88,7 +87,9 @@ public class IncomeEvidenceService {
 
         for (IncomeEvidenceRequiredItemProjection requiredEvidenceItem : requiredEvidenceItems) {
             Optional<ApiIncomeEvidence> evidenceItem = providedEvidenceItems.stream()
-                    .filter(providedEvidenceItem -> providedEvidenceItem.getEvidenceType().getName()
+                    .filter(providedEvidenceItem -> providedEvidenceItem
+                            .getEvidenceType()
+                            .getName()
                             .equals(requiredEvidenceItem.getIncomeEvidenceRequiredDescription()))
                     .findFirst();
 
@@ -107,21 +108,23 @@ public class IncomeEvidenceService {
             EmploymentStatus applicantEmploymentStatus,
             EmploymentStatus partnerEmploymentStatus,
             BigDecimal pensionAmount) {
-        IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
-                magCourtOutcome.getOutcome(),
-                applicantEmploymentStatus.getCode(),
-                partnerEmploymentStatus != null ? partnerEmploymentStatus.getCode() : null,
-                applicantType.toString(),
-                pensionAmount.doubleValue());
+        IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity =
+                incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
+                        magCourtOutcome.getOutcome(),
+                        applicantEmploymentStatus.getCode(),
+                        partnerEmploymentStatus != null ? partnerEmploymentStatus.getCode() : null,
+                        applicantType.toString(),
+                        pensionAmount.doubleValue());
 
         if (incomeEvidenceRequiredEntity == null) {
             return new EvidenceReceivedResultDTO(true, 0, 0);
         }
 
-        boolean minimumEvidenceItemsReceived = providedEvidenceItems.size()
-                >= incomeEvidenceRequiredEntity.getEvidenceItemsRequired();
+        boolean minimumEvidenceItemsReceived =
+                providedEvidenceItems.size() >= incomeEvidenceRequiredEntity.getEvidenceItemsRequired();
 
-        return new EvidenceReceivedResultDTO(minimumEvidenceItemsReceived,
+        return new EvidenceReceivedResultDTO(
+                minimumEvidenceItemsReceived,
                 incomeEvidenceRequiredEntity.getId(),
                 incomeEvidenceRequiredEntity.getEvidenceItemsRequired());
     }
@@ -148,21 +151,27 @@ public class IncomeEvidenceService {
         return apiCreateIncomeEvidenceResponse;
     }
 
-    private List<ApiIncomeEvidence> getDefaultEvidenceItems(CreateEvidenceDTO createEvidenceDTO,
-            ApplicantType applicantType, BigDecimal pensionAmount) {
-        IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity = incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
-                createEvidenceDTO.getMagCourtOutcome().getOutcome(),
-                createEvidenceDTO.getApplicantDetails().getEmploymentStatus().getCode(),
-                createEvidenceDTO.getPartnerDetails() != null
-                        ? createEvidenceDTO.getPartnerDetails().getEmploymentStatus().getCode()
-                        : null,
-                applicantType.toString(),
-                pensionAmount.doubleValue());
+    private List<ApiIncomeEvidence> getDefaultEvidenceItems(
+            CreateEvidenceDTO createEvidenceDTO, ApplicantType applicantType, BigDecimal pensionAmount) {
+        IncomeEvidenceRequiredEntity incomeEvidenceRequiredEntity =
+                incomeEvidenceRequiredRepository.getNumberOfEvidenceItemsRequired(
+                        createEvidenceDTO.getMagCourtOutcome().getOutcome(),
+                        createEvidenceDTO
+                                .getApplicantDetails()
+                                .getEmploymentStatus()
+                                .getCode(),
+                        createEvidenceDTO.getPartnerDetails() != null
+                                ? createEvidenceDTO
+                                        .getPartnerDetails()
+                                        .getEmploymentStatus()
+                                        .getCode()
+                                : null,
+                        applicantType.toString(),
+                        pensionAmount.doubleValue());
 
-        if (incomeEvidenceRequiredEntity != null
-                && incomeEvidenceRequiredEntity.getEvidenceItemsRequired() > 0) {
-            return incomeEvidenceRequiredItemRepository.findByIncomeEvidenceRequiredId(
-                            incomeEvidenceRequiredEntity.getId())
+        if (incomeEvidenceRequiredEntity != null && incomeEvidenceRequiredEntity.getEvidenceItemsRequired() > 0) {
+            return incomeEvidenceRequiredItemRepository
+                    .findByIncomeEvidenceRequiredId(incomeEvidenceRequiredEntity.getId())
                     .stream()
                     .map(this::buildEvidence)
                     .toList();
@@ -182,7 +191,8 @@ public class IncomeEvidenceService {
     public ApiUpdateIncomeEvidenceResponse updateEvidence(UpdateEvidenceDTO updateEvidenceDTO) {
         List<ApiIncomeEvidence> applicantEvidenceItems = updateEvidenceDTO.getApplicantIncomeEvidenceItems();
         List<ApiIncomeEvidence> partnerEvidenceItems = Optional.ofNullable(
-                updateEvidenceDTO.getPartnerIncomeEvidenceItems()).orElse(emptyList());
+                        updateEvidenceDTO.getPartnerIncomeEvidenceItems())
+                .orElse(emptyList());
 
         if (applicantEvidenceItems.isEmpty() && partnerEvidenceItems.isEmpty()) {
             throw new IllegalArgumentException("No income evidence items provided");
@@ -209,7 +219,8 @@ public class IncomeEvidenceService {
                     updateEvidenceDTO.getMagCourtOutcome(),
                     updateEvidenceDTO.getApplicantDetails().getEmploymentStatus(),
                     updateEvidenceDTO.getPartnerDetails() != null
-                            ? updateEvidenceDTO.getPartnerDetails().getEmploymentStatus() : null,
+                            ? updateEvidenceDTO.getPartnerDetails().getEmploymentStatus()
+                            : null,
                     updateEvidenceDTO.getApplicantPensionAmount(),
                     ApplicantType.APPLICANT);
         }
@@ -236,8 +247,7 @@ public class IncomeEvidenceService {
 
         ApiUpdateIncomeEvidenceResponse response = new ApiUpdateIncomeEvidenceResponse()
                 .withApplicantEvidenceItems(
-                        new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(),
-                                applicantEvidenceItems))
+                        new ApiIncomeEvidenceItems(updateEvidenceDTO.getApplicantDetails(), applicantEvidenceItems))
                 .withDueDate(DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceDueDate()))
                 .withAllEvidenceReceivedDate(
                         DateUtil.parseLocalDate(updateEvidenceDTO.getEvidenceReceivedDate()))
@@ -246,22 +256,20 @@ public class IncomeEvidenceService {
 
         if (!partnerEvidenceItems.isEmpty()) {
             response.setPartnerEvidenceItems(
-                    new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(),
-                            partnerEvidenceItems));
+                    new ApiIncomeEvidenceItems(updateEvidenceDTO.getPartnerDetails(), partnerEvidenceItems));
         }
 
         return response;
     }
 
-    private void updateUpliftRemovedDate(UpdateEvidenceDTO updateEvidenceDTO,
-            boolean allEvidenceItemsReceived) {
-        if (updateEvidenceDTO.getUpliftAppliedDate() != null &&
-                !updateEvidenceDTO.getUpliftAppliedDate()
-                        .equals(updateEvidenceDTO.getOldUpliftAppliedDate())) {
+    private void updateUpliftRemovedDate(UpdateEvidenceDTO updateEvidenceDTO, boolean allEvidenceItemsReceived) {
+        if (updateEvidenceDTO.getUpliftAppliedDate() != null
+                && !updateEvidenceDTO.getUpliftAppliedDate().equals(updateEvidenceDTO.getOldUpliftAppliedDate())) {
             updateEvidenceDTO.setUpliftRemovedDate(null);
         }
 
-        if (allEvidenceItemsReceived && updateEvidenceDTO.getUpliftAppliedDate() != null
+        if (allEvidenceItemsReceived
+                && updateEvidenceDTO.getUpliftAppliedDate() != null
                 && updateEvidenceDTO.getUpliftRemovedDate() == null) {
             updateEvidenceDTO.setUpliftRemovedDate(LocalDate.now());
         }
