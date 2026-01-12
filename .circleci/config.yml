@@ -46,11 +46,6 @@ commands:
     steps:
       - checkout
       - run:
-          name: Decrypt secrets
-          command: |
-            echo "${GIT_CRYPT_KEY}" | base64 -d > git-crypt.key
-            git-crypt unlock git-crypt.key
-      - run:
           name: Authenticate with cluster
           command: |
             echo -n ${K8S_CLUSTER_CERT} | base64 -d > ./ca.crt
@@ -146,7 +141,7 @@ jobs:
           command: ./gradlew clean build
       - run:
           name: Run SonarQube
-          command: ./gradlew sonarqube -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.organization=${SONAR_ORG}
+          command: ./gradlew sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.organization=${SONAR_ORG}
       - save_cache:
           paths:
             - ~/.gradle/wrapper
