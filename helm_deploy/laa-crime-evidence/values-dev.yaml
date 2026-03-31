@@ -49,7 +49,7 @@ ingress:
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/modsecurity-snippet: |
       SecAuditEngine On
-      SecRuleEngine DetectionOnly
+      SecRuleEngine On
       SecDefaultAction "phase:2,pass,log,tag:github_team=laa-crime-apps-team,tag:namespace=laa-crime-evidence-dev"
   externalAnnotations: {}
   hosts:
