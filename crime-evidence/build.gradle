@@ -17,7 +17,7 @@ jacoco {
 def versions = [
         sentry                : "8.23.0",
         crimeCommonsClasses   : "4.10.0",
-        commonsModSchemas     : "1.32.0",
+        commonsModSchemas     : "1.49.0",
         springdoc             : "2.8.13",
         resilience4j          : "2.3.0",
         wiremock              : "3.10.6",
