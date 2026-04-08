@@ -122,17 +122,7 @@ pitest {
     mutationThreshold = 60
 }
 
-
-def isCiBuild = System.getenv("SONAR_TOKEN") != null
-
-if (isCiBuild) {
-    tasks.named("sonar") {
-        dependsOn "test"
-    }
-}
-
 sonar {
-    skipProject = !isCiBuild
     properties {
         property "sonar.exclusions", "**/entity/**.java , **/model/**.java , **/dto/**.java , **/config/**.java, **/jms/**.java,**/exception/**.java,**/handler/**.java"
         property "sonar.coverage.exclusions", "**/CrimeEvidenceApplication.java"
