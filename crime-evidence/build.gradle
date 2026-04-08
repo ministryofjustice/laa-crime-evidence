@@ -15,12 +15,12 @@ jacoco {
 }
 
 def versions = [
-        sentry                : "8.23.0",
-        crimeCommonsClasses   : "4.10.0",
-        commonsModSchemas     : "1.32.0",
-        springdoc             : "2.8.13",
-        resilience4j          : "2.3.0",
-        wiremock              : "3.10.6",
+        sentry                : "8.26.0",
+        crimeCommonsClasses   : "4.33.0",
+        commonsModSchemas     : "1.50.0",
+        springdoc             : "2.8.14",
+        resilience4j          : "2.4.0",
+        wiremock              : "4.0.8",
         liquibase             : "5.0.1"
 ]
 
@@ -45,12 +45,12 @@ repositories {
 dependencies {
 
     // ---- Monitoring & Logging ----
+    implementation platform("io.sentry:sentry-bom:${versions.sentry}")
     implementation("io.sentry:sentry-logback")
     implementation "io.micrometer:micrometer-tracing"
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation("io.sentry:sentry-spring-boot-starter-jakarta")
     implementation "io.micrometer:micrometer-tracing-bridge-brave"
-    implementation platform("io.sentry:sentry-bom:${versions.sentry}")
 
     // ---- Core Application ----
     implementation "org.postgresql:postgresql"
