@@ -5,13 +5,14 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder.getApiPassportEvidenceResponse;
 
+import uk.gov.justice.laa.crime.common.model.evidence.ApiGetPassportEvidenceResponse;
+import uk.gov.justice.laa.crime.evidence.client.MaatCourtDataApiClient;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.laa.crime.common.model.evidence.ApiGetPassportEvidenceResponse;
-import uk.gov.justice.laa.crime.evidence.client.MaatCourtDataApiClient;
 
 @ExtendWith(MockitoExtension.class)
 class PassportedEvidenceServiceTest {
@@ -29,7 +30,8 @@ class PassportedEvidenceServiceTest {
         ApiGetPassportEvidenceResponse expectedResponse = getApiPassportEvidenceResponse();
         when(maatCourtDataApiClient.getPassportedEvidence(anyInt())).thenReturn(expectedResponse);
 
-        ApiGetPassportEvidenceResponse actualResponse = passportedEvidenceService.getPassportedEvidence(PASSPORTED_ASSESSMENT_ID);
+        ApiGetPassportEvidenceResponse actualResponse =
+                passportedEvidenceService.getPassportedEvidence(PASSPORTED_ASSESSMENT_ID);
 
         assertThat(actualResponse).isEqualTo(expectedResponse);
     }

@@ -222,19 +222,19 @@ public class TestModelDataBuilder {
 
     private static ApiPassportEvidenceMetadata getApiPassportEvidenceMetadata() {
         return new ApiPassportEvidenceMetadata()
-            .withEvidenceDueDate(DateUtil.parseLocalDate(DUE_DATE))
-            .withEvidenceReceivedDate(EVIDENCE_RECEIVED_DATE)
-            .withUpliftAppliedDate(null)
-            .withUpliftRemovedDate(null)
-            .withFirstReminderDate(FIRST_REMINDER_DATE)
-            .withSecondReminderDate(null)
-            .withIncomeEvidenceNotes("This is a passported evidence note.");
+                .withEvidenceDueDate(DateUtil.parseLocalDate(DUE_DATE))
+                .withEvidenceReceivedDate(EVIDENCE_RECEIVED_DATE)
+                .withUpliftAppliedDate(null)
+                .withUpliftRemovedDate(null)
+                .withFirstReminderDate(FIRST_REMINDER_DATE)
+                .withSecondReminderDate(null)
+                .withIncomeEvidenceNotes("This is a passported evidence note.");
     }
 
     public static ApiGetPassportEvidenceResponse getApiPassportEvidenceResponse() {
         return new ApiGetPassportEvidenceResponse()
-            .withPassportEvidenceMetadata(getApiPassportEvidenceMetadata())
-            .withApplicantEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)))
-            .withPartnerEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)));
+                .withPassportEvidenceMetadata(getApiPassportEvidenceMetadata())
+                .withApplicantEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)))
+                .withPartnerEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)));
     }
 }

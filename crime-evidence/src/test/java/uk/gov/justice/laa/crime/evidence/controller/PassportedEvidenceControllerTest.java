@@ -1,9 +1,14 @@
 package uk.gov.justice.laa.crime.evidence.controller;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.mockito.Mockito.when;
+
+import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
+import uk.gov.justice.laa.crime.evidence.service.PassportedEvidenceService;
+import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
+import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +18,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.service.PassportedEvidenceService;
-import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
-import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
 @WebMvcTest(controllers = PassportedEvidenceController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -27,26 +28,27 @@ class PassportedEvidenceControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
     @MockitoBean
     private TraceIdHandler traceIdHandler;
+
     @MockitoBean
     private PassportedEvidenceService passportedEvidenceService;
 
     @Test
     void givenValidId_whenFindIsInvoked_thenPassportedEvidenceResponseIsReturned() throws Exception {
         when(passportedEvidenceService.getPassportedEvidence(PASSPORTED_ASSESSMENT_ID))
-            .thenReturn(TestModelDataBuilder.getApiPassportEvidenceResponse());
+                .thenReturn(TestModelDataBuilder.getApiPassportEvidenceResponse());
 
         mvc.perform(RequestBuilderUtils.buildRequest(HttpMethod.GET, ENDPOINT_URL + "/" + PASSPORTED_ASSESSMENT_ID))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.applicantEvidenceItems[0].description").value("mock evidence item"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.applicantEvidenceItems[0].description").value("mock evidence item"));
     }
 
     @Test
     void givenInvalidId_whenFindIsInvoked_thenErrorResponseIsReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequest(HttpMethod.GET, ENDPOINT_URL + "/1NV4L1D"))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
-
 }
