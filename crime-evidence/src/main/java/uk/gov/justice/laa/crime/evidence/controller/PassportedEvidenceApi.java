@@ -14,6 +14,7 @@ public interface PassportedEvidenceApi {
     @Operation(description = "Retrieve Passported Assessment Evidence")
     @ApiResponse(
         responseCode = "200",
+        description = "Passport assessment evidence found",
         content =
             @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,

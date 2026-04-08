@@ -235,6 +235,6 @@ public class TestModelDataBuilder {
         return new ApiGetPassportEvidenceResponse()
             .withPassportEvidenceMetadata(getApiPassportEvidenceMetadata())
             .withApplicantEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)))
-            .withPartnerEvidenceItems(null);
+            .withPartnerEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)));
     }
 }
