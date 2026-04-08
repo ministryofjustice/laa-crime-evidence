@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.laa.crime.common.model.passported.ApiGetPassportedAssessmentResponse;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiGetPassportEvidenceResponse;
 import uk.gov.justice.laa.crime.evidence.service.PassportedEvidenceService;
 
 @RestController
@@ -19,7 +19,7 @@ public class PassportedEvidenceController implements PassportedEvidenceApi {
     private final PassportedEvidenceService passportedEvidenceService;
 
     @GetMapping(path = "/{passportedAssessmentId}")
-    public ResponseEntity<ApiGetPassportedAssessmentResponse> find(@PathVariable int passportedAssessmentId) {
+    public ResponseEntity<ApiGetPassportEvidenceResponse> find(@PathVariable int passportedAssessmentId) {
         return ResponseEntity.ok(passportedEvidenceService.getPassportedEvidence(passportedAssessmentId));
     }
 }

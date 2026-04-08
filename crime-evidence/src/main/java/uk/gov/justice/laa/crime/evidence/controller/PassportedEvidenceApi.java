@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import uk.gov.justice.laa.crime.annotation.DefaultHTTPErrorResponse;
-import uk.gov.justice.laa.crime.common.model.passported.ApiGetPassportedAssessmentResponse;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiGetPassportEvidenceResponse;
 
 public interface PassportedEvidenceApi {
     @Operation(description = "Retrieve Passported Assessment Evidence")
@@ -17,9 +17,9 @@ public interface PassportedEvidenceApi {
         content =
             @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
-                schema = @Schema(implementation = ApiGetPassportedAssessmentResponse.class)
+                schema = @Schema(implementation = ApiGetPassportEvidenceResponse.class)
             )
     )
     @DefaultHTTPErrorResponse
-    ResponseEntity<ApiGetPassportedAssessmentResponse> find(@PathVariable int passportedAssessmentId);
+    ResponseEntity<ApiGetPassportEvidenceResponse> find(@PathVariable int passportedAssessmentId);
 }
