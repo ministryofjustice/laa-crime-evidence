@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EvidenceService {
-    private final MaatCourtDataService maatCourtDataService;
+    private final MaatDataService maatDataService;
 
     public ApiCalculateEvidenceFeeResponse calculateEvidenceFee(CrimeEvidenceDTO crimeEvidenceDTO) {
         ApiCalculateEvidenceFeeResponse apiProcessRepOrderResponse = new ApiCalculateEvidenceFeeResponse();
@@ -38,7 +38,7 @@ public class EvidenceService {
                 capEvidenceOutstandingCount = crimeEvidenceDTO.getCapitalEvidence().stream()
                         .filter(f -> f.getDateReceived() == null)
                         .count();
-                capEvidenceCount = maatCourtDataService
+                capEvidenceCount = maatDataService
                         .getCapitalAssetCount(crimeEvidenceDTO.getRepId())
                         .longValue();
             }

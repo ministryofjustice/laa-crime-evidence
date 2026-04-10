@@ -7,9 +7,11 @@ import uk.gov.justice.laa.crime.common.model.evidence.ApiCalculateEvidenceFeeRes
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCapitalEvidence;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiCreateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiEvidenceFee;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiGetPassportEvidenceResponse;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidence;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceItems;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiIncomeEvidenceMetadata;
+import uk.gov.justice.laa.crime.common.model.evidence.ApiPassportEvidenceMetadata;
 import uk.gov.justice.laa.crime.common.model.evidence.ApiUpdateIncomeEvidenceRequest;
 import uk.gov.justice.laa.crime.enums.EmploymentStatus;
 import uk.gov.justice.laa.crime.enums.EvidenceFeeLevel;
@@ -47,6 +49,8 @@ public class TestModelDataBuilder {
     public static final String TEST_USER_NAME = "mock-u";
     public static final LocalDateTime DUE_DATE = LocalDateTime.of(2024, 8, 15, 0, 0, 0);
     public static final LocalDate EVIDENCE_RECEIVED_DATE = LocalDate.of(2024, 7, 12);
+    public static final LocalDate FIRST_REMINDER_DATE = LocalDate.of(2024, 7, 19);
+    public static final int PASSPORT_ASSESSMENT_ID = 999;
 
     public static ApiCalculateEvidenceFeeRequest getApiCalculateEvidenceFeeRequest(boolean isValid) {
         return new ApiCalculateEvidenceFeeRequest()
@@ -215,5 +219,23 @@ public class TestModelDataBuilder {
                 .applicantPensionAmount(BigDecimal.TEN)
                 .partnerPensionAmount(BigDecimal.ZERO)
                 .build();
+    }
+
+    private static ApiPassportEvidenceMetadata getApiPassportEvidenceMetadata() {
+        return new ApiPassportEvidenceMetadata()
+                .withEvidenceDueDate(DateUtil.parseLocalDate(DUE_DATE))
+                .withEvidenceReceivedDate(EVIDENCE_RECEIVED_DATE)
+                .withUpliftAppliedDate(null)
+                .withUpliftRemovedDate(null)
+                .withFirstReminderDate(FIRST_REMINDER_DATE)
+                .withSecondReminderDate(null)
+                .withIncomeEvidenceNotes("This is a passported evidence note.");
+    }
+
+    public static ApiGetPassportEvidenceResponse getApiPassportEvidenceResponse() {
+        return new ApiGetPassportEvidenceResponse()
+                .withPassportEvidenceMetadata(getApiPassportEvidenceMetadata())
+                .withApplicantEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)))
+                .withPartnerEvidenceItems(List.of(getIncomeEvidence(IncomeEvidenceType.NINO)));
     }
 }

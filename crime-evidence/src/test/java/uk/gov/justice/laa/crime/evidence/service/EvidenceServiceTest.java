@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class EvidenceServiceTest {
 
     @Mock
-    private MaatCourtDataService maatCourtDataService;
+    private MaatDataService maatDataService;
 
     @InjectMocks
     private EvidenceService evidenceService;
@@ -35,7 +35,7 @@ class EvidenceServiceTest {
     @Test
     void givenValidCrimeEvidence_whenCalculateEvidenceFeeIsInvoked_validResponseIsReturned() {
         CrimeEvidenceDTO requestDTO = TestModelDataBuilder.getCrimeEvidenceDTO();
-        when(maatCourtDataService.getCapitalAssetCount(anyInt())).thenReturn(2);
+        when(maatDataService.getCapitalAssetCount(anyInt())).thenReturn(2);
         ApiCalculateEvidenceFeeResponse response = evidenceService.calculateEvidenceFee(requestDTO);
 
         softly.assertThat(response.getEvidenceFee().getDescription())

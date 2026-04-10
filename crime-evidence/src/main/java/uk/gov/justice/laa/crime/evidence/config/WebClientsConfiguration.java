@@ -5,7 +5,7 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 import lombok.AllArgsConstructor;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
-import uk.gov.justice.laa.crime.evidence.client.MaatCourtDataApiClient;
+import uk.gov.justice.laa.crime.evidence.client.MaatDataApiClient;
 import uk.gov.justice.laa.crime.evidence.filter.Resilience4jRetryFilter;
 import uk.gov.justice.laa.crime.evidence.filter.WebClientFilters;
 
@@ -31,7 +31,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @AllArgsConstructor
 public class WebClientsConfiguration {
     public static final int MAX_IN_MEMORY_SIZE = 10485760;
-    public static final String COURT_DATA_API_WEB_CLIENT_NAME = "maatCourtDataWebClient";
+    public static final String MAAT_DATA_API_WEB_CLIENT_NAME = "maatDataWebClient";
 
     @Bean
     WebClientCustomizer webClientCustomizer() {
@@ -55,8 +55,8 @@ public class WebClientsConfiguration {
         };
     }
 
-    @Bean(COURT_DATA_API_WEB_CLIENT_NAME)
-    WebClient maatCourtDataWebClient(
+    @Bean(MAAT_DATA_API_WEB_CLIENT_NAME)
+    WebClient maatDataWebClient(
             WebClient.Builder webClientBuilder,
             ServicesConfiguration servicesConfiguration,
             ClientRegistrationRepository clientRegistrations,
@@ -67,8 +67,7 @@ public class WebClientsConfiguration {
         oauthFilter.setDefaultClientRegistrationId(
                 servicesConfiguration.getMaatApi().getRegistrationId());
 
-        Resilience4jRetryFilter retryFilter =
-                new Resilience4jRetryFilter(retryRegistry, COURT_DATA_API_WEB_CLIENT_NAME);
+        Resilience4jRetryFilter retryFilter = new Resilience4jRetryFilter(retryRegistry, MAAT_DATA_API_WEB_CLIENT_NAME);
 
         return webClientBuilder
                 .baseUrl(servicesConfiguration.getMaatApi().getBaseUrl())
@@ -77,12 +76,11 @@ public class WebClientsConfiguration {
     }
 
     @Bean
-    MaatCourtDataApiClient maatCourtDataApiClient(
-            @Qualifier(COURT_DATA_API_WEB_CLIENT_NAME) WebClient maatCourtDataWebClient) {
+    MaatDataApiClient maatDataApiClient(@Qualifier(MAAT_DATA_API_WEB_CLIENT_NAME) WebClient maatDataWebClient) {
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builderFor(
-                        WebClientAdapter.create(maatCourtDataWebClient))
+                        WebClientAdapter.create(maatDataWebClient))
                 .build();
-        return httpServiceProxyFactory.createClient(MaatCourtDataApiClient.class);
+        return httpServiceProxyFactory.createClient(MaatDataApiClient.class);
     }
 
     private void configureFilters(
