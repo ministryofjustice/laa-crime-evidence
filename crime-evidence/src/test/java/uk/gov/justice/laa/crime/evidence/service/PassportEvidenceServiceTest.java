@@ -6,7 +6,8 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder.getApiPassportEvidenceResponse;
 
 import uk.gov.justice.laa.crime.common.model.evidence.ApiGetPassportEvidenceResponse;
-import uk.gov.justice.laa.crime.evidence.client.MaatCourtDataApiClient;
+import uk.gov.justice.laa.crime.evidence.client.MaatDataApiClient;
+import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,23 +16,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PassportedEvidenceServiceTest {
-
-    private static final int PASSPORTED_ASSESSMENT_ID = 999;
+class PassportEvidenceServiceTest {
 
     @Mock
-    private MaatCourtDataApiClient maatCourtDataApiClient;
+    private MaatDataApiClient maatDataApiClient;
 
     @InjectMocks
-    private PassportedEvidenceService passportedEvidenceService;
+    private PassportEvidenceService passportEvidenceService;
 
     @Test
-    void givenValidId_whenGetPassportedEvidenceIsInvoked_thenPassportedEvidenceResponseReturned() {
+    void givenValidId_whenGetPassportEvidenceIsInvoked_thenPassportEvidenceResponseReturned() {
         ApiGetPassportEvidenceResponse expectedResponse = getApiPassportEvidenceResponse();
-        when(maatCourtDataApiClient.getPassportedEvidence(anyInt())).thenReturn(expectedResponse);
+        when(maatDataApiClient.getPassportEvidence(anyInt())).thenReturn(expectedResponse);
 
         ApiGetPassportEvidenceResponse actualResponse =
-                passportedEvidenceService.getPassportedEvidence(PASSPORTED_ASSESSMENT_ID);
+                passportEvidenceService.getPassportEvidence(TestModelDataBuilder.PASSPORT_ASSESSMENT_ID);
 
         assertThat(actualResponse).isEqualTo(expectedResponse);
     }

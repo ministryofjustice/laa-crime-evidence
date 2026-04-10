@@ -29,12 +29,12 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureObservability
-class PassportedEvidenceIntegrationTest extends IntegrationTestBase {
+class PassportEvidenceIntegrationTest extends IntegrationTestBase {
 
-    private static final int PASSPORTED_ASSESSMENT_ID = 999;
-    private static final String ENDPOINT_URL = "/api/internal/v1/evidence/passported";
-    private static final String MAAT_API_PASSPORTED_EVIDENCE_URL =
-            String.format("/api/internal/v1/assessment/passport-assessments/%d/evidence", PASSPORTED_ASSESSMENT_ID);
+    private static final String ENDPOINT_URL = "/api/internal/v1/evidence/passport";
+    private static final String MAAT_API_PASSPORT_EVIDENCE_URL = String.format(
+            "/api/internal/v1/assessment/passport-assessments/%d/evidence",
+            TestModelDataBuilder.PASSPORT_ASSESSMENT_ID);
 
     @Autowired
     private MockMvc mvc;
@@ -46,13 +46,13 @@ class PassportedEvidenceIntegrationTest extends IntegrationTestBase {
     void givenValidRequest_whenGetEndpointIsCalled_thenPassportEvidenceResponseReturned() throws Exception {
         String response = objectMapper.writeValueAsString(TestModelDataBuilder.getApiPassportEvidenceResponse());
 
-        wiremock.stubFor(get(urlEqualTo(MAAT_API_PASSPORTED_EVIDENCE_URL))
+        wiremock.stubFor(get(urlEqualTo(MAAT_API_PASSPORT_EVIDENCE_URL))
                 .willReturn(WireMock.ok()
                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .withBody(response)));
 
-        MvcResult result = mvc.perform(
-                        RequestBuilderUtils.buildRequest(HttpMethod.GET, ENDPOINT_URL + "/" + PASSPORTED_ASSESSMENT_ID))
+        MvcResult result = mvc.perform(RequestBuilderUtils.buildRequest(
+                        HttpMethod.GET, ENDPOINT_URL + "/" + TestModelDataBuilder.PASSPORT_ASSESSMENT_ID))
                 .andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -63,16 +63,17 @@ class PassportedEvidenceIntegrationTest extends IntegrationTestBase {
     @Test
     void givenUnauthorisedRequest_whenGetEndpointIsCalled_thenUnauthorisedErrorResponseReturned() throws Exception {
         mvc.perform(RequestBuilderUtils.buildRequest(
-                        HttpMethod.GET, ENDPOINT_URL + "/" + PASSPORTED_ASSESSMENT_ID, false))
+                        HttpMethod.GET, ENDPOINT_URL + "/" + TestModelDataBuilder.PASSPORT_ASSESSMENT_ID, false))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void givenErrorResponseFromMaatApi_whenGetEndpointIsCalled_thenInternalServerErrorResponseReturned()
             throws Exception {
-        wiremock.stubFor(get(urlEqualTo(MAAT_API_PASSPORTED_EVIDENCE_URL)).willReturn(WireMock.serverError()));
+        wiremock.stubFor(get(urlEqualTo(MAAT_API_PASSPORT_EVIDENCE_URL)).willReturn(WireMock.serverError()));
 
-        mvc.perform(RequestBuilderUtils.buildRequest(HttpMethod.GET, ENDPOINT_URL + "/" + PASSPORTED_ASSESSMENT_ID))
+        mvc.perform(RequestBuilderUtils.buildRequest(
+                        HttpMethod.GET, ENDPOINT_URL + "/" + TestModelDataBuilder.PASSPORT_ASSESSMENT_ID))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", containsString("500 Internal Server Error")));

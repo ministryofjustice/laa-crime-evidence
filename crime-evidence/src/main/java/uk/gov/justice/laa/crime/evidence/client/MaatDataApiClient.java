@@ -7,10 +7,10 @@ import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 
 @HttpExchange
-public interface MaatCourtDataApiClient {
+public interface MaatDataApiClient {
     @GetExchange("/rep-orders/{repId}/capital-assets/count")
     Integer getCapitalAssetCount(@PathVariable Integer repId);
 
-    @GetExchange("/passport-assessments/{passportedAssessmentId}/evidence")
-    ApiGetPassportEvidenceResponse getPassportedEvidence(@PathVariable int passportedAssessmentId);
+    @GetExchange("/passport-assessments/{passportAssessmentId}/evidence")
+    ApiGetPassportEvidenceResponse getPassportEvidence(@PathVariable int passportAssessmentId);
 }

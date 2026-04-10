@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
-public interface PassportedEvidenceApi {
+public interface PassportEvidenceApi {
     @Operation(description = "Retrieve Passported Assessment Evidence")
     @ApiResponse(
             responseCode = "200",

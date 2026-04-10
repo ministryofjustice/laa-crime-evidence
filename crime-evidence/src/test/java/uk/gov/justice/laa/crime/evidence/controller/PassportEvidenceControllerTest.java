@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import uk.gov.justice.laa.crime.evidence.data.builder.TestModelDataBuilder;
-import uk.gov.justice.laa.crime.evidence.service.PassportedEvidenceService;
+import uk.gov.justice.laa.crime.evidence.service.PassportEvidenceService;
 import uk.gov.justice.laa.crime.evidence.tracing.TraceIdHandler;
 import uk.gov.justice.laa.crime.util.RequestBuilderUtils;
 
@@ -19,12 +19,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = PassportedEvidenceController.class)
+@WebMvcTest(controllers = PassportEvidenceController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class PassportedEvidenceControllerTest {
+class PassportEvidenceControllerTest {
 
-    private static final int PASSPORTED_ASSESSMENT_ID = 999;
-    private static final String ENDPOINT_URL = "/api/internal/v1/evidence/passported";
+    private static final String ENDPOINT_URL = "/api/internal/v1/evidence/passport";
 
     @Autowired
     private MockMvc mvc;
@@ -33,14 +32,15 @@ class PassportedEvidenceControllerTest {
     private TraceIdHandler traceIdHandler;
 
     @MockitoBean
-    private PassportedEvidenceService passportedEvidenceService;
+    private PassportEvidenceService passportEvidenceService;
 
     @Test
-    void givenValidId_whenFindIsInvoked_thenPassportedEvidenceResponseIsReturned() throws Exception {
-        when(passportedEvidenceService.getPassportedEvidence(PASSPORTED_ASSESSMENT_ID))
+    void givenValidId_whenFindIsInvoked_thenPassportEvidenceResponseIsReturned() throws Exception {
+        when(passportEvidenceService.getPassportEvidence(TestModelDataBuilder.PASSPORT_ASSESSMENT_ID))
                 .thenReturn(TestModelDataBuilder.getApiPassportEvidenceResponse());
 
-        mvc.perform(RequestBuilderUtils.buildRequest(HttpMethod.GET, ENDPOINT_URL + "/" + PASSPORTED_ASSESSMENT_ID))
+        mvc.perform(RequestBuilderUtils.buildRequest(
+                        HttpMethod.GET, ENDPOINT_URL + "/" + TestModelDataBuilder.PASSPORT_ASSESSMENT_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.applicantEvidenceItems[0].description").value("mock evidence item"));
