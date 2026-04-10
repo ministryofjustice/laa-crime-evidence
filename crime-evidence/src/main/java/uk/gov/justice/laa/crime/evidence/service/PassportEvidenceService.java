@@ -14,7 +14,7 @@ public class PassportEvidenceService {
 
     private final MaatDataApiClient maatDataApiClient;
 
-    private static final String RESPONSE_STRING = "Response from Court Data API: %s";
+    private static final String RESPONSE_STRING = "Response from MAAT Data API: %s";
 
     public ApiGetPassportEvidenceResponse getPassportEvidence(int passportAssessmentId) {
         log.debug("Request to retrieve evidence for passport assessment: {}", passportAssessmentId);
